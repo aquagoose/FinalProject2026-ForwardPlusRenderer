@@ -39,9 +39,10 @@ public class TestBase(string testName) : IDisposable
                         _running = false;
                         break;
                 }
-                
-                Loop(1.0f / 60.0f);
             }
+            
+            Loop(1.0f / 60.0f);
+            _renderer.Render();
         }
     }
 

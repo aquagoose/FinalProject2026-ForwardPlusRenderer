@@ -40,4 +40,32 @@ public class Renderer : IDisposable
         SDL.ReleaseWindowFromGPUDevice(_device, _window);
         SDL.DestroyGPUDevice(_device);
     }
+
+    public unsafe void Render()
+    {
+        IntPtr cb = SDL.AcquireGPUCommandBuffer(_device).Check("Acquire command buffer");
+
+        SDL.WaitAndAcquireGPUSwapchainTexture(cb, _window, out IntPtr swapchainTexture, out _, out _)
+            .Check("Acquire swapchain texture");
+
+        // Don't render anything if SDL doesn't give us anything to render to.
+        if (swapchainTexture == IntPtr.Zero)
+        {
+            SDL.CancelGPUCommandBuffer(cb);
+            return;
+        }
+
+        SDL.GPUColorTargetInfo colorTarget = new()
+        {
+            Texture = swapchainTexture,
+            ClearColor = new SDL.FColor(1.0f, 0.5f, 0.25f, 1.0f),
+            LoadOp = SDL.GPULoadOp.Clear,
+            StoreOp = SDL.GPUStoreOp.Store
+        };
+        IntPtr renderPass = SDL.BeginGPURenderPass(cb, new IntPtr(&colorTarget), 1, IntPtr.Zero)
+            .Check("Begin render pass");
+        
+        SDL.EndGPURenderPass(renderPass);
+        SDL.SubmitGPUCommandBuffer(cb).Check("Submit command buffer");
+    }
 }
