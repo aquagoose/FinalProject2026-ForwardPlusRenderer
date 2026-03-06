@@ -12,4 +12,8 @@
       <PackageReference Include="SDL3-CS.Native" Version="3.3.7" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Shaders\Materials\" />
+    </ItemGroup>
+
 </Project>

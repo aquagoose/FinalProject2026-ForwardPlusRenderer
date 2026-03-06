@@ -1,4 +1,5 @@
-﻿using SDL3;
+﻿using Renderer.Renderers;
+using SDL3;
 
 namespace Renderer;
 
@@ -6,6 +7,8 @@ public class Renderer : IDisposable
 {
     private readonly IntPtr _window;
     private readonly IntPtr _device;
+
+    private readonly IRenderer _renderer;
 
     public Renderer(IntPtr sdlWindow)
     {
@@ -37,6 +40,7 @@ public class Renderer : IDisposable
 
     public void Dispose()
     {
+        _renderer.Dispose();
         SDL.ReleaseWindowFromGPUDevice(_device, _window);
         SDL.DestroyGPUDevice(_device);
     }
