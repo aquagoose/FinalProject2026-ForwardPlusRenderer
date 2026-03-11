@@ -1,14 +1,22 @@
-﻿using Renderer.Renderers;
+﻿using System.Runtime.CompilerServices;
+using Renderer.Renderers;
 using SDL3;
 
 namespace Renderer;
 
 public class Renderer : IDisposable
 {
+    // 64mb transfer buffer
+    private const uint TransferBufferSize = 64 * 1024 * 1024;
+    
     private readonly IntPtr _window;
-    private readonly IntPtr _device;
-
+    // Global transfer buffer for all transfer operations.
+    private readonly IntPtr _transferBuffer;
+    private readonly uint _currentTransferBufferOffset;
+    
     private readonly IRenderer _renderer;
+    
+    internal readonly IntPtr Device;
 
     public Renderer(IntPtr sdlWindow)
     {
@@ -33,21 +41,25 @@ public class Renderer : IDisposable
         SDL.SetBooleanProperty(deviceProps, SDL.Props.GPUDeviceCreatePreferLowPowerBoolean, true);
 #endif
 
-        _device = SDL.CreateGPUDeviceWithProperties(deviceProps).Check("Create device");
-        
-        SDL.ClaimWindowForGPUDevice(_device, _window).Check("Claim window for device");
+        Device = SDL.CreateGPUDeviceWithProperties(deviceProps).Check("Create device");
+        SDL.ClaimWindowForGPUDevice(Device, _window).Check("Claim window for device");
+
+        _transferBuffer = SDLUtils.CreateTransferBuffer(Device, SDL.GPUTransferBufferUsage.Upload, TransferBufferSize);
     }
 
     public void Dispose()
     {
-        _renderer.Dispose();
-        SDL.ReleaseWindowFromGPUDevice(_device, _window);
-        SDL.DestroyGPUDevice(_device);
+        //_renderer.Dispose();
+        
+        SDL.ReleaseGPUTransferBuffer(Device, _transferBuffer);
+        
+        SDL.ReleaseWindowFromGPUDevice(Device, _window);
+        SDL.DestroyGPUDevice(Device);
     }
 
     public unsafe void Render()
     {
-        IntPtr cb = SDL.AcquireGPUCommandBuffer(_device).Check("Acquire command buffer");
+        IntPtr cb = SDL.AcquireGPUCommandBuffer(Device).Check("Acquire command buffer");
 
         SDL.WaitAndAcquireGPUSwapchainTexture(cb, _window, out IntPtr swapchainTexture, out _, out _)
             .Check("Acquire swapchain texture");
@@ -70,6 +82,39 @@ public class Renderer : IDisposable
             .Check("Begin render pass");
         
         SDL.EndGPURenderPass(renderPass);
+        SDL.SubmitGPUCommandBuffer(cb).Check("Submit command buffer");
+    }
+
+    internal unsafe void UpdateBuffer<T>(IntPtr buffer, uint offset, in ReadOnlySpan<T> data) where T : unmanaged
+    {
+        uint size = (uint) (data.Length * sizeof(T));
+        
+        void* transferPtr = (void*) SDL.MapGPUTransferBuffer(Device, _transferBuffer, true);
+        fixed (T* pData = data)
+        {
+            Unsafe.CopyBlock((byte*) transferPtr + _currentTransferBufferOffset, pData, size);
+        }
+        SDL.UnmapGPUTransferBuffer(Device, _transferBuffer);
+
+        IntPtr cb = SDL.AcquireGPUCommandBuffer(Device).Check("Acquire command buffer");
+        IntPtr pass = SDL.BeginGPUCopyPass(cb).Check("Begin copy pass");
+
+        SDL.GPUTransferBufferLocation src = new()
+        {
+            TransferBuffer = _transferBuffer,
+            Offset = _currentTransferBufferOffset
+        };
+
+        SDL.GPUBufferRegion dest = new()
+        {
+            Buffer = buffer,
+            Offset = offset,
+            Size = size
+        };
+        
+        SDL.UploadToGPUBuffer(pass, in src, in dest, false);
+        
+        SDL.EndGPUCopyPass(pass);
         SDL.SubmitGPUCommandBuffer(cb).Check("Submit command buffer");
     }
 }

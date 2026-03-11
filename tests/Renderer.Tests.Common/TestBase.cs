@@ -46,7 +46,7 @@ public class TestBase(string testName) : IDisposable
         }
     }
 
-    public void Dispose()
+    public virtual void Dispose()
     {
         _renderer.Dispose();
         SDL.DestroyWindow(_window);

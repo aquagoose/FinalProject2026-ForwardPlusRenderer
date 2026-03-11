@@ -17,4 +17,26 @@ internal static class SDLUtils
         if (!b)
             throw new Exception($"SDL operation '{operation}' failed: {SDL.GetError()}");
     }
+
+    public static IntPtr CreateBuffer(IntPtr device, SDL.GPUBufferUsageFlags usage, uint size)
+    {
+        SDL.GPUBufferCreateInfo bufferInfo = new()
+        {
+            Usage = usage,
+            Size = size
+        };
+
+        return SDL.CreateGPUBuffer(device, in bufferInfo).Check("Create buffer");
+    }
+
+    public static IntPtr CreateTransferBuffer(IntPtr device, SDL.GPUTransferBufferUsage usage, uint size)
+    {
+        SDL.GPUTransferBufferCreateInfo bufferInfo = new()
+        {
+            Usage = usage,
+            Size = size
+        };
+
+        return SDL.CreateGPUTransferBuffer(device, in bufferInfo).Check("Create transfer buffer");
+    }
 }
