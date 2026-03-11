@@ -1,6 +1,6 @@
 using SDL3;
 
-namespace Renderer;
+namespace Renderer.Utils;
 
 internal static class SDLUtils
 {

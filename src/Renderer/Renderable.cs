@@ -1,3 +1,4 @@
+using Renderer.Utils;
 using SDL3;
 
 namespace Renderer;

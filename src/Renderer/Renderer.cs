@@ -1,5 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using Renderer.Renderers;
+using Renderer.Utils;
 using SDL3;
 
 namespace Renderer;
