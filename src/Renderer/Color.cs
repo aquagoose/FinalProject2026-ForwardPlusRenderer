@@ -1,8 +1,11 @@
+using System.Runtime.InteropServices;
+
 namespace Renderer;
 
 /// <summary>
 /// A floating point RGBA color, optimized for sending to the GPU.
 /// </summary>
+[StructLayout(LayoutKind.Sequential)]
 public struct Color
 {
     /// <summary>
