@@ -19,6 +19,8 @@ public class Renderer : IDisposable
     
     internal readonly IntPtr Device;
 
+    internal SDL.GPUTextureFormat RendererTargetFormat => _renderer.MainTargetFormat;
+
     public Renderer(IntPtr sdlWindow)
     {
         _window = sdlWindow;
