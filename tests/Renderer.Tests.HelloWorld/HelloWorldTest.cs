@@ -20,10 +20,10 @@ public class HelloWorldTest() : TestBase("Hello World")
          */
         ReadOnlySpan<Vertex> vertices =
         [
-            new Vertex(new Vector3(-0.5f, -0.5f, 0), new Vector2(0, 0), new Color(1.0f, 1.0f, 1.0f)), // 0
-            new Vertex(new Vector3(-0.5f,  0.5f, 0), new Vector2(0, 1), new Color(1.0f, 1.0f, 1.0f)), // 1
-            new Vertex(new Vector3( 0.5f,  0.5f, 0), new Vector2(1, 1), new Color(1.0f, 1.0f, 1.0f)), // 2
-            new Vertex(new Vector3( 0.5f, -0.5f, 0), new Vector2(1, 0), new Color(1.0f, 1.0f, 1.0f))  // 3
+            new Vertex(new Vector3(-0.5f, -0.5f, 0), new Vector2(0, 0), new Color(1.0f, 0.0f, 0.0f)), // 0
+            new Vertex(new Vector3(-0.5f,  0.5f, 0), new Vector2(0, 1), new Color(0.0f, 1.0f, 0.0f)), // 1
+            new Vertex(new Vector3( 0.5f,  0.5f, 0), new Vector2(1, 1), new Color(0.0f, 0.0f, 1.0f)), // 2
+            new Vertex(new Vector3( 0.5f, -0.5f, 0), new Vector2(1, 0), new Color(0.0f, 0.0f, 0.0f))  // 3
         ];
 
         ReadOnlySpan<uint> indices =
@@ -33,7 +33,13 @@ public class HelloWorldTest() : TestBase("Hello World")
         ];
 
         _material = new UnlitMaterial(Renderer);
-        _renderable = new Renderable(Renderer, vertices, indices);
+        _renderable = new Renderable(Renderer, _material, vertices, indices);
+    }
+
+    protected override void Loop(float dt)
+    {
+        Matrix4x4 world = Matrix4x4.Identity;
+        Renderer.Draw(_renderable, world);
     }
 
     public override void Dispose()

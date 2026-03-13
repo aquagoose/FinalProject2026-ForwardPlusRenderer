@@ -1,3 +1,4 @@
+using Renderer.Materials;
 using Renderer.Utils;
 using SDL3;
 
@@ -7,12 +8,18 @@ public class Renderable : IDisposable
 {
     private readonly Renderer _renderer;
 
-    public readonly IntPtr VertexBuffer;
-    public readonly IntPtr IndexBuffer;
+    internal readonly IntPtr VertexBuffer;
+    internal readonly IntPtr IndexBuffer;
 
-    public unsafe Renderable(Renderer renderer, in ReadOnlySpan<Vertex> vertices, in ReadOnlySpan<uint> indices)
+    internal readonly uint NumDraws;
+
+    public Material Material;
+
+    public unsafe Renderable(Renderer renderer, Material material, in ReadOnlySpan<Vertex> vertices,
+        in ReadOnlySpan<uint> indices)
     {
         _renderer = renderer;
+        Material = material;
         IntPtr device = _renderer.Device;
 
         VertexBuffer = SDLUtils.CreateBuffer(device, SDL.GPUBufferUsageFlags.Vertex,
@@ -22,6 +29,8 @@ public class Renderable : IDisposable
         IndexBuffer =
             SDLUtils.CreateBuffer(device, SDL.GPUBufferUsageFlags.Index, (uint) (indices.Length * sizeof(uint)));
         _renderer.UpdateBuffer(IndexBuffer, 0, in indices);
+
+        NumDraws = (uint) indices.Length;
     }
     
     public void Dispose()

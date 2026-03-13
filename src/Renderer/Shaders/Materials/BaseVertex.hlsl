@@ -14,12 +14,12 @@ struct VertexOutput
     float4 Color:    COLOR0;
 };
 
-cbuffer CameraData : register(b0, space0)
+cbuffer CameraData : register(b0, space1)
 {
     Camera gCamera;
 }
 
-cbuffer DrawData : register(b1, space0)
+cbuffer DrawData : register(b1, space1)
 {
     float4x4 World;
 }

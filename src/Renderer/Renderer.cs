@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Numerics;
+using System.Runtime.CompilerServices;
 using Renderer.Renderers;
 using Renderer.Utils;
 using SDL3;
@@ -19,7 +20,7 @@ public class Renderer : IDisposable
     
     internal readonly IntPtr Device;
 
-    internal SDL.GPUTextureFormat RendererTargetFormat => _renderer.MainTargetFormat;
+    internal SDL.GPUTextureFormat RendererTargetFormat => SDL.GetGPUSwapchainTextureFormat(Device, _window);
 
     public Renderer(IntPtr sdlWindow)
     {
@@ -62,7 +63,17 @@ public class Renderer : IDisposable
         SDL.DestroyGPUDevice(Device);
     }
 
-    public unsafe void Render()
+    public void Draw(Renderable renderable, in Matrix4x4 world)
+    {
+        _renderer.AddOpaqueRenderable(renderable, in world);
+    }
+
+    public void NewFrame()
+    {
+        _renderer.ClearDrawQueues();
+    }
+
+    public void Render()
     {
         IntPtr cb = SDL.AcquireGPUCommandBuffer(Device).Check("Acquire command buffer");
 
@@ -76,17 +87,10 @@ public class Renderer : IDisposable
             return;
         }
 
-        SDL.GPUColorTargetInfo colorTarget = new()
-        {
-            Texture = swapchainTexture,
-            ClearColor = new SDL.FColor(1.0f, 0.5f, 0.25f, 1.0f),
-            LoadOp = SDL.GPULoadOp.Clear,
-            StoreOp = SDL.GPUStoreOp.Store
-        };
-        IntPtr renderPass = SDL.BeginGPURenderPass(cb, new IntPtr(&colorTarget), 1, IntPtr.Zero)
-            .Check("Begin render pass");
+        Camera camera = Camera.Perspective(new Vector3(0, 0, 3), Quaternion.Identity, float.DegreesToRadians(45),
+            1280 / 720f, 0.1f, 100f);
+        _renderer.RenderCamera(cb, swapchainTexture, RendererTargetFormat, camera);
         
-        SDL.EndGPURenderPass(renderPass);
         SDL.SubmitGPUCommandBuffer(cb).Check("Submit command buffer");
     }
 

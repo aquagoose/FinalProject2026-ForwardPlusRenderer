@@ -30,6 +30,8 @@ public class TestBase(string testName) : IDisposable
         _running = true;
         while (_running)
         {
+            _renderer.NewFrame();
+            
             while (SDL.PollEvent(out SDL.Event sdlEvent))
             {
                 switch ((SDL.EventType) sdlEvent.Type)
