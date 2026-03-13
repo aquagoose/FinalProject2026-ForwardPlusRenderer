@@ -6,9 +6,9 @@ internal static class ShaderUtils
 {
     public static unsafe IntPtr LoadShader(IntPtr device, ShaderCross.ShaderStage stage, string name)
     {
-        string fullPath = Path.Combine(AppContext.BaseDirectory, "Shaders", name);
+        string fullPath = Path.Combine(AppContext.BaseDirectory, "Shaders", $"{name}.hlsl");
         string? includeDir = Path.GetDirectoryName(fullPath);
-        SDL.GPUShaderFormat format = SDL.GetGPUShaderFormats(device);
+        //SDL.GPUShaderFormat format = SDL.GetGPUShaderFormats(device);
         string hlsl = File.ReadAllText(fullPath);
         string entryPoint = stage switch
         {

@@ -1,10 +1,12 @@
 using System.Numerics;
+using Renderer.Materials;
 using Renderer.Tests.Common;
 
 namespace Renderer.Tests.HelloWorld;
 
 public class HelloWorldTest() : TestBase("Hello World")
 {
+    private Material _material = null!;
     private Renderable _renderable = null!;
     
     protected override void Load()
@@ -30,12 +32,14 @@ public class HelloWorldTest() : TestBase("Hello World")
             1, 2, 3
         ];
 
+        _material = new UnlitMaterial(Renderer);
         _renderable = new Renderable(Renderer, vertices, indices);
     }
 
     public override void Dispose()
     {
         _renderable.Dispose();
+        _material.Dispose();
         base.Dispose();
     }
 }

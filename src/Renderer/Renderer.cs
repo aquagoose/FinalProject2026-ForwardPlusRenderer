@@ -48,11 +48,13 @@ public class Renderer : IDisposable
         SDL.ClaimWindowForGPUDevice(Device, _window).Check("Claim window for device");
 
         _transferBuffer = SDLUtils.CreateTransferBuffer(Device, SDL.GPUTransferBufferUsage.Upload, TransferBufferSize);
+
+        _renderer = new ForwardPlusRenderer(Device);
     }
 
     public void Dispose()
     {
-        //_renderer.Dispose();
+        _renderer.Dispose();
         
         SDL.ReleaseGPUTransferBuffer(Device, _transferBuffer);
         

@@ -14,7 +14,15 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Shaders\Materials\" />
+      <Content Include="Shaders/**/*.hlsl" CopyToOutputDirectory="PreserveNewest" />
+      <Content Include="Shaders/**/*.hlsli" CopyToOutputDirectory="PreserveNewest" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="ShaderCrossNative/linux-x64/*">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <Link>%(Filename)%(Extension)</Link>
+        </None>
     </ItemGroup>
 
 </Project>
