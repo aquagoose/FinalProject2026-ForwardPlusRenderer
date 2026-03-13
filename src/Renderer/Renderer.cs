@@ -17,6 +17,7 @@ public class Renderer : IDisposable
     private readonly uint _currentTransferBufferOffset;
     
     private readonly IRenderer _renderer;
+    private readonly List<Camera> _cameras;
     
     internal readonly IntPtr Device;
 
@@ -51,6 +52,7 @@ public class Renderer : IDisposable
         _transferBuffer = SDLUtils.CreateTransferBuffer(Device, SDL.GPUTransferBufferUsage.Upload, TransferBufferSize);
 
         _renderer = new ForwardPlusRenderer(Device);
+        _cameras = [];
     }
 
     public void Dispose()
@@ -63,6 +65,11 @@ public class Renderer : IDisposable
         SDL.DestroyGPUDevice(Device);
     }
 
+    public void AddCamera(in Camera camera)
+    {
+        _cameras.Add(camera);
+    }
+
     public void Draw(Renderable renderable, in Matrix4x4 world)
     {
         _renderer.AddOpaqueRenderable(renderable, in world);
@@ -71,6 +78,7 @@ public class Renderer : IDisposable
     public void NewFrame()
     {
         _renderer.ClearDrawQueues();
+        _cameras.Clear();
     }
 
     public void Render()
@@ -86,10 +94,9 @@ public class Renderer : IDisposable
             SDL.CancelGPUCommandBuffer(cb);
             return;
         }
-
-        Camera camera = Camera.Perspective(new Vector3(0, 0, 3), Quaternion.Identity, float.DegreesToRadians(45),
-            1280 / 720f, 0.1f, 100f);
-        _renderer.RenderCamera(cb, swapchainTexture, RendererTargetFormat, camera);
+        
+        foreach (Camera camera in _cameras)
+            _renderer.RenderCamera(cb, swapchainTexture, RendererTargetFormat, camera);
         
         SDL.SubmitGPUCommandBuffer(cb).Check("Submit command buffer");
     }

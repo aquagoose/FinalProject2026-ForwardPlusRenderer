@@ -8,6 +8,8 @@ public class HelloWorldTest() : TestBase("Hello World")
 {
     private Material _material = null!;
     private Renderable _renderable = null!;
+
+    private float _rotation;
     
     protected override void Load()
     {
@@ -38,8 +40,14 @@ public class HelloWorldTest() : TestBase("Hello World")
 
     protected override void Loop(float dt)
     {
-        Matrix4x4 world = Matrix4x4.Identity;
+        _rotation = (_rotation + dt) % (float.Pi * 2);
+        
+        Matrix4x4 world = Matrix4x4.CreateRotationY(_rotation);
         Renderer.Draw(_renderable, world);
+        
+        Camera camera = Camera.Perspective(new Vector3(0, 0, 3), Quaternion.Identity, float.DegreesToRadians(45),
+            1280 / 720f, 0.1f, 100f);
+        Renderer.AddCamera(camera);
     }
 
     public override void Dispose()

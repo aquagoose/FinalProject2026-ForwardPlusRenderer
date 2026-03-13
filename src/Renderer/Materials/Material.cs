@@ -93,6 +93,9 @@ public abstract class Material : IDisposable
         };
 
         Pipeline = SDL.CreateGPUGraphicsPipeline(_device, in pipelineInfo).Check("Create pipeline");
+        
+        SDL.ReleaseGPUShader(_device, pShader);
+        SDL.ReleaseGPUShader(_device, vShader);
     }
     
     public virtual void Dispose()
