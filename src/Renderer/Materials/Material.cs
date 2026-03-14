@@ -94,12 +94,20 @@ public abstract class Material : IDisposable
             ColorTargetDescriptions = new IntPtr(&colorTarget)
         };
 
+        SDL.GPUDepthStencilState depthStencilState = new()
+        {
+            EnableDepthTest = true,
+            EnableDepthWrite = true,
+            CompareOp = SDL.GPUCompareOp.LessOrEqual
+        };
+
         SDL.GPUGraphicsPipelineCreateInfo pipelineInfo = new()
         {
             VertexShader = vShader,
             FragmentShader = pShader,
             VertexInputState = vertexInput,
             TargetInfo = targetInfo,
+            DepthStencilState = depthStencilState,
             PrimitiveType = SDL.GPUPrimitiveType.TriangleList
         };
 
