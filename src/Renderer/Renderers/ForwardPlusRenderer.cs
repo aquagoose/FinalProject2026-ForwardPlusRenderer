@@ -1,5 +1,6 @@
 using System.Numerics;
 using Renderer.Materials;
+using Renderer.Renderers.Structs;
 using Renderer.Utils;
 using SDL3;
 
@@ -26,19 +27,31 @@ internal class ForwardPlusRenderer : IRenderer
         _opaques.Add((renderable, world));
     }
 
-    public unsafe void RenderCamera(IntPtr cb, IntPtr outputTarget, SDL.GPUTextureFormat outputFormat, Camera camera)
+    public unsafe void RenderCamera(IntPtr cb, IntPtr outputTarget, SDL.GPUTextureFormat outputFormat, Camera camera, bool clear)
     {
-        SDL.PushGPUVertexUniformData(cb, 0, new IntPtr(&camera), (uint) sizeof(Camera));
+        // TODO: Better way of doing this?
+        Matrix4x4.Invert(camera.View, out Matrix4x4 inverseView);
+        ShaderCamera shaderCamera = new ShaderCamera(camera.Projection, camera.View, new Vector4(inverseView.Translation, 0));
+        SDL.PushGPUVertexUniformData(cb, 0, new IntPtr(&shaderCamera), (uint) sizeof(ShaderCamera));
         
         SDL.GPUColorTargetInfo targetInfo = new()
         {
             Texture = outputTarget,
             ClearColor = new SDL.FColor(1.0f, 0.5f, 0.25f, 1.0f),
-            LoadOp = SDL.GPULoadOp.Clear,
+            LoadOp = clear ? SDL.GPULoadOp.Clear : SDL.GPULoadOp.Load,
             StoreOp = SDL.GPUStoreOp.Store
         };
 
         IntPtr pass = SDL.BeginGPURenderPass(cb, new IntPtr(&targetInfo), 1, IntPtr.Zero).Check("Begin render pass");
+        SDL.SetGPUViewport(pass, new SDL.GPUViewport
+        {
+            X = camera.Viewport.X,
+            Y = camera.Viewport.Y,
+            W = camera.Viewport.Width,
+            H = camera.Viewport.Height,
+            MinDepth = 0,
+            MaxDepth = 1
+        });
         
         foreach ((Renderable renderable, Matrix4x4 world) in _opaques)
         {

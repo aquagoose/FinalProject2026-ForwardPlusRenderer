@@ -99,10 +99,14 @@ public class Renderer : IDisposable
             SDL.CancelGPUCommandBuffer(cb);
             return;
         }
-        
+
+        bool clear = true;
         foreach (Camera camera in _cameras)
-            _renderer.RenderCamera(cb, swapchainTexture, RendererTargetFormat, camera);
-        
+        {
+            _renderer.RenderCamera(cb, swapchainTexture, RendererTargetFormat, camera, clear);
+            clear = false;
+        }
+
         SDL.SubmitGPUCommandBuffer(cb).Check("Submit command buffer");
     }
 

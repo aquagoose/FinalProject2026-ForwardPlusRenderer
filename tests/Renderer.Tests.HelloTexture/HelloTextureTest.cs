@@ -1,3 +1,4 @@
+using System.Drawing;
 using System.Numerics;
 using Renderer.Materials;
 using Renderer.Primitives;
@@ -28,10 +29,15 @@ public class HelloTextureTest() : TestBase("Hello Texture")
         _rotation = (_rotation + dt) % (float.Pi * 2);
         
         Renderer.Draw(_renderable, Matrix4x4.CreateRotationY(_rotation));
-        
-        Camera camera = Camera.Perspective(new Vector3(0, 0, 3), Quaternion.Identity, float.DegreesToRadians(45),
-            1280 / 720f, 0.1f, 100f);
-        Renderer.AddCamera(in camera);
+
+        Camera camera1 = Camera.Perspective(new Vector3(0, 0, 3), Quaternion.Identity, float.DegreesToRadians(45),
+            new Rectangle(0, 0, 1280 / 2, 720), 0.1f, 100f);
+        Renderer.AddCamera(in camera1);
+
+        // Multiple cameras
+        Camera camera2 = Camera.Perspective(new Vector3(0, -2, 2), Quaternion.CreateFromYawPitchRoll(0, 0.8f, 0), float.DegreesToRadians(45),
+            new Rectangle(1280 / 2, 0, 1280 / 2, 720), 0.1f, 100f);
+        Renderer.AddCamera(in camera2);
     }
 
     public override void Dispose()

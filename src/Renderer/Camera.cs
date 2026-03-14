@@ -1,3 +1,4 @@
+using System.Drawing;
 using System.Numerics;
 
 namespace Renderer;
@@ -8,23 +9,26 @@ public struct Camera
 
     public Matrix4x4 View;
 
-    public Vector4 Position;
+    // TODO: Custom rectangle struct
+    public Rectangle Viewport;
 
-    public Camera(Matrix4x4 projection, Matrix4x4 view, Vector4 position)
+    public Camera(Matrix4x4 projection, Matrix4x4 view, Rectangle viewport)
     {
         Projection = projection;
         View = view;
-        Position = position;
+        Viewport = viewport;
     }
 
-    public static Camera Perspective(Vector3 position, Quaternion orientation, float fov, float aspect, float near, float far)
+    public static Camera Perspective(Vector3 position, Quaternion orientation, float fov, Rectangle viewport,
+        float near, float far)
     {
+        float aspect = viewport.Width / (float) viewport.Height;
         Matrix4x4 projection = Matrix4x4.CreatePerspectiveFieldOfView(fov, aspect, near, far);
 
         Vector3 forward = Vector3.Transform(-Vector3.UnitZ, orientation);
         Vector3 up = Vector3.Transform(Vector3.UnitY, orientation);
         Matrix4x4 view = Matrix4x4.CreateLookAt(position, position + forward, up);
 
-        return new Camera(projection, view, new Vector4(position, 0));
+        return new Camera(projection, view, viewport);
     }
 }
