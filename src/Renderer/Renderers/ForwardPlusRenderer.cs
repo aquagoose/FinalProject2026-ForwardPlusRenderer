@@ -48,6 +48,9 @@ internal class ForwardPlusRenderer : IRenderer
             
             SDL.BindGPUGraphicsPipeline(pass, material.Pipeline);
 
+            SDL.GPUTextureSamplerBinding[] textureBindings = material.TextureBindings;
+            SDL.BindGPUFragmentSamplers(pass, 0, textureBindings, (uint) textureBindings.Length);
+
             SDL.GPUBufferBinding vertexBufferBinding = new()
             {
                 Buffer = renderable.VertexBuffer,

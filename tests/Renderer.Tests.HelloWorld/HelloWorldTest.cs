@@ -34,7 +34,7 @@ public class HelloWorldTest() : TestBase("Hello World")
             1, 2, 3
         ];
 
-        _material = new UnlitMaterial(Renderer);
+        _material = new UnlitMaterial(Renderer, Renderer.WhiteTexture);
         _renderable = new Renderable(Renderer, _material, vertices, indices);
     }
 

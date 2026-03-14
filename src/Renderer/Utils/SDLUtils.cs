@@ -39,4 +39,22 @@ internal static class SDLUtils
 
         return SDL.CreateGPUTransferBuffer(device, in bufferInfo).Check("Create transfer buffer");
     }
+
+    public static IntPtr CreateTexture(IntPtr device, SDL.GPUTextureType type, SDL.GPUTextureFormat format, uint width,
+        uint height, SDL.GPUTextureUsageFlags usage)
+    {
+        SDL.GPUTextureCreateInfo textureInfo = new()
+        {
+            Type = type,
+            Format = format,
+            Width = width,
+            Height = height,
+            Usage = usage,
+            LayerCountOrDepth = 1,
+            NumLevels = 1,
+            SampleCount = SDL.GPUSampleCount.SampleCount1
+        };
+
+        return SDL.CreateGPUTexture(device, in textureInfo).Check("Create texture");
+    }
 }

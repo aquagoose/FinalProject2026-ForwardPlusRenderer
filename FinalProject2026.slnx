@@ -1,6 +1,7 @@
 <Solution>
   <Folder Name="/tests/">
     <Project Path="tests/Renderer.Tests.Common/Renderer.Tests.Common.csproj" />
+    <Project Path="tests/Renderer.Tests.HelloTexture/Renderer.Tests.HelloTexture.csproj" />
     <Project Path="tests/Renderer.Tests.HelloWorld/Renderer.Tests.HelloWorld.csproj" />
   </Folder>
   <Project Path="src/Demo/Demo.csproj" />

@@ -23,6 +23,8 @@ public class Renderer : IDisposable
 
     internal SDL.GPUTextureFormat RendererTargetFormat => SDL.GetGPUSwapchainTextureFormat(Device, _window);
 
+    public readonly Texture WhiteTexture;
+
     public Renderer(IntPtr sdlWindow)
     {
         _window = sdlWindow;
@@ -50,14 +52,17 @@ public class Renderer : IDisposable
         SDL.ClaimWindowForGPUDevice(Device, _window).Check("Claim window for device");
 
         _transferBuffer = SDLUtils.CreateTransferBuffer(Device, SDL.GPUTransferBufferUsage.Upload, TransferBufferSize);
-
-        _renderer = new ForwardPlusRenderer(Device);
+        
         _cameras = [];
+        WhiteTexture = new Texture(this, [255, 255, 255, 255], new Size(1), PixelFormat.RGBA8);
+        
+        _renderer = new ForwardPlusRenderer(Device);
     }
 
     public void Dispose()
     {
         _renderer.Dispose();
+        WhiteTexture.Dispose();
         
         SDL.ReleaseGPUTransferBuffer(Device, _transferBuffer);
         
@@ -105,6 +110,7 @@ public class Renderer : IDisposable
     {
         uint size = (uint) (data.Length * sizeof(T));
         
+        // TODO: Don't cycle the buffer!
         void* transferPtr = (void*) SDL.MapGPUTransferBuffer(Device, _transferBuffer, true);
         fixed (T* pData = data)
         {
@@ -129,6 +135,49 @@ public class Renderer : IDisposable
         };
         
         SDL.UploadToGPUBuffer(pass, in src, in dest, false);
+        
+        SDL.EndGPUCopyPass(pass);
+        SDL.SubmitGPUCommandBuffer(cb).Check("Submit command buffer");
+    }
+
+    internal unsafe void UpdateTexture<T>(IntPtr texture, uint x, uint y, uint width, uint height, uint bytesPerPixel,
+        in ReadOnlySpan<T> data) where T : unmanaged
+    {
+        uint size = width * height * bytesPerPixel;
+        
+        // TODO: Don't cycle the buffer!
+        void* transferPtr = (void*) SDL.MapGPUTransferBuffer(Device, _transferBuffer, true);
+        fixed (T* pData = data)
+        {
+            Unsafe.CopyBlock((byte*) transferPtr + _currentTransferBufferOffset, pData, size);
+        }
+        SDL.UnmapGPUTransferBuffer(Device, _transferBuffer);
+
+        IntPtr cb = SDL.AcquireGPUCommandBuffer(Device).Check("Acquire command buffer");
+        IntPtr pass = SDL.BeginGPUCopyPass(cb).Check("Begin copy pass");
+
+        SDL.GPUTextureTransferInfo src = new()
+        {
+            TransferBuffer = _transferBuffer,
+            Offset = _currentTransferBufferOffset,
+            PixelsPerRow = width,
+            RowsPerLayer = height
+        };
+
+        SDL.GPUTextureRegion dest = new()
+        {
+            Texture = texture,
+            X = x,
+            Y = x,
+            Z = 0,
+            W = width,
+            H = height,
+            D = 1,
+            Layer = 0,
+            MipLevel = 0
+        };
+        
+        SDL.UploadToGPUTexture(pass, in src, in dest, false);
         
         SDL.EndGPUCopyPass(pass);
         SDL.SubmitGPUCommandBuffer(cb).Check("Submit command buffer");

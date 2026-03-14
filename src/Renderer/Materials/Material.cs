@@ -9,11 +9,22 @@ namespace Renderer.Materials;
 public abstract class Material : IDisposable
 {
     private readonly IntPtr _device;
+
     internal readonly IntPtr Pipeline;
 
-    protected unsafe Material(Renderer renderer, string vertexShader, string pixelShader)
+    internal SDL.GPUTextureSamplerBinding[] TextureBindings
+    {
+        get
+        {
+            PopulateTextureBindings(ref field);
+            return field;
+        }
+    }
+
+    protected unsafe Material(Renderer renderer, string vertexShader, string pixelShader, uint numTextures)
     {
         _device = renderer.Device;
+        TextureBindings = new SDL.GPUTextureSamplerBinding[numTextures];
 
         IntPtr vShader = ShaderUtils.LoadShader(_device, ShaderCross.ShaderStage.Vertex, vertexShader);
         IntPtr pShader = ShaderUtils.LoadShader(_device, ShaderCross.ShaderStage.Fragment, pixelShader);
@@ -102,4 +113,6 @@ public abstract class Material : IDisposable
     {
         SDL.ReleaseGPUGraphicsPipeline(_device, Pipeline);
     }
+
+    protected internal abstract void PopulateTextureBindings(ref SDL.GPUTextureSamplerBinding[] bindings);
 }
