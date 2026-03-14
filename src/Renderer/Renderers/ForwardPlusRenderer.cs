@@ -29,22 +29,30 @@ internal class ForwardPlusRenderer : IRenderer
         _opaques.Add((renderable, world));
     }
 
-    public unsafe void RenderCamera(IntPtr cb, IntPtr outputTarget, SDL.GPUTextureFormat outputFormat, Camera camera, bool clear)
+    public unsafe void RenderCamera(IntPtr cb, IntPtr colorTexture, IntPtr depthTexture, Camera camera, bool clear)
     {
         // TODO: Better way of doing this?
         Matrix4x4.Invert(camera.View, out Matrix4x4 inverseView);
         ShaderCamera shaderCamera = new ShaderCamera(camera.Projection, camera.View, new Vector4(inverseView.Translation, 0));
         SDL.PushGPUVertexUniformData(cb, 0, new IntPtr(&shaderCamera), (uint) sizeof(ShaderCamera));
         
-        SDL.GPUColorTargetInfo targetInfo = new()
+        SDL.GPUColorTargetInfo colorTarget = new()
         {
-            Texture = outputTarget,
+            Texture = colorTexture,
             ClearColor = new SDL.FColor(BackgroundColor.R, BackgroundColor.G, BackgroundColor.B, BackgroundColor.A),
             LoadOp = clear ? SDL.GPULoadOp.Clear : SDL.GPULoadOp.Load,
             StoreOp = SDL.GPUStoreOp.Store
         };
 
-        IntPtr pass = SDL.BeginGPURenderPass(cb, new IntPtr(&targetInfo), 1, IntPtr.Zero).Check("Begin render pass");
+        SDL.GPUDepthStencilTargetInfo depthTarget = new()
+        {
+            Texture = depthTexture,
+            LoadOp = SDL.GPULoadOp.Clear,
+            StoreOp = SDL.GPUStoreOp.Store,
+            ClearDepth = 1.0f
+        };
+
+        IntPtr pass = SDL.BeginGPURenderPass(cb, new IntPtr(&colorTarget), 1, in depthTarget).Check("Begin render pass");
         SDL.SetGPUViewport(pass, new SDL.GPUViewport
         {
             X = camera.Viewport.X,

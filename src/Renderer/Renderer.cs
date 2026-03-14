@@ -15,6 +15,8 @@ public class Renderer : IDisposable
     // Global transfer buffer for all transfer operations.
     private readonly IntPtr _transferBuffer;
     private readonly uint _currentTransferBufferOffset;
+
+    private readonly IntPtr _depthTarget;
     
     private readonly IRenderer _renderer;
     private readonly List<Camera> _cameras;
@@ -61,6 +63,10 @@ public class Renderer : IDisposable
         
         _cameras = [];
         WhiteTexture = new Texture(this, [255, 255, 255, 255], new Size(1), PixelFormat.RGBA8);
+
+        SDL.GetWindowSizeInPixels(_window, out int w, out int h);
+        _depthTarget = SDLUtils.CreateTexture(Device, SDL.GPUTextureType.TextureType2D, SDL.GPUTextureFormat.D32Float,
+            (uint) w, (uint) h, SDL.GPUTextureUsageFlags.DepthStencilTarget);
         
         _renderer = new ForwardPlusRenderer(Device);
     }
@@ -68,6 +74,8 @@ public class Renderer : IDisposable
     public void Dispose()
     {
         _renderer.Dispose();
+        SDL.ReleaseGPUTexture(Device, _depthTarget);
+        
         WhiteTexture.Dispose();
         
         SDL.ReleaseGPUTransferBuffer(Device, _transferBuffer);
@@ -109,7 +117,7 @@ public class Renderer : IDisposable
         bool clear = true;
         foreach (Camera camera in _cameras)
         {
-            _renderer.RenderCamera(cb, swapchainTexture, RendererTargetFormat, camera, clear);
+            _renderer.RenderCamera(cb, swapchainTexture, _depthTarget, camera, clear);
             clear = false;
         }
 
