@@ -11,6 +11,8 @@ internal class ForwardPlusRenderer : IRenderer
     private readonly IntPtr _device;
     private readonly List<(Renderable renderable, Matrix4x4 world)> _opaques;
 
+    public Color BackgroundColor { get; set; }
+    
     public ForwardPlusRenderer(IntPtr device)
     {
         _device = device;
@@ -37,7 +39,7 @@ internal class ForwardPlusRenderer : IRenderer
         SDL.GPUColorTargetInfo targetInfo = new()
         {
             Texture = outputTarget,
-            ClearColor = new SDL.FColor(1.0f, 0.5f, 0.25f, 1.0f),
+            ClearColor = new SDL.FColor(BackgroundColor.R, BackgroundColor.G, BackgroundColor.B, BackgroundColor.A),
             LoadOp = clear ? SDL.GPULoadOp.Clear : SDL.GPULoadOp.Load,
             StoreOp = SDL.GPUStoreOp.Store
         };

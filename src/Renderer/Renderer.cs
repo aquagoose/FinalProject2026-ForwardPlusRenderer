@@ -25,6 +25,12 @@ public class Renderer : IDisposable
 
     public readonly Texture WhiteTexture;
 
+    public Color BackgroundColor
+    {
+        get => _renderer.BackgroundColor;
+        set => _renderer.BackgroundColor = value;
+    }
+
     public Renderer(IntPtr sdlWindow)
     {
         _window = sdlWindow;

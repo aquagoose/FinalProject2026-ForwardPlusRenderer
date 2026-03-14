@@ -17,6 +17,8 @@ public class HelloTextureTest() : TestBase("Hello Texture")
 
     protected override void Load()
     {
+        Renderer.BackgroundColor = Color.CornflowerBlue;
+        
         _texture = new Texture(Renderer, "Content/bagel.png");
         _material = new UnlitMaterial(Renderer, _texture);
         

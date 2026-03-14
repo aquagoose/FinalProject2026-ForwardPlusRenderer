@@ -14,6 +14,8 @@ public class HelloWorldTest() : TestBase("Hello World")
     
     protected override void Load()
     {
+        Renderer.BackgroundColor = Color.CornflowerBlue;
+        
         /*
          *   1 ------- 2
          *   |   \     |
