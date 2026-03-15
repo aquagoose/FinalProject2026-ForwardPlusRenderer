@@ -10,6 +10,15 @@ public class TestBase(string testName) : IDisposable
 
     public Renderer Renderer => _renderer;
 
+    public Size Size
+    {
+        get
+        {
+            SDL.GetWindowSizeInPixels(_window, out int w, out int h);
+            return new Size((uint) w, (uint) h);
+        }
+    }
+
     protected virtual void Load() { }
 
     protected virtual void Loop(float dt) { }
@@ -19,7 +28,7 @@ public class TestBase(string testName) : IDisposable
         if (!SDL.Init(SDL.InitFlags.Video | SDL.InitFlags.Events))
             throw new Exception($"Failed to initialize SDL: {SDL.GetError()}");
 
-        _window = SDL.CreateWindow(testName, 1280, 720, 0);
+        _window = SDL.CreateWindow(testName, 1280, 720, SDL.WindowFlags.HighPixelDensity | SDL.WindowFlags.Resizable);
         if (_window == IntPtr.Zero)
             throw new Exception($"Failed to create window: {SDL.GetError()}");
 
@@ -39,6 +48,10 @@ public class TestBase(string testName) : IDisposable
                     case SDL.EventType.WindowCloseRequested:
                     case SDL.EventType.Quit:
                         _running = false;
+                        break;
+                    
+                    case SDL.EventType.WindowResized:
+                        _renderer.Resize(Size);
                         break;
                 }
             }

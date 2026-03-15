@@ -93,7 +93,12 @@ internal class ForwardPlusRenderer : IRenderer
         
         SDL.EndGPURenderPass(pass);
     }
-    
+
+    public void Resize(Size size)
+    {
+        
+    }
+
     public void Dispose()
     {
         
