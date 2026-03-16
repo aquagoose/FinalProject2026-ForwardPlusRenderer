@@ -47,7 +47,7 @@ internal class ForwardPlusRenderer : IRenderer
         SDL.GPUDepthStencilTargetInfo depthTarget = new()
         {
             Texture = depthTexture,
-            LoadOp = SDL.GPULoadOp.Clear,
+            LoadOp = clear ? SDL.GPULoadOp.Clear : SDL.GPULoadOp.Load,
             StoreOp = SDL.GPUStoreOp.Store,
             ClearDepth = 1.0f
         };
