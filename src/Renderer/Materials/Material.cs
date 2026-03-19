@@ -122,5 +122,5 @@ public abstract class Material : IDisposable
         SDL.ReleaseGPUGraphicsPipeline(_device, Pipeline);
     }
 
-    protected internal abstract void PopulateTextureBindings(ref SDL.GPUTextureSamplerBinding[] bindings);
+    protected abstract void PopulateTextureBindings(ref SDL.GPUTextureSamplerBinding[] bindings);
 }

@@ -18,7 +18,7 @@ public class Renderer : IDisposable
 
     private IntPtr _depthTexture;
     
-    private readonly IRenderer _renderer;
+    private readonly ISceneRenderer _renderer;
     private readonly List<Camera> _cameras;
     
     internal readonly IntPtr Device;

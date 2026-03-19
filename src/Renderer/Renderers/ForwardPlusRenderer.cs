@@ -6,7 +6,7 @@ using SDL3;
 
 namespace Renderer.Renderers;
 
-internal class ForwardPlusRenderer : IRenderer
+internal class ForwardPlusRenderer : ISceneRenderer
 {
     private readonly IntPtr _device;
     private readonly List<(Renderable renderable, Matrix4x4 world)> _opaques;

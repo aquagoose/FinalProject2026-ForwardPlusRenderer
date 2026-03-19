@@ -12,7 +12,7 @@ public class UnlitMaterial : Material
         Texture = texture;
     }
 
-    protected internal override void PopulateTextureBindings(ref SDL.GPUTextureSamplerBinding[] bindings)
+    protected override void PopulateTextureBindings(ref SDL.GPUTextureSamplerBinding[] bindings)
     {
         bindings[0] = new SDL.GPUTextureSamplerBinding
         {
