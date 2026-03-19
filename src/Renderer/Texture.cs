@@ -3,6 +3,10 @@ using SDL3;
 
 namespace Renderer;
 
+// TODO: Better description.
+/// <summary>
+/// A GPU-stored image that can be applied to vertices.
+/// </summary>
 public sealed class Texture : IDisposable
 {
     private readonly IntPtr _device;
@@ -12,20 +16,25 @@ public sealed class Texture : IDisposable
     // TODO: Sampler struct, Renderer.GetSampler (like Sprout)
     internal readonly IntPtr Sampler;
 
-    public Texture(Renderer renderer, byte[] data, Size size, PixelFormat format)
+    
+    /// <summary>
+    /// Create an empty <see cref="Texture"/>.
+    /// </summary>
+    /// <param name="renderer">The <see cref="Renderer"/> to associate this texture with.</param>
+    /// <param name="size">The size in pixels.</param>
+    /// <param name="format">The <see cref="PixelFormat"/> to use.</param>
+    public Texture(Renderer renderer, Size size, PixelFormat format)
     {
         _device = renderer.Device;
 
-        (SDL.GPUTextureFormat sdlFormat, uint bytesPerPixel) = format switch
+        SDL.GPUTextureFormat sdlFormat = format switch
         {
-            PixelFormat.RGBA8 => (SDL.GPUTextureFormat.R8G8B8A8Unorm, 4u),
+            PixelFormat.RGBA8 => SDL.GPUTextureFormat.R8G8B8A8Unorm,
             _ => throw new ArgumentOutOfRangeException(nameof(format), format, null)
         };
 
         TextureHandle = SDLUtils.CreateTexture(_device, SDL.GPUTextureType.TextureType2D, sdlFormat, size.Width,
             size.Height, SDL.GPUTextureUsageFlags.Sampler);
-        
-        renderer.UpdateTexture(TextureHandle, 0, 0, size.Width, size.Height, bytesPerPixel, data);
         
         SDL.GPUSamplerCreateInfo samplerInfo = new()
         {
@@ -40,11 +49,37 @@ public sealed class Texture : IDisposable
 
         Sampler = SDL.CreateGPUSampler(_device, in samplerInfo).Check("Create sampler");
     }
+    
+    /// <summary>
+    /// Create a <see cref="Texture"/> from an array of pixels.
+    /// </summary>
+    /// <param name="renderer">The <see cref="Renderer"/> to associate this texture with.</param>
+    /// <param name="data">The initial data to give the texture, if any.</param>
+    /// <param name="size">The size in pixels.</param>
+    /// <param name="format">The <see cref="PixelFormat"/> to use.</param>
+    public Texture(Renderer renderer, ReadOnlySpan<byte> data, Size size, PixelFormat format) : this(renderer, size, format)
+    {
+        uint bytesPerPixel = format.BytesPerPixel;
+        renderer.UpdateTexture(TextureHandle, 0, 0, size.Width, size.Height, bytesPerPixel, data);
+    }
 
+    /// <summary>
+    /// Create a <see cref="Texture"/> from a <see cref="Bitmap"/>.
+    /// </summary>
+    /// <param name="renderer">The <see cref="Renderer"/> to associate this texture with.</param>
+    /// <param name="bitmap">The <see cref="Bitmap"/> containing the pixel data.</param>
     public Texture(Renderer renderer, Bitmap bitmap) : this(renderer, bitmap.Data, bitmap.Size, bitmap.Format) { }
 
+    /// <summary>
+    /// Create a <see cref="Texture"/> from a file path.
+    /// </summary>
+    /// <param name="renderer">The <see cref="Renderer"/> to associate this texture with.</param>
+    /// <param name="path">The path to the image file.</param>
     public Texture(Renderer renderer, string path) : this(renderer, new Bitmap(path)) { }
 
+    /// <summary>
+    /// Dispose of this <see cref="Texture"/>.
+    /// </summary>
     public void Dispose()
     {
         SDL.ReleaseGPUSampler(_device, Sampler);

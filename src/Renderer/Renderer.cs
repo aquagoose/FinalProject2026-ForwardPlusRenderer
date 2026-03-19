@@ -6,6 +6,9 @@ using SDL3;
 
 namespace Renderer;
 
+/// <summary>
+/// The primary renderer used to draw and present 3D objects to the window.
+/// </summary>
 public class Renderer : IDisposable
 {
     // 64mb transfer buffer
@@ -14,7 +17,7 @@ public class Renderer : IDisposable
     private readonly IntPtr _window;
     // Global transfer buffer for all transfer operations.
     private readonly IntPtr _transferBuffer;
-    private readonly uint _currentTransferBufferOffset;
+    private uint _currentTransferBufferOffset;
 
     private IntPtr _depthTexture;
     
@@ -25,14 +28,24 @@ public class Renderer : IDisposable
 
     internal SDL.GPUTextureFormat RendererTargetFormat => SDL.GetGPUSwapchainTextureFormat(Device, _window);
 
+    /// <summary>
+    /// A 1x1 white texture, useful when drawing lines or materials using vertex colors.
+    /// </summary>
     public readonly Texture WhiteTexture;
 
+    /// <summary>
+    /// The renderer's background color. This will always apply to the entire frame and cannot be changed per-camera.
+    /// </summary>
     public Color BackgroundColor
     {
         get => _renderer.BackgroundColor;
         set => _renderer.BackgroundColor = value;
     }
 
+    /// <summary>
+    /// Create a <see cref="Renderer"/> from the given window.
+    /// </summary>
+    /// <param name="sdlWindow">The SDL3 window handle.</param>
     public Renderer(IntPtr sdlWindow)
     {
         _window = sdlWindow;
@@ -71,6 +84,9 @@ public class Renderer : IDisposable
         _renderer = new ForwardPlusRenderer(Device);
     }
 
+    /// <summary>
+    /// Dispose of this <see cref="Renderer"/>.
+    /// </summary>
     public void Dispose()
     {
         _renderer.Dispose();
@@ -84,22 +100,40 @@ public class Renderer : IDisposable
         SDL.DestroyGPUDevice(Device);
     }
 
+    /// <summary>
+    /// Add a <see cref="Camera"/> to render the scene with.
+    /// </summary>
+    /// <param name="camera">The <see cref="Camera"/> to add.</param>
+    /// <remarks>At least one camera must be added for the scene to render at all. The scene is not necessarily drawn in
+    /// the order the cameras are added in.</remarks>
     public void AddCamera(in Camera camera)
     {
         _cameras.Add(camera);
     }
 
+    /// <summary>
+    /// Submit a <see cref="Renderable"/> for drawing.
+    /// </summary>
+    /// <param name="renderable">The <see cref="Renderable"/> to draw.</param>
+    /// <param name="world">The world matrix.</param>
     public void Draw(Renderable renderable, in Matrix4x4 world)
     {
         _renderer.AddOpaqueRenderable(renderable, in world);
     }
 
+    /// <summary>
+    /// Clears various states and prepares the renderer for a new frame. You must call this to ensure the renderer's
+    /// state is fit for rendering.
+    /// </summary>
     public void NewFrame()
     {
         _renderer.ClearDrawQueues();
         _cameras.Clear();
     }
 
+    /// <summary>
+    /// Render and present everything to the window.
+    /// </summary>
     public void Render()
     {
         IntPtr cb = SDL.AcquireGPUCommandBuffer(Device).Check("Acquire command buffer");
@@ -124,6 +158,10 @@ public class Renderer : IDisposable
         SDL.SubmitGPUCommandBuffer(cb).Check("Submit command buffer");
     }
 
+    /// <summary>
+    /// Resize the renderer. This should be called when the window is resized.
+    /// </summary>
+    /// <param name="size">The <see cref="Size"/> in pixels.</param>
     public void Resize(Size size)
     {
         _renderer.Resize(size);

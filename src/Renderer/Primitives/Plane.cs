@@ -2,12 +2,20 @@ using System.Numerics;
 
 namespace Renderer.Primitives;
 
+/// <summary>
+/// A 2D plane with no depth.
+/// </summary>
 public class Plane : IPrimitive
 {
+    /// <inheritdoc />
     public Vertex[] Vertices { get; }
-    
+
+    /// <inheritdoc />
     public uint[] Indices { get; }
 
+    /// <summary>
+    /// Create a basic plane with 4 vertices.
+    /// </summary>
     public Plane()
     {
         /*

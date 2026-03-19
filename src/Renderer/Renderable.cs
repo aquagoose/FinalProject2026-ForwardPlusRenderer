@@ -4,6 +4,9 @@ using SDL3;
 
 namespace Renderer;
 
+/// <summary>
+/// A drawable 3D object.
+/// </summary>
 public class Renderable : IDisposable
 {
     private readonly Renderer _renderer;
@@ -13,8 +16,18 @@ public class Renderable : IDisposable
 
     internal readonly uint NumDraws;
 
+    /// <summary>
+    /// The <see cref="Materials.Material"/> that the object is associated with.
+    /// </summary>
     public Material Material;
 
+    /// <summary>
+    /// Create a <see cref="Renderable"/> from a material, vertices, and indices.
+    /// </summary>
+    /// <param name="renderer">The <see cref="Renderer"/> to associate this renderable with.</param>
+    /// <param name="material">The <see cref="Materials.Material"/> assigned to this renderable.</param>
+    /// <param name="vertices">The vertices to use.</param>
+    /// <param name="indices">The indices to use.</param>
     public unsafe Renderable(Renderer renderer, Material material, in ReadOnlySpan<Vertex> vertices,
         in ReadOnlySpan<uint> indices)
     {
@@ -33,6 +46,9 @@ public class Renderable : IDisposable
         NumDraws = (uint) indices.Length;
     }
     
+    /// <summary>
+    /// Dispose of this <see cref="Renderable"/>.
+    /// </summary>
     public void Dispose()
     {
         IntPtr device = _renderer.Device;

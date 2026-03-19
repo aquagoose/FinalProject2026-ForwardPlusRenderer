@@ -21,6 +21,13 @@ public abstract class Material : IDisposable
         }
     }
 
+    /// <summary>
+    /// Construct a material and its GPU pipelines.
+    /// </summary>
+    /// <param name="renderer">The <see cref="Renderer"/> to associate this material with.</param>
+    /// <param name="vertexShader">The vertex shader name.</param>
+    /// <param name="pixelShader">The pixel shader name.</param>
+    /// <param name="numTextures">The number of textures the material will send to the pixel shader.</param>
     protected unsafe Material(Renderer renderer, string vertexShader, string pixelShader, uint numTextures)
     {
         _device = renderer.Device;
@@ -117,10 +124,18 @@ public abstract class Material : IDisposable
         SDL.ReleaseGPUShader(_device, vShader);
     }
     
+    /// <summary>
+    /// Dispose of this <see cref="Material"/>.
+    /// </summary>
     public virtual void Dispose()
     {
         SDL.ReleaseGPUGraphicsPipeline(_device, Pipeline);
     }
 
+    /// <summary>
+    /// Populate the texture bindings array with a texture + sampler.
+    /// </summary>
+    /// <param name="bindings">The bindings array.</param>
+    /// <remarks>This array length will <b>always</b> the same length as the numTextures provided in the constructor.</remarks>
     protected abstract void PopulateTextureBindings(ref SDL.GPUTextureSamplerBinding[] bindings);
 }
