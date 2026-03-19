@@ -34,6 +34,11 @@ public class Renderer : IDisposable
     public readonly Texture WhiteTexture;
 
     /// <summary>
+    /// An empty normal map texture, useful when normal mapping is not used.
+    /// </summary>
+    public readonly Texture EmptyNormalTexture;
+
+    /// <summary>
     /// The renderer's background color. This will always apply to the entire frame and cannot be changed per-camera.
     /// </summary>
     public Color BackgroundColor

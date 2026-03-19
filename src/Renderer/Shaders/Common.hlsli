@@ -1,3 +1,5 @@
+#include "Utils.hlsli"
+
 struct Camera
 {
     float4x4 Projection;
