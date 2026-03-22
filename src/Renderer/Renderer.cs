@@ -81,6 +81,7 @@ public class Renderer : IDisposable
         
         _cameras = [];
         WhiteTexture = new Texture(this, [255, 255, 255, 255], new Size(1), PixelFormat.RGBA8);
+        EmptyNormalTexture = new Texture(this, [255, 128, 128, 255], new Size(1), PixelFormat.RGBA8);
 
         SDL.GetWindowSizeInPixels(_window, out int w, out int h);
         _depthTexture = SDLUtils.CreateTexture(Device, SDL.GPUTextureType.TextureType2D, SDL.GPUTextureFormat.D32Float,
@@ -97,6 +98,7 @@ public class Renderer : IDisposable
         _renderer.Dispose();
         SDL.ReleaseGPUTexture(Device, _depthTexture);
         
+        EmptyNormalTexture.Dispose();
         WhiteTexture.Dispose();
         
         SDL.ReleaseGPUTransferBuffer(Device, _transferBuffer);

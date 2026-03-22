@@ -5,7 +5,7 @@ namespace Renderer.Materials;
 /// <summary>
 /// The standard, lit material using the metallic-roughness-occlusion model.
 /// </summary>
-public class StandardMaterial : Material
+public sealed class StandardMaterial : Material
 {
     /// <summary>
     /// The albedo/base texture.
@@ -33,10 +33,10 @@ public class StandardMaterial : Material
     public Texture Occlusion;
 
     /// <summary>
-    /// 
+    /// Create a <see cref="StandardMaterial"/> with an albedo texture and a default set of other textures.
     /// </summary>
-    /// <param name="renderer"></param>
-    /// <param name="albedo"></param>
+    /// <param name="renderer">The <see cref="Renderer"/> to associate this material with.</param>
+    /// <param name="albedo">The albedo/base texture.</param>
     public StandardMaterial(Renderer renderer, Texture albedo)
         : base(renderer, "Materials/BaseVertex", "Materials/StandardMaterial", 5)
     {
