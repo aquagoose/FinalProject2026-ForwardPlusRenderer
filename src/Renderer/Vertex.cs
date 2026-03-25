@@ -25,15 +25,22 @@ public struct Vertex
     public Color Color;
 
     /// <summary>
+    /// The normal vector.
+    /// </summary>
+    public Vector3 Normal;
+
+    /// <summary>
     /// Create a <see cref="Vertex"/>.
     /// </summary>
     /// <param name="position">The vertex's position.</param>
     /// <param name="texCoord">The vertex's texture coordinate.</param>
     /// <param name="color">The vertex color.</param>
-    public Vertex(Vector3 position, Vector2 texCoord, Color color)
+    /// <param name="normal">The normal vector.</param>
+    public Vertex(Vector3 position, Vector2 texCoord, Color color, Vector3 normal)
     {
         Position = position;
         TexCoord = texCoord;
         Color = color;
+        Normal = normal;
     }
 }

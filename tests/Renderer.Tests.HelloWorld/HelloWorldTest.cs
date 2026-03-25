@@ -25,10 +25,10 @@ public class HelloWorldTest() : TestBase("Hello World")
          */
         ReadOnlySpan<Vertex> vertices =
         [
-            new Vertex(new Vector3(-0.5f, -0.5f, 0), new Vector2(0, 0), new Color(1.0f, 0.0f, 0.0f)), // 0
-            new Vertex(new Vector3(-0.5f,  0.5f, 0), new Vector2(0, 1), new Color(0.0f, 1.0f, 0.0f)), // 1
-            new Vertex(new Vector3( 0.5f,  0.5f, 0), new Vector2(1, 1), new Color(0.0f, 0.0f, 1.0f)), // 2
-            new Vertex(new Vector3( 0.5f, -0.5f, 0), new Vector2(1, 0), new Color(0.0f, 0.0f, 0.0f))  // 3
+            new Vertex(new Vector3(-0.5f, -0.5f, 0), new Vector2(0, 0), new Color(1.0f, 0.0f, 0.0f), Vector3.Zero), // 0
+            new Vertex(new Vector3(-0.5f,  0.5f, 0), new Vector2(0, 1), new Color(0.0f, 1.0f, 0.0f), Vector3.Zero), // 1
+            new Vertex(new Vector3( 0.5f,  0.5f, 0), new Vector2(1, 1), new Color(0.0f, 0.0f, 1.0f), Vector3.Zero), // 2
+            new Vertex(new Vector3( 0.5f, -0.5f, 0), new Vector2(1, 0), new Color(0.0f, 0.0f, 0.0f), Vector3.Zero)  // 3
         ];
 
         ReadOnlySpan<uint> indices =

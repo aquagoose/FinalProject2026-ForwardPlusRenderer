@@ -14,7 +14,13 @@ public class BasicLightingTest() : TestBase("Basic Lighting Test")
     
     protected override void Load()
     {
-        _material = new StandardMaterial(Renderer, new Texture(Renderer, "Content/DEBUG.png"));
+        _material = new StandardMaterial(Renderer, new Texture(Renderer, "/home/aqua/Downloads/armor-plating1-bl/armor-plating1_albedo.png"))
+        {
+            Normal = new Texture(Renderer, "/home/aqua/Downloads/armor-plating1-bl/armor-plating1_normal-ogl.png"),
+            Metallic = new Texture(Renderer, "/home/aqua/Downloads/armor-plating1-bl/armor-plating1_metallic.png"),
+            Roughness = new Texture(Renderer, "/home/aqua/Downloads/armor-plating1-bl/armor-plating1_roughness.png"),
+            Occlusion = new Texture(Renderer, "/home/aqua/Downloads/armor-plating1-bl/armor-plating1_ao.png")
+        };
 
         IPrimitive primitive = new Plane();
         _renderable = new Renderable(Renderer, _material, primitive.Vertices, primitive.Indices);
@@ -28,5 +34,12 @@ public class BasicLightingTest() : TestBase("Basic Lighting Test")
         Camera camera = Camera.Perspective(new Vector3(0, 0, 3), Quaternion.Identity, float.DegreesToRadians(45),
             new Rectangle(0, 0, (int) size.Width, (int) size.Height), 0.1f, 100f);
         Renderer.AddCamera(in camera);
+    }
+
+    public override void Dispose()
+    {
+        _renderable.Dispose();
+        _material.Dispose();
+        base.Dispose();
     }
 }
