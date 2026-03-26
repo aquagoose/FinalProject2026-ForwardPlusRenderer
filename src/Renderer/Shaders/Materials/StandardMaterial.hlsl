@@ -8,5 +8,6 @@ SAMPLER2D_FS(Occlusion, 4)
 
 float4 PSMain(const in VertexOutput input): SV_Target0
 {
-    return SAMPLE(Albedo, input.TexCoord) * input.Color;
+    float3 albedo = SAMPLE(Albedo, input.TexCoord) * (float3) input.Color;
+    return float4(albedo, 1.0);
 }

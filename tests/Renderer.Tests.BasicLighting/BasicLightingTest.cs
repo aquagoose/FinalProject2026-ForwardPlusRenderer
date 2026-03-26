@@ -14,12 +14,12 @@ public class BasicLightingTest() : TestBase("Basic Lighting Test")
     
     protected override void Load()
     {
-        _material = new StandardMaterial(Renderer, new Texture(Renderer, "/home/aqua/Downloads/armor-plating1-bl/armor-plating1_albedo.png"))
+        _material = new StandardMaterial(Renderer, new Texture(Renderer, "Content/PBR/metalgrid4_basecolor.png"))
         {
-            Normal = new Texture(Renderer, "/home/aqua/Downloads/armor-plating1-bl/armor-plating1_normal-ogl.png"),
-            Metallic = new Texture(Renderer, "/home/aqua/Downloads/armor-plating1-bl/armor-plating1_metallic.png"),
-            Roughness = new Texture(Renderer, "/home/aqua/Downloads/armor-plating1-bl/armor-plating1_roughness.png"),
-            Occlusion = new Texture(Renderer, "/home/aqua/Downloads/armor-plating1-bl/armor-plating1_ao.png")
+            Normal = new Texture(Renderer, "Content/PBR/metalgrid4_normal-ogl.png"),
+            Metallic = new Texture(Renderer, "Content/PBR/metalgrid4_metallic.png"),
+            Roughness = new Texture(Renderer, "Content/PBR/metalgrid4_roughness.png"),
+            Occlusion = new Texture(Renderer, "Content/PBR/metalgrid4_AO.png")
         };
 
         IPrimitive primitive = new Plane();
