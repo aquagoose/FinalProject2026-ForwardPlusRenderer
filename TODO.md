@@ -1,0 +1,26 @@
+# Renderer TODO list
+This list is generally in order from top-to-bottom.
+- [x] Simple unlit texture shader
+- [x] Multiple cameras
+- [x] Simple PBR shader
+- [ ] Textured PBR shader w/ normal mapping
+- [ ] Simple glTF model loading
+- [ ] Light casters:
+  - [ ] Directional/Sun light 
+  - [ ] Point light
+  - [ ] Spotlight
+- [ ] Forward+ using compute shaders
+- [ ] Advanced glTF model loading
+- [ ] Transparency
+- [ ] HDR
+- [ ] Shadow casting:
+  - [ ] Cascaded shadow maps
+  - [ ] Spotlight shadows
+  - [ ] Point shadows
+- [ ] SSAO/HBAO
+- [ ] Anti-Aliasing:
+  - [ ] FXAA
+  - [ ] MSAA (possible with Forward+)
+  - [ ] TAA/FSR?
+  - [ ] SMAA & others?
+- [ ] Improve PBR model using Google Filament docs & others

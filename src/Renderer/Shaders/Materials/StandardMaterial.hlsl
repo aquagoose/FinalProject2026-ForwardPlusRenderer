@@ -18,8 +18,8 @@ float4 PSMain(const in VertexOutput input): SV_Target0
 {
     //float3 albedo = SAMPLE(Normal, input.TexCoord) * (float3) input.Color;
     const float3 albedo = float3(1.0, 0.0, 0.0);
-    const float metallic = 1.0;
-    const float roughness = 1.0;
+    const float metallic = 0.14;
+    const float roughness = 0.32;
     const float ao = 1.0;
     
     const float3 normal = normalize(input.Normal);
