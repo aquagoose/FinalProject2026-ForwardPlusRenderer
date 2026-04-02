@@ -4,7 +4,7 @@ This list is generally in order from top-to-bottom.
 - [x] Multiple cameras
 - [x] Simple PBR shader
 - [x] Textured PBR shader w/ normal mapping
-- [ ] Textured Skybox
+- [x] Textured Skybox
 - [ ] Simple glTF model loading
 - [ ] Light casters:
   - [ ] Directional/Sun light 

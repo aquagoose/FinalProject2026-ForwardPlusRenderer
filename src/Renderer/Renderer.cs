@@ -88,7 +88,7 @@ public class Renderer : IDisposable
 
         SDL.GetWindowSizeInPixels(_window, out int w, out int h);
         _depthTexture = SDLUtils.CreateTexture(Device, SDL.GPUTextureType.TextureType2D, SDL.GPUTextureFormat.D32Float,
-            (uint) w, (uint) h, 1, SDL.GPUTextureUsageFlags.DepthStencilTarget);
+            (uint) w, (uint) h, 1, 1, SDL.GPUTextureUsageFlags.DepthStencilTarget);
         
         _renderer = new ForwardPlusRenderer(Device);
     }
@@ -166,6 +166,8 @@ public class Renderer : IDisposable
         {
             _renderer.RenderCamera(cb, swapchainTexture, _depthTexture, camera, clear);
             clear = false;
+            
+            camera.Skybox?.Draw(cb, swapchainTexture, _depthTexture, camera);
         }
 
         SDL.SubmitGPUCommandBuffer(cb).Check("Submit command buffer");
@@ -181,7 +183,7 @@ public class Renderer : IDisposable
         // Recreate depth texture
         SDL.ReleaseGPUTexture(Device, _depthTexture);
         _depthTexture = SDLUtils.CreateTexture(Device, SDL.GPUTextureType.TextureType2D, SDL.GPUTextureFormat.D32Float,
-            size.Width, size.Height, 1, SDL.GPUTextureUsageFlags.DepthStencilTarget);
+            size.Width, size.Height, 1, 1, SDL.GPUTextureUsageFlags.DepthStencilTarget);
     }
 
     internal unsafe void UpdateBuffer<T>(IntPtr buffer, uint offset, in ReadOnlySpan<T> data) where T : unmanaged
@@ -219,7 +221,7 @@ public class Renderer : IDisposable
     }
 
     internal unsafe void UpdateTexture<T>(IntPtr texture, uint x, uint y, uint width, uint height, uint bytesPerPixel,
-        in ReadOnlySpan<T> data) where T : unmanaged
+        in ReadOnlySpan<T> data, uint arrayLayer = 0) where T : unmanaged
     {
         uint size = width * height * bytesPerPixel;
         
@@ -251,7 +253,7 @@ public class Renderer : IDisposable
             W = width,
             H = height,
             D = 1,
-            Layer = 0,
+            Layer = arrayLayer,
             MipLevel = 0
         };
         

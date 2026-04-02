@@ -1,5 +1,6 @@
 using System.Drawing;
 using System.Numerics;
+using Renderer.Skyboxes;
 
 namespace Renderer;
 
@@ -25,16 +26,22 @@ public struct Camera
     public Rectangle Viewport;
 
     /// <summary>
+    /// The skybox for this camera, if any.
+    /// </summary>
+    public Skybox? Skybox;
+
+    /// <summary>
     /// Create a <see cref="Camera"/> with a projection &amp; view matrix.
     /// </summary>
     /// <param name="projection">The projection matrix.</param>
     /// <param name="view">The view matrix.</param>
     /// <param name="viewport">The viewport region on screen.</param>
-    public Camera(Matrix4x4 projection, Matrix4x4 view, Rectangle viewport)
+    public Camera(Matrix4x4 projection, Matrix4x4 view, Rectangle viewport, Skybox? skybox = null)
     {
         Projection = projection;
         View = view;
         Viewport = viewport;
+        Skybox = skybox;
     }
 
     /// <summary>
@@ -48,7 +55,7 @@ public struct Camera
     /// <param name="far">The far plane distance.</param>
     /// <returns>A <see cref="Camera"/> with the matrices set up for perspective.</returns>
     public static Camera Perspective(Vector3 position, Quaternion orientation, float fov, Rectangle viewport,
-        float near, float far)
+        float near, float far, Skybox? skybox = null)
     {
         float aspect = viewport.Width / (float) viewport.Height;
         Matrix4x4 projection = Matrix4x4.CreatePerspectiveFieldOfView(fov, aspect, near, far);
@@ -57,6 +64,6 @@ public struct Camera
         Vector3 up = Vector3.Transform(Vector3.UnitY, orientation);
         Matrix4x4 view = Matrix4x4.CreateLookAt(position, position + forward, up);
 
-        return new Camera(projection, view, viewport);
+        return new Camera(projection, view, viewport, skybox);
     }
 }

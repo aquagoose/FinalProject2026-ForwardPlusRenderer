@@ -8,6 +8,9 @@
 #define SAMPLER2D_PS(Name, Location) Texture2D Name : register(t##Location, space2);\
     SamplerState Name##Sampler : register(s##Location, space2);
 
+#define SAMPLERCUBE_PS(Name, Location) TextureCube Name : register(t##Location, space2);\
+    SamplerState Name##Sampler : register(s##Location, space2);
+
 // Sample from a texture.
 #define SAMPLE(Name, TexCoord) Name.Sample(Name##Sampler, TexCoord)
 

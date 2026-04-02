@@ -37,7 +37,7 @@ public sealed class Texture : IDisposable
         _mipLevels = SDLUtils.CalculateMipLevels(size.Width, size.Height);
 
         TextureHandle = SDLUtils.CreateTexture(_device, SDL.GPUTextureType.TextureType2D, sdlFormat, size.Width,
-            size.Height, _mipLevels, SDL.GPUTextureUsageFlags.Sampler | SDL.GPUTextureUsageFlags.ColorTarget);
+            size.Height, _mipLevels, 1, SDL.GPUTextureUsageFlags.Sampler | SDL.GPUTextureUsageFlags.ColorTarget);
         
         SDL.GPUSamplerCreateInfo samplerInfo = new()
         {

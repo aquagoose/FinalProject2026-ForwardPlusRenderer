@@ -47,7 +47,7 @@ internal static class SDLUtils
     }
 
     public static IntPtr CreateTexture(IntPtr device, SDL.GPUTextureType type, SDL.GPUTextureFormat format, uint width,
-        uint height, uint mipLevels, SDL.GPUTextureUsageFlags usage)
+        uint height, uint mipLevels, uint arrayLevels, SDL.GPUTextureUsageFlags usage)
     {
         SDL.GPUTextureCreateInfo textureInfo = new()
         {
@@ -56,8 +56,8 @@ internal static class SDLUtils
             Width = width,
             Height = height,
             Usage = usage,
-            LayerCountOrDepth = 1,
             NumLevels = mipLevels,
+            LayerCountOrDepth = arrayLevels,
             SampleCount = SDL.GPUSampleCount.SampleCount1
         };
 
