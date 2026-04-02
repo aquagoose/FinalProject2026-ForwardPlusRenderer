@@ -24,7 +24,7 @@ float4 PSMain(const in VertexOutput input): SV_Target0
     
     const float3 view = normalize((float3) gCamera.Position - input.WorldPos);
     
-    const float3 lightPos = float3(0.0, 1.0, 1.0);
+    const float3 lightPos = float3(0.0, 2.0, 0.0);
     const float3 l = normalize(lightPos - input.WorldPos);
     const float3 h = normalize(view + l);
     const float distance = length(lightPos - input.WorldPos);
