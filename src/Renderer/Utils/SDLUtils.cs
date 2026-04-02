@@ -18,6 +18,12 @@ internal static class SDLUtils
             throw new Exception($"SDL operation '{operation}' failed: {SDL.GetError()}");
     }
 
+    public static uint CalculateMipLevels(uint width, uint height)
+    {
+        // https://docs.vulkan.org/tutorial/latest/09_Generating_Mipmaps.html#_image_creation
+        return (uint) double.Floor(double.Log2(double.Max(width, height))) + 1;
+    }
+
     public static IntPtr CreateBuffer(IntPtr device, SDL.GPUBufferUsageFlags usage, uint size)
     {
         SDL.GPUBufferCreateInfo bufferInfo = new()
@@ -41,7 +47,7 @@ internal static class SDLUtils
     }
 
     public static IntPtr CreateTexture(IntPtr device, SDL.GPUTextureType type, SDL.GPUTextureFormat format, uint width,
-        uint height, SDL.GPUTextureUsageFlags usage)
+        uint height, uint mipLevels, SDL.GPUTextureUsageFlags usage)
     {
         SDL.GPUTextureCreateInfo textureInfo = new()
         {
@@ -51,7 +57,7 @@ internal static class SDLUtils
             Height = height,
             Usage = usage,
             LayerCountOrDepth = 1,
-            NumLevels = 1,
+            NumLevels = mipLevels,
             SampleCount = SDL.GPUSampleCount.SampleCount1
         };
 

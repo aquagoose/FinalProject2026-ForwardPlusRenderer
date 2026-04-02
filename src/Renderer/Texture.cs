@@ -10,6 +10,7 @@ namespace Renderer;
 public sealed class Texture : IDisposable
 {
     private readonly IntPtr _device;
+    private readonly uint _mipLevels;
 
     internal readonly IntPtr TextureHandle;
     
@@ -33,8 +34,10 @@ public sealed class Texture : IDisposable
             _ => throw new ArgumentOutOfRangeException(nameof(format), format, null)
         };
 
+        _mipLevels = SDLUtils.CalculateMipLevels(size.Width, size.Height);
+
         TextureHandle = SDLUtils.CreateTexture(_device, SDL.GPUTextureType.TextureType2D, sdlFormat, size.Width,
-            size.Height, SDL.GPUTextureUsageFlags.Sampler);
+            size.Height, _mipLevels, SDL.GPUTextureUsageFlags.Sampler | SDL.GPUTextureUsageFlags.ColorTarget);
         
         SDL.GPUSamplerCreateInfo samplerInfo = new()
         {
@@ -61,6 +64,10 @@ public sealed class Texture : IDisposable
     {
         uint bytesPerPixel = format.BytesPerPixel;
         renderer.UpdateTexture(TextureHandle, 0, 0, size.Width, size.Height, bytesPerPixel, data);
+        
+        // Can only generate mipmaps if there is more than one level, as SDL throws an assertion error otherwise.
+        if (_mipLevels > 1)
+            renderer.GenerateMipmapsQueue.Enqueue(TextureHandle);
     }
 
     /// <summary>

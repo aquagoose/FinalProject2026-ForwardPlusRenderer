@@ -32,8 +32,8 @@ public class BasicLightingTest() : TestBase("Basic Lighting Test")
     protected override void Loop(float dt)
     {
         _rotation += dt;
-        if (_rotation >= float.Pi * 2)
-            _rotation -= float.Pi * 2;
+        if (_rotation >= float.Pi * 2 * 4)
+            _rotation -= float.Pi * 2 * 4;
 
         Renderer.Draw(_renderable, Matrix4x4.CreateFromYawPitchRoll(_rotation, _rotation * 0.5f, _rotation * 0.25f));
         

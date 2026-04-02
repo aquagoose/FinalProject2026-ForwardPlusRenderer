@@ -26,6 +26,8 @@ public class Renderer : IDisposable
     
     internal readonly IntPtr Device;
 
+    internal readonly Queue<IntPtr> GenerateMipmapsQueue;
+
     internal SDL.GPUTextureFormat RendererTargetFormat => SDL.GetGPUSwapchainTextureFormat(Device, _window);
 
     /// <summary>
@@ -78,14 +80,15 @@ public class Renderer : IDisposable
         SDL.ClaimWindowForGPUDevice(Device, _window).Check("Claim window for device");
 
         _transferBuffer = SDLUtils.CreateTransferBuffer(Device, SDL.GPUTransferBufferUsage.Upload, TransferBufferSize);
-        
+
+        GenerateMipmapsQueue = [];
         _cameras = [];
         WhiteTexture = new Texture(this, [255, 255, 255, 255], new Size(1), PixelFormat.RGBA8);
         EmptyNormalTexture = new Texture(this, [255, 128, 128, 255], new Size(1), PixelFormat.RGBA8);
 
         SDL.GetWindowSizeInPixels(_window, out int w, out int h);
         _depthTexture = SDLUtils.CreateTexture(Device, SDL.GPUTextureType.TextureType2D, SDL.GPUTextureFormat.D32Float,
-            (uint) w, (uint) h, SDL.GPUTextureUsageFlags.DepthStencilTarget);
+            (uint) w, (uint) h, 1, SDL.GPUTextureUsageFlags.DepthStencilTarget);
         
         _renderer = new ForwardPlusRenderer(Device);
     }
@@ -154,6 +157,9 @@ public class Renderer : IDisposable
             SDL.CancelGPUCommandBuffer(cb);
             return;
         }
+        
+        while (GenerateMipmapsQueue.TryDequeue(out IntPtr texture))
+            SDL.GenerateMipmapsForGPUTexture(cb, texture);
 
         bool clear = true;
         foreach (Camera camera in _cameras)
@@ -175,7 +181,7 @@ public class Renderer : IDisposable
         // Recreate depth texture
         SDL.ReleaseGPUTexture(Device, _depthTexture);
         _depthTexture = SDLUtils.CreateTexture(Device, SDL.GPUTextureType.TextureType2D, SDL.GPUTextureFormat.D32Float,
-            size.Width, size.Height, SDL.GPUTextureUsageFlags.DepthStencilTarget);
+            size.Width, size.Height, 1, SDL.GPUTextureUsageFlags.DepthStencilTarget);
     }
 
     internal unsafe void UpdateBuffer<T>(IntPtr buffer, uint offset, in ReadOnlySpan<T> data) where T : unmanaged

@@ -3,13 +3,16 @@ This list is generally in order from top-to-bottom.
 - [x] Simple unlit texture shader
 - [x] Multiple cameras
 - [x] Simple PBR shader
-- [ ] Textured PBR shader w/ normal mapping
+- [x] Textured PBR shader w/ normal mapping
+- [ ] Textured Skybox
 - [ ] Simple glTF model loading
 - [ ] Light casters:
   - [ ] Directional/Sun light 
   - [ ] Point light
   - [ ] Spotlight
 - [ ] Forward+ using compute shaders
+- [ ] Normal mapping using Tangents + Bitangents
+- [ ] IBL
 - [ ] Advanced glTF model loading
 - [ ] Transparency
 - [ ] HDR
@@ -18,9 +21,12 @@ This list is generally in order from top-to-bottom.
   - [ ] Spotlight shadows
   - [ ] Point shadows
 - [ ] SSAO/HBAO
+- [ ] Emissive textures
 - [ ] Anti-Aliasing:
   - [ ] FXAA
   - [ ] MSAA (possible with Forward+)
   - [ ] TAA/FSR?
   - [ ] SMAA & others?
+- [ ] Height/Parallax mapping
 - [ ] Improve PBR model using Google Filament docs & others
+- [ ] Terrain rendering?

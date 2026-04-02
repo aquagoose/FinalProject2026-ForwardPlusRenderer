@@ -16,13 +16,12 @@ cbuffer CameraData : register(b0, space3)
 
 float4 PSMain(const in VertexOutput input): SV_Target0
 {
-    //float3 albedo = SAMPLE(Normal, input.TexCoord) * (float3) input.Color;
-    const float3 albedo = float3(1.0, 0.0, 0.0);
-    const float metallic = 0.14;
-    const float roughness = 0.32;
-    const float ao = 1.0;
+    float3 albedo = SAMPLE(Albedo, input.TexCoord).rgb * (float3) input.Color;
+    const float metallic = SAMPLE(Metallic, input.TexCoord).r;
+    const float roughness = SAMPLE(Roughness, input.TexCoord).r;
+    const float ao = SAMPLE(Occlusion, input.TexCoord).r;
+    const float3 normal = GetNormal(SAMPLE(Normal, input.TexCoord).rgb, input.Normal, input.TexCoord, input.WorldPos);
     
-    const float3 normal = normalize(input.Normal);
     const float3 view = normalize((float3) gCamera.Position - input.WorldPos);
     
     const float3 lightPos = float3(0.0, 1.0, 1.0);
