@@ -1,6 +1,6 @@
-#include "BaseVertex.hlsl"
+#include "Common.hlsli"
 
-SAMPLER2D_FS(Texture, 0)
+SAMPLER2D_PS(Texture, 0)
 
 float4 PSMain(const in VertexOutput input): SV_Target0
 {

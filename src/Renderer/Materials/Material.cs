@@ -36,7 +36,7 @@ public abstract class Material : IDisposable
         IntPtr vShader = ShaderUtils.LoadShader(_device, ShaderCross.ShaderStage.Vertex, vertexShader);
         IntPtr pShader = ShaderUtils.LoadShader(_device, ShaderCross.ShaderStage.Fragment, pixelShader);
 
-        const int numVertexAttributes = 3;
+        const int numVertexAttributes = 4;
         SDL.GPUVertexAttribute* vertexAttributes = stackalloc SDL.GPUVertexAttribute[numVertexAttributes]
         {
             // Position
@@ -64,6 +64,14 @@ public abstract class Material : IDisposable
                 Format = SDL.GPUVertexElementFormat.Float4,
                 Location = 2,
                 Offset = 20
+            },
+            
+            new SDL.GPUVertexAttribute()
+            {
+                BufferSlot = 0,
+                Format = SDL.GPUVertexElementFormat.Float3,
+                Location = 3,
+                Offset = 36
             }
         };
 

@@ -15,8 +15,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Content Include="Shaders/**/*.hlsl" CopyToOutputDirectory="PreserveNewest" />
-      <Content Include="Shaders/**/*.hlsli" CopyToOutputDirectory="PreserveNewest" />
+      <Content Include="Shaders/**/*.hlsl" CopyToOutputDirectory="Always" />
+      <Content Include="Shaders/**/*.hlsli" CopyToOutputDirectory="Always" />
     </ItemGroup>
 
     <ItemGroup>

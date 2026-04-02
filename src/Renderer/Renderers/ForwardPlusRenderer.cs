@@ -35,6 +35,7 @@ internal class ForwardPlusRenderer : ISceneRenderer
         Matrix4x4.Invert(camera.View, out Matrix4x4 inverseView);
         ShaderCamera shaderCamera = new ShaderCamera(camera.Projection, camera.View, new Vector4(inverseView.Translation, 0));
         SDL.PushGPUVertexUniformData(cb, 0, new IntPtr(&shaderCamera), (uint) sizeof(ShaderCamera));
+        SDL.PushGPUFragmentUniformData(cb, 0, new IntPtr(&shaderCamera), (uint) sizeof(ShaderCamera));
         
         SDL.GPUColorTargetInfo colorTarget = new()
         {
@@ -69,6 +70,10 @@ internal class ForwardPlusRenderer : ISceneRenderer
             Material material = renderable.Material;
 
             SDL.PushGPUVertexUniformData(cb, 1, new IntPtr(&world), (uint) sizeof(Matrix4x4));
+
+            Matrix4x4.Invert(world, out Matrix4x4 normalMatrix);
+            normalMatrix = Matrix4x4.Transpose(normalMatrix);
+            SDL.PushGPUVertexUniformData(cb, 2, new IntPtr(&normalMatrix), (uint) sizeof(Matrix4x4));
             
             SDL.BindGPUGraphicsPipeline(pass, material.Pipeline);
 

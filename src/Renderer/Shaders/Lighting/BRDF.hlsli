@@ -5,6 +5,8 @@
 //   - L: Normalized light vector
 //   - N: Normal vector
 
+#pragma once
+
 #include "../Math.hlsli"
 
 float SpecularD(const float roughness, const float3 n, const float3 h)
@@ -22,7 +24,7 @@ float SpecularD(const float roughness, const float3 n, const float3 h)
     return numerator / denominator;
 }
 
-float3 G(const float k, const float3 n, const float3 v)
+float G(const float k, const float3 n, const float3 v)
 {
     const float nDotV = dot(n, v);
     const float denominator = (nDotV * (1.0 - k)) + k;
@@ -30,7 +32,7 @@ float3 G(const float k, const float3 n, const float3 v)
     return nDotV / denominator;
 }
 
-float3 SpecularG(const float roughness, const float3 l, const float3 n, const float3 v)
+float SpecularG(const float roughness, const float3 l, const float3 n, const float3 v)
 {
     // Remap roughness as (roughness + 1) / 2
     float k = ((roughness + 1.0) / 2.0) + 1.0;
@@ -43,7 +45,7 @@ float3 SpecularF(const float3 v, const float3 h)
 {
     const float f0 = 0.04;
     
-    const float vDotH = dot(v, h);
+    const float vDotH = max(dot(v, h), 0.0);
     
     // TODO: Implement lighter weight version!
     return f0 + (1.0 - f0) * pow(2, (-5.55473 * vDotH - 6.98316) * vDotH);

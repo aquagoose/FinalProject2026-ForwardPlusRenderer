@@ -1,17 +1,12 @@
 #include "../Common.hlsli"
+#include "Common.hlsli"
 
 struct Vertex
 {
     float3 Position: TEXCOORD0;
     float2 TexCoord: TEXCOORD1;
     float4 Color:    TEXCOORD2;
-};
-
-struct VertexOutput
-{
-    float4 Position: SV_Position;
-    float2 TexCoord: TEXCOORD0;
-    float4 Color:    COLOR0;
+    float3 Normal:   TEXCOORD3;
 };
 
 cbuffer CameraData : register(b0, space1)
@@ -24,13 +19,20 @@ cbuffer DrawData : register(b1, space1)
     float4x4 World;
 }
 
+cbuffer TempMatrixData : register(b2, space1)
+{
+    float4x4 NormalMatrix;
+}
+
 VertexOutput VSMain(const in Vertex input)
 {
     VertexOutput output;
     
-    output.Position = mul(gCamera.Projection, mul(gCamera.View, mul(World, float4(input.Position, 1.0))));
+    output.WorldPos = (float3) mul(World, float4(input.Position, 1.0));
+    output.Position = mul(gCamera.Projection, mul(gCamera.View, float4(output.WorldPos, 1.0)));
     output.TexCoord = input.TexCoord;
     output.Color = input.Color;
+    output.Normal = mul((float3x3) NormalMatrix, input.Normal);
     
     return output;
 }
