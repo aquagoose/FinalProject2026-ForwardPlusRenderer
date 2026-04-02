@@ -106,7 +106,9 @@ public abstract class Material : IDisposable
         SDL.GPUGraphicsPipelineTargetInfo targetInfo = new()
         {
             NumColorTargets = 1,
-            ColorTargetDescriptions = new IntPtr(&colorTarget)
+            ColorTargetDescriptions = new IntPtr(&colorTarget),
+            HasDepthStencilTarget = true,
+            DepthStencilFormat = SDL.GPUTextureFormat.D32Float
         };
 
         SDL.GPUDepthStencilState depthStencilState = new()

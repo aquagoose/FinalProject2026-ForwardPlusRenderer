@@ -21,11 +21,11 @@ internal static class ShaderUtils
         ShaderCross.HLSLInfo hlslInfo = new()
         {
             ShaderStage = stage,
-            Source = hlsl,
-            Entrypoint = entryPoint,
-            IncludeDir = includeDir
+            ManagedSource = hlsl,
+            ManagedEntrypoint = entryPoint,
+            ManagedIncludeDir = includeDir
         };
-        nint spirv = ShaderCross.CompileSPIRVFromHLSL(in hlslInfo, out nuint size).Check("Compile shader from HLSL");
+        nint spirv = ShaderCross.CompileSPIRVFromHLSL(ref hlslInfo, out nuint size).Check("Compile shader from HLSL");
 
         var metadata = (ShaderCross.GraphicsShaderMetadata*) ShaderCross.ReflectGraphicsSPIRV(spirv, size, 0);
         ref var resourceInfo = ref metadata->ResourceInfo;
@@ -35,9 +35,9 @@ internal static class ShaderUtils
             ShaderStage = stage,
             ByteCode = spirv,
             ByteCodeSize = size,
-            Entrypoint = entryPoint
+            ManagedEntrypoint = entryPoint
         };
-        IntPtr shader = ShaderCross.CompileGraphicsShaderFromSPIRV(device, in spirvInfo, in resourceInfo, 0)
+        IntPtr shader = ShaderCross.CompileGraphicsShaderFromSPIRV(device, ref spirvInfo, ref resourceInfo, 0)
             .Check("Compile shader");
 
         return shader;

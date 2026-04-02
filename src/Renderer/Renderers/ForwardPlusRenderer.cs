@@ -44,8 +44,7 @@ internal class ForwardPlusRenderer : ISceneRenderer
             LoadOp = clear ? SDL.GPULoadOp.Clear : SDL.GPULoadOp.Load,
             StoreOp = SDL.GPUStoreOp.Store
         };
-
-        // TODO: Find out what is causing the validation error?
+        
         SDL.GPUDepthStencilTargetInfo depthTarget = new()
         {
             Texture = depthTexture,
