@@ -43,7 +43,7 @@ public class BasicLightingTest() : TestBase("Basic Lighting Test")
 
     protected override void Loop(float dt)
     {
-        _rotation += dt;
+        //_rotation += dt;
         if (_rotation >= float.Pi * 2 * 4)
             _rotation -= float.Pi * 2 * 4;
 
@@ -55,7 +55,7 @@ public class BasicLightingTest() : TestBase("Basic Lighting Test")
                 Matrix4x4.CreateFromYawPitchRoll(_rotation + rotationOffset, (_rotation * 0.5f) + rotationOffset, (_rotation * 0.25f) + rotationOffset) *
                 Matrix4x4.CreateTranslation(x, 0, z));
 
-            rotationOffset += 0.05f;
+            //rotationOffset += 0.05f;
         }
 
         Size size = Size;

@@ -1,7 +1,7 @@
 // https://learnopengl.com/PBR/Lighting
 
 #include "Common.hlsli"
-#include "../Lighting/BRDF.hlsli"
+#include "../Lighting/Lights.hlsli"
 
 SAMPLER2D_PS(Albedo, 0)
 SAMPLER2D_PS(Normal, 1)
@@ -21,31 +21,9 @@ float4 PSMain(const in VertexOutput input): SV_Target0
     const float roughness = SAMPLE(Roughness, input.TexCoord).r;
     const float ao = SAMPLE(Occlusion, input.TexCoord).r;
     const float3 normal = GetNormal(SAMPLE(Normal, input.TexCoord).rgb, input.Normal, input.TexCoord, input.WorldPos);
-    
     const float3 view = normalize((float3) gCamera.Position - input.WorldPos);
     
-    const float3 lightDir = float3(0.0, -1.0, 0.0);
-    const float3 l = normalize(-lightDir);
-    const float3 h = normalize(view + l);
-    /*const float distance = length(lightPos - input.WorldPos);
-    const float attenuation = 1.0 / (distance * distance);*/
-    const float3 radiance = (float3) 1.0;
-    
-    const float3 f0 = lerp((float3) 0.04, albedo, metallic);
-    
-    const float ndf = SpecularD(roughness, normal, h);
-    const float g = SpecularG(roughness, l, normal, view);
-    const float3 f = SpecularF(f0, view, h);
-    
-    const float3 kS = f;
-    float3 kD = (float3) 1.0 - kS;
-    kD *= 1.0 - metallic;
-    
-    const float3 brdf = BRDF(l, normal, view, ndf, g, f);
-    
-    const float nDotL = max(dot(normal, l), 0.0);
-    const float3 light = (kD * albedo / M_PI + brdf) * radiance * nDotL;
-    //const float3 light = specular;
+    const float3 light = DirectionalLight(float2(0, -M_PI / 2), (float3) 1.0, view, albedo, normal, metallic, roughness);
     
     const float3 ambient = (float3) 0.03 * albedo * ao;
     float3 color = ambient + light;

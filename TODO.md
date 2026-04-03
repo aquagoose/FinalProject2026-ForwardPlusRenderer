@@ -7,7 +7,7 @@ This list is generally in order from top-to-bottom.
 - [x] Textured Skybox
 - [ ] Simple glTF model loading
 - [ ] Light casters:
-  - [ ] Directional/Sun light 
+  - [x] Directional/Sun light 
   - [ ] Point light
   - [ ] Spotlight
 - [ ] Forward+ using compute shaders
