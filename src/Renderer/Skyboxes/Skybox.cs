@@ -182,6 +182,9 @@ public class Skybox : IDisposable
             Texture = _textureHandle,
             Sampler = _sampler
         };
+        // ???? SDL throws an assertion failure if I don't also bind a vertex sampler, which is not being used.
+        // I SUSPECT SDL is probably reporting an incorrect number of texture bindings in the LoadShader function
+        // I remember having this issue before. Ho hum.
         SDL.BindGPUVertexSamplers(pass, 0, new IntPtr(&textureBinding), 1);
         SDL.BindGPUFragmentSamplers(pass, 0, new IntPtr(&textureBinding), 1);
 
@@ -206,6 +209,10 @@ public class Skybox : IDisposable
 
     public virtual void Dispose()
     {
+        SDL.ReleaseGPUGraphicsPipeline(_device, _pipeline);
+        SDL.ReleaseGPUBuffer(_device, _indexBuffer);
+        SDL.ReleaseGPUBuffer(_device, _vertexBuffer);
+        SDL.ReleaseGPUSampler(_device, _sampler);
         SDL.ReleaseGPUTexture(_device, _textureHandle);
     }
 }

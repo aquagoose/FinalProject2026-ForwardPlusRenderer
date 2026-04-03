@@ -18,7 +18,7 @@ VertexOutput VSMain(const in float3 position: TEXCOORD0)
     VertexOutput output;
     
     // Cast view matrix to 3x3 matrix to remove all translation information
-    output.Position = mul(gCamera.Projection, mul((float3x3) gCamera.View, float4(position, 1.0))).xyww;
+    output.Position = mul((float4x3) gCamera.Projection, mul((float3x3) gCamera.View, position)).xyww;
     output.TexCoord = position;
     
     return output;
