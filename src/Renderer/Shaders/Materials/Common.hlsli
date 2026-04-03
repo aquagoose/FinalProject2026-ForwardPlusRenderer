@@ -1,4 +1,5 @@
-#pragma once
+#ifndef MATERIALS_COMMON_H
+#define MATERIALS_COMMON_H
 
 #include "../Common.hlsli"
 
@@ -29,3 +30,5 @@ float3 GetNormal(const float3 normalMap, const float3 normal, const float2 texCo
     
     return normalize(mul(tbn, tangentNormal));
 }
+
+#endif

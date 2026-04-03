@@ -6,7 +6,8 @@
 //   - L: Normalized light vector
 //   - N: Normal vector
 
-#pragma once
+#ifndef LIGHTING_BRDF_H
+#define LIGHTING_BRDF_H
 
 #include "../Math.hlsli"
 
@@ -62,3 +63,5 @@ float3 BRDF(const float roughness, const float3 l, const float3 n, const float3 
     
     return numerator / denominator;
 }
+
+#endif
