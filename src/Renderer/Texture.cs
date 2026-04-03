@@ -47,7 +47,9 @@ public sealed class Texture : IDisposable
             AddressModeU = SDL.GPUSamplerAddressMode.Repeat,
             AddressModeV = SDL.GPUSamplerAddressMode.Repeat,
             MinLod = 0,
-            MaxLod = float.MaxValue
+            MaxLod = float.MaxValue,
+            EnableAnisotropy = true,
+            MaxAnisotropy = 16
         };
 
         Sampler = SDL.CreateGPUSampler(_device, in samplerInfo).Check("Create sampler");
