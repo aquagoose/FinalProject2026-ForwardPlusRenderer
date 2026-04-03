@@ -66,7 +66,8 @@ public abstract class Material : IDisposable
                 Offset = 20
             },
             
-            new SDL.GPUVertexAttribute()
+            // Normal
+            new SDL.GPUVertexAttribute
             {
                 BufferSlot = 0,
                 Format = SDL.GPUVertexElementFormat.Float3,
@@ -115,7 +116,14 @@ public abstract class Material : IDisposable
         {
             EnableDepthTest = true,
             EnableDepthWrite = true,
-            CompareOp = SDL.GPUCompareOp.LessOrEqual
+            CompareOp = SDL.GPUCompareOp.LessOrEqual,
+        };
+
+        SDL.GPURasterizerState rasterizerState = new()
+        {
+            CullMode = SDL.GPUCullMode.Back,
+            FrontFace = SDL.GPUFrontFace.CounterClockwise,
+            FillMode = SDL.GPUFillMode.Fill
         };
 
         SDL.GPUGraphicsPipelineCreateInfo pipelineInfo = new()
@@ -125,6 +133,7 @@ public abstract class Material : IDisposable
             VertexInputState = vertexInput,
             TargetInfo = targetInfo,
             DepthStencilState = depthStencilState,
+            RasterizerState = rasterizerState,
             PrimitiveType = SDL.GPUPrimitiveType.TriangleList
         };
 
