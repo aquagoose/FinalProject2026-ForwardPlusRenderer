@@ -70,8 +70,16 @@ public class SkyboxTextureTest() : TestBase("Skybox Texture Test")
         float sinRot = float.Sin(_rotation) * 0.6f;
         
         Camera camera = Camera.Perspective(new Vector3(0, 0, 0), Quaternion.CreateFromYawPitchRoll(_rotation, sinRot, 0), float.DegreesToRadians(75),
-            new Rectangle(0, 0, (int) Size.Width, (int) Size.Height), 0.1f, 100f, _skybox);
+            new Rectangle(0, 0, (int) Size.Width / 2, (int) Size.Height), 0.1f, 100f, _skybox);
         Renderer.AddCamera(in camera);
+        
+        Camera camera2 = Camera.Perspective(new Vector3(0, 0, 0), Quaternion.CreateFromYawPitchRoll(-_rotation, -sinRot, 0), float.DegreesToRadians(75),
+            new Rectangle((int) Size.Width / 2, 0, (int) Size.Width / 2, (int) Size.Height / 2), 0.1f, 100f, _skybox);
+        Renderer.AddCamera(in camera2);
+        
+        Camera camera3 = Camera.Perspective(new Vector3(10, -4, 2), Quaternion.CreateFromYawPitchRoll(_rotation, sinRot, 0), float.DegreesToRadians(75),
+            new Rectangle((int) Size.Width / 2, (int) Size.Height / 2, (int) Size.Width / 2, (int) Size.Height / 2), 0.1f, 100f, _skybox);
+        Renderer.AddCamera(in camera3);
     }
 
     public override void Dispose()

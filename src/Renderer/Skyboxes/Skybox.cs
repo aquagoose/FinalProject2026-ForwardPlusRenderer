@@ -165,6 +165,15 @@ public class Skybox : IDisposable
 
         IntPtr pass = SDL.BeginGPURenderPass(cb, new IntPtr(&colorTargetInfo), 1, in depthTargetInfo)
             .Check("Begin render pass");
+        SDL.SetGPUViewport(pass, new SDL.GPUViewport
+        {
+            X = camera.Viewport.X,
+            Y = camera.Viewport.Y,
+            W = camera.Viewport.Width,
+            H = camera.Viewport.Height,
+            MinDepth = 0,
+            MaxDepth = 1
+        });
         
         SDL.BindGPUGraphicsPipeline(pass, _pipeline);
 
