@@ -23,11 +23,11 @@ public class BasicLightingTest() : TestBase("Basic Lighting Test")
     {
         Renderer.BackgroundColor = Color.Black;
 
-        _albedo = new Texture(Renderer, "Content/PBR/metalgrid4_basecolor.png");
-        _normal = new Texture(Renderer, "Content/PBR/metalgrid4_normal-ogl.png");
-        _metallic = new Texture(Renderer, "Content/PBR/metalgrid4_metallic.png");
-        _roughness = new Texture(Renderer, "Content/PBR/metalgrid4_roughness.png");
-        _occlusion = new Texture(Renderer, "Content/PBR/metalgrid4_AO.png");
+        _albedo = new Texture(Renderer, "Content/PBR/metalgrid3_basecolor.png");
+        _normal = new Texture(Renderer, "Content/PBR/metalgrid3_normal-dx.png");
+        _metallic = new Texture(Renderer, "Content/PBR/metalgrid3_metallic.png");
+        _roughness = new Texture(Renderer, "Content/PBR/metalgrid3_roughness.png");
+        _occlusion = new Texture(Renderer, "Content/PBR/metalgrid3_AO.png");
         
         _material = new StandardMaterial(Renderer, _albedo)
         {

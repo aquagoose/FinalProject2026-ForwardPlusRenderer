@@ -28,7 +28,7 @@ float3 GetNormal(const float3 normalMap, const float3 normal, const float2 texCo
     const float3 b = -normalize(cross(n, t));
     const float3x3 tbn = float3x3(t, b, n);
     
-    return normalize(mul(tbn, tangentNormal));
+    return normalize(mul(tangentNormal, tbn));
 }
 
 #endif

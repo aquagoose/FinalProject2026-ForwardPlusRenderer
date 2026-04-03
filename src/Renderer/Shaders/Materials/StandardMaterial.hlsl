@@ -24,12 +24,12 @@ float4 PSMain(const in VertexOutput input): SV_Target0
     
     const float3 view = normalize((float3) gCamera.Position - input.WorldPos);
     
-    const float3 lightPos = float3(0.0, 2.0, 0.0);
-    const float3 l = normalize(lightPos - input.WorldPos);
+    const float3 lightDir = float3(0.0, -1.0, 0.0);
+    const float3 l = normalize(-lightDir);
     const float3 h = normalize(view + l);
-    const float distance = length(lightPos - input.WorldPos);
-    const float attenuation = 1.0 / (distance * distance);
-    const float3 radiance = (float3) 1.0 * attenuation;
+    /*const float distance = length(lightPos - input.WorldPos);
+    const float attenuation = 1.0 / (distance * distance);*/
+    const float3 radiance = (float3) 1.0;
     
     const float3 f0 = lerp((float3) 0.04, albedo, metallic);
     
@@ -41,14 +41,10 @@ float4 PSMain(const in VertexOutput input): SV_Target0
     float3 kD = (float3) 1.0 - kS;
     kD *= 1.0 - metallic;
     
-    const float3 numerator = ndf * g * f;
-    const float3 denominator = 4.0 * max(dot(normal, view), 0.0) * max(dot(normal, l), 0.0) + 0.0001;
-    const float3 specular = numerator / denominator;
-    
-    //const float3 brdf = BRDF(roughness, l, normal, view, h);
+    const float3 brdf = BRDF(l, normal, view, ndf, g, f);
     
     const float nDotL = max(dot(normal, l), 0.0);
-    const float3 light = (kD * albedo / M_PI + specular) * radiance * nDotL;
+    const float3 light = (kD * albedo / M_PI + brdf) * radiance * nDotL;
     //const float3 light = specular;
     
     const float3 ambient = (float3) 0.03 * albedo * ao;

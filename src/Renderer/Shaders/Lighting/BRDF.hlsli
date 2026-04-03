@@ -49,17 +49,13 @@ float3 SpecularF(const float3 f0, const float3 v, const float3 h)
     return f0 + (1.0 - f0) * pow(clamp(1.0 - vDotH, 0.0, 1.0), 5.0);
 }
 
-float3 BRDF(const float roughness, const float3 l, const float3 n, const float3 v, const float3 h)
+float3 BRDF(const float3 light, const float3 normal, const float3 view, const float ndf, const float g, const float3 f)
 {
-    const float d = SpecularD(roughness, n, h);
-    const float3 f = SpecularF(0.04, v, h);
-    const float3 g = SpecularG(roughness, l, n, v);
+    const float nDotL = max(dot(normal, light), 0.0);
+    const float nDotV = max(dot(normal, view), 0.0);
     
-    const float nDotL = dot(n, l);
-    const float nDotV = dot(n, v);
-    
-    const float3 numerator = d * f * g;
-    const float denominator = 4 * nDotL * nDotV;
+    const float3 numerator = ndf * f * g;
+    const float denominator = (4 * nDotL * nDotV) + 0.0001;
     
     return numerator / denominator;
 }
