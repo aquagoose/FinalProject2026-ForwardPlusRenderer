@@ -37,8 +37,8 @@ public sealed class StandardMaterial : Material
     /// </summary>
     /// <param name="renderer">The <see cref="Renderer"/> to associate this material with.</param>
     /// <param name="albedo">The albedo/base texture.</param>
-    public StandardMaterial(Renderer renderer, Texture albedo)
-        : base(renderer, "Materials/BaseVertex", "Materials/StandardMaterial", 5)
+    public StandardMaterial(Renderer renderer, Texture albedo, MaterialInfo info = new())
+        : base(renderer, in info, "Materials/BaseVertex", "Materials/StandardMaterial", 5)
     {
         Albedo = albedo;
         Normal = renderer.EmptyNormalTexture;

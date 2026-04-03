@@ -28,7 +28,8 @@ public abstract class Material : IDisposable
     /// <param name="vertexShader">The vertex shader name.</param>
     /// <param name="pixelShader">The pixel shader name.</param>
     /// <param name="numTextures">The number of textures the material will send to the pixel shader.</param>
-    protected unsafe Material(Renderer renderer, string vertexShader, string pixelShader, uint numTextures)
+    protected unsafe Material(Renderer renderer, ref readonly MaterialInfo info, string vertexShader,
+        string pixelShader, uint numTextures)
     {
         _device = renderer.Device;
         TextureBindings = new SDL.GPUTextureSamplerBinding[numTextures];
@@ -121,8 +122,19 @@ public abstract class Material : IDisposable
 
         SDL.GPURasterizerState rasterizerState = new()
         {
-            CullMode = SDL.GPUCullMode.Back,
-            FrontFace = SDL.GPUFrontFace.CounterClockwise,
+            CullMode = info.CullFace switch
+            {
+                CullFace.None => SDL.GPUCullMode.None,
+                CullFace.Front => SDL.GPUCullMode.Front,
+                CullFace.Back => SDL.GPUCullMode.Back,
+                _ => throw new ArgumentOutOfRangeException()
+            },
+            FrontFace = info.WindingOrder switch
+            {
+                WindingOrder.CounterClockwise => SDL.GPUFrontFace.CounterClockwise,
+                WindingOrder.Clockwise => SDL.GPUFrontFace.Clockwise,
+                _ => throw new ArgumentOutOfRangeException()
+            },
             FillMode = SDL.GPUFillMode.Fill
         };
 

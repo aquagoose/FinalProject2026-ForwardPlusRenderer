@@ -17,8 +17,8 @@ public sealed class UnlitMaterial : Material
     /// </summary>
     /// <param name="renderer">The <see cref="Renderer"/> to associate this material with.</param>
     /// <param name="texture">The <see cref="Texture"/> of the material.</param>
-    public UnlitMaterial(Renderer renderer, Texture texture)
-        : base(renderer, "Materials/BaseVertex", "Materials/UnlitMaterial", 1)
+    public UnlitMaterial(Renderer renderer, Texture texture, MaterialInfo info = new())
+        : base(renderer, in info, "Materials/BaseVertex", "Materials/UnlitMaterial", 1)
     {
         Texture = texture;
     }

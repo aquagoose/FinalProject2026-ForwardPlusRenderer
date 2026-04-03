@@ -37,7 +37,11 @@ public class HelloWorldTest() : TestBase("Hello World")
             1, 2, 3
         ];
 
-        _material = new UnlitMaterial(Renderer, Renderer.WhiteTexture);
+        _material = new UnlitMaterial(Renderer, Renderer.WhiteTexture, new MaterialInfo()
+        {
+            // Disable culling as we want to display both sides of the plane.
+            CullFace = CullFace.None
+        });
         _renderable = new Renderable(Renderer, _material, vertices, indices);
     }
 

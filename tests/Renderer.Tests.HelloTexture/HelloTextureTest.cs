@@ -20,7 +20,11 @@ public class HelloTextureTest() : TestBase("Hello Texture")
         Renderer.BackgroundColor = Color.CornflowerBlue;
         
         _texture = new Texture(Renderer, "Content/bagel.png");
-        _material = new UnlitMaterial(Renderer, _texture);
+        _material = new UnlitMaterial(Renderer, _texture, new MaterialInfo()
+        {
+            // Disable culling as we want to display both sides of the plane.
+            CullFace = CullFace.None
+        });
         
         IPrimitive primitive = new Plane();
         _renderable = new Renderable(Renderer, _material, primitive.Vertices, primitive.Indices);

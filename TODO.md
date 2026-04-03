@@ -11,6 +11,9 @@ This list is generally in order from top-to-bottom.
   - [ ] Point light
   - [ ] Spotlight
 - [ ] Forward+ using compute shaders
+- [ ] Culling:
+  - [ ] Frustum culling
+  - [ ] Occlusion culling?
 - [ ] Normal mapping using Tangents + Bitangents
 - [ ] IBL
 - [ ] Advanced glTF model loading
