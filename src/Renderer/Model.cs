@@ -15,8 +15,8 @@ public class Model : IDisposable
     {
         _assimp = Assimp.GetApi();
         Scene* scene = _assimp.ImportFile(path,
-            (uint) (PostProcessSteps.Triangulate | PostProcessSteps.GenerateSmoothNormals |
-                    PostProcessSteps.GenerateUVCoords | PostProcessSteps.MakeLeftHanded));
+            (uint) (PostProcessSteps.Triangulate | PostProcessSteps.GenerateNormals |
+                    PostProcessSteps.GenerateUVCoords | PostProcessSteps.FlipUVs));
 
         if (scene == null)
             throw new Exception($"Failed to load scene! {_assimp.GetErrorStringS()}");
@@ -53,16 +53,20 @@ public class Model : IDisposable
                 indices.Add(face->MIndices[i]);
         }
 
-        //Silk.NET.Assimp.Material* material = scene->MMaterials[mesh->MMaterialIndex];
-        //_assimp.GetMaterialProperty(material, Assimp.MaterialTe)
-        //scene->MTextures[0].
+        Silk.NET.Assimp.Material* material = scene->MMaterials[mesh->MMaterialIndex];
+        MaterialProperty* baseColorTexture;
+        _assimp.GetMaterialProperty(material, Assimp.MaterialTextureBase, (uint) TextureType.BaseColor, 0,
+            &baseColorTexture);
+        
+        uint texIndex = baseColorTexture->MIndex;
+        Silk.NET.Assimp.Texture* texture = scene->MTextures[texIndex];
 
-        //byte[] texData = new byte[str.Length];
-        //fixed (byte* pData = texData)
-        //    Unsafe.CopyBlock(pData, str.Data, str.Length);
+        byte[] texData = new byte[texture->MWidth];
+        fixed (byte* pData = texData)
+            Unsafe.CopyBlock(pData, texture->PcData, texture->MWidth);
 
-        //Texture albedo = new Texture(renderer, new Bitmap(texData));
-        Texture albedo = renderer.WhiteTexture;
+        Texture albedo = new Texture(renderer, new Bitmap(texData));
+        //Texture albedo = renderer.WhiteTexture;
 
         _renderable = new Renderable(renderer, new StandardMaterial(renderer, albedo), vertices,
             indices.ToArray());
