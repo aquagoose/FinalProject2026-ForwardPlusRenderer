@@ -17,8 +17,11 @@ cbuffer CameraData : register(b0, space3)
 float4 PSMain(const in VertexOutput input): SV_Target0
 {
     float3 albedo = SAMPLE(Albedo, input.TexCoord).rgb * (float3) input.Color;
-    const float metallic = SAMPLE(Metallic, input.TexCoord).r;
-    const float roughness = SAMPLE(Roughness, input.TexCoord).r;
+    // Sample the metallic texture's blue channel, and the roughness texture's green channel.
+    // Most Metallic-Roughness textures will provide the same color on each of the RGB channels,
+    // however this also allows for glTF metallic-roughness textures (which are combined into one) to work as well.
+    const float metallic = SAMPLE(Metallic, input.TexCoord).b;
+    const float roughness = SAMPLE(Roughness, input.TexCoord).g;
     const float ao = SAMPLE(Occlusion, input.TexCoord).r;
     const float3 normal = GetNormal(SAMPLE(Normal, input.TexCoord).rgb, input.Normal, input.TexCoord, input.WorldPos);
     const float3 view = normalize((float3) gCamera.Position - input.WorldPos);

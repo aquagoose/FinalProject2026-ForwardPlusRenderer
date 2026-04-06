@@ -5,7 +5,7 @@ This list is generally in order from top-to-bottom.
 - [x] Simple PBR shader
 - [x] Textured PBR shader w/ normal mapping
 - [x] Textured Skybox
-- [ ] Simple glTF model loading
+- [x] Simple glTF model loading
 - [ ] Light casters:
   - [x] Directional/Sun light 
   - [ ] Point light
