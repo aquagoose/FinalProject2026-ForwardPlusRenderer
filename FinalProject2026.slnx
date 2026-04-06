@@ -4,6 +4,7 @@
     <Project Path="tests/Renderer.Tests.Common/Renderer.Tests.Common.csproj" />
     <Project Path="tests/Renderer.Tests.HelloTexture/Renderer.Tests.HelloTexture.csproj" />
     <Project Path="tests/Renderer.Tests.HelloWorld/Renderer.Tests.HelloWorld.csproj" />
+    <Project Path="tests/Renderer.Tests.SimpleModelLoading/Renderer.Tests.SimpleModelLoading.csproj" />
     <Project Path="tests/Renderer.Tests.SkyboxTexture/Renderer.Tests.SkyboxTexture.csproj" />
   </Folder>
   <Project Path="src/Demo/Demo.csproj" />

@@ -62,8 +62,8 @@ public class Renderer : IDisposable
         SDL.SetBooleanProperty(deviceProps, SDL.Props.GPUDeviceCreateShadersSPIRVBoolean, true);
 
         // Enable D3D12 (using DXIL) on Windows.
-        if (OperatingSystem.IsWindows())
-            SDL.SetBooleanProperty(deviceProps, SDL.Props.GPUDeviceCreateShadersDXILBoolean, true);
+        //if (OperatingSystem.IsWindows())
+        //    SDL.SetBooleanProperty(deviceProps, SDL.Props.GPUDeviceCreateShadersDXILBoolean, true);
 
         // Enable Metal on macOS
         if (OperatingSystem.IsMacOS())
@@ -84,7 +84,7 @@ public class Renderer : IDisposable
         GenerateMipmapsQueue = [];
         _cameras = [];
         WhiteTexture = new Texture(this, [255, 255, 255, 255], new Size(1), PixelFormat.RGBA8);
-        EmptyNormalTexture = new Texture(this, [255, 128, 128, 255], new Size(1), PixelFormat.RGBA8);
+        EmptyNormalTexture = new Texture(this, [128, 128, 255, 255], new Size(1), PixelFormat.RGBA8);
 
         SDL.GetWindowSizeInPixels(_window, out int w, out int h);
         _depthTexture = SDLUtils.CreateTexture(Device, SDL.GPUTextureType.TextureType2D, SDL.GPUTextureFormat.D32Float,
