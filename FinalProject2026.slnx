@@ -2,6 +2,7 @@
   <Folder Name="/tests/">
     <Project Path="tests/Renderer.Tests.BasicLighting/Renderer.Tests.BasicLighting.csproj" />
     <Project Path="tests/Renderer.Tests.Common/Renderer.Tests.Common.csproj" />
+    <Project Path="tests/Renderer.Tests.ComputeShader/Renderer.Tests.ComputeShader.csproj" />
     <Project Path="tests/Renderer.Tests.HelloTexture/Renderer.Tests.HelloTexture.csproj" />
     <Project Path="tests/Renderer.Tests.HelloWorld/Renderer.Tests.HelloWorld.csproj" />
     <Project Path="tests/Renderer.Tests.SimpleModelLoading/Renderer.Tests.SimpleModelLoading.csproj" />

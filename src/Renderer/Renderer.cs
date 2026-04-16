@@ -24,7 +24,7 @@ public class Renderer : IDisposable
     private readonly ISceneRenderer _renderer;
     private readonly List<Camera> _cameras;
     
-    internal readonly IntPtr Device;
+    public readonly IntPtr Device;
 
     internal readonly Queue<IntPtr> GenerateMipmapsQueue;
 

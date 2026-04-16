@@ -2,7 +2,7 @@ using SDL3;
 
 namespace Renderer.Utils;
 
-internal static class SDLUtils
+public static class SDLUtils
 {
     public static IntPtr Check(this IntPtr ptr, string operation)
     {
