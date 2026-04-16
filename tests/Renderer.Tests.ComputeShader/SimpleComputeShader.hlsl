@@ -1,7 +1,7 @@
-RWTexture2D<float> Texture : register(u0);
+RWTexture2D<float4> Texture : register(u0, space1);
 
-[numthreads(1, 1, 1)]
+[numthreads(8, 8, 1)]
 void CSMain(uint3 dispatchID : SV_DispatchThreadID)
 {
-    Texture[dispatchID.xy] = float4(1.0, 0.5, 0.25, 1.0);
+    Texture[int2(dispatchID.xy)] = float4(1.0f, 0.5f, 0.25f, 1.0f);
 }

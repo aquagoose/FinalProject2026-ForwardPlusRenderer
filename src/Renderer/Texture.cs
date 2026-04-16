@@ -86,6 +86,27 @@ public sealed class Texture : IDisposable
     /// <param name="path">The path to the image file.</param>
     public Texture(Renderer renderer, string path) : this(renderer, new Bitmap(path)) { }
 
+    public Texture(Renderer renderer, IntPtr handle)
+    {
+        _device = renderer.Device;
+        TextureHandle = handle;
+        
+        SDL.GPUSamplerCreateInfo samplerInfo = new()
+        {
+            MinFilter = SDL.GPUFilter.Linear,
+            MagFilter = SDL.GPUFilter.Linear,
+            MipmapMode = SDL.GPUSamplerMipmapMode.Linear,
+            AddressModeU = SDL.GPUSamplerAddressMode.ClampToEdge,
+            AddressModeV = SDL.GPUSamplerAddressMode.ClampToEdge,
+            MinLod = 0,
+            MaxLod = float.MaxValue,
+            EnableAnisotropy = true,
+            MaxAnisotropy = 16
+        };
+
+        Sampler = SDL.CreateGPUSampler(_device, in samplerInfo).Check("Create sampler");
+    }
+
     /// <summary>
     /// Dispose of this <see cref="Texture"/>.
     /// </summary>
