@@ -75,7 +75,7 @@ public class ComputeShaderTest() : TestBase("Compute Shader Test")
         ], 1, [], 0).Check("Begin compute pass");
         
         SDL.BindGPUComputePipeline(pass, _pipeline);
-        SDL.DispatchGPUCompute(pass, 100, 600 / 8, 1);
+        SDL.DispatchGPUCompute(pass, 800 / 8, 600 / 8, 1);
         
         SDL.EndGPUComputePass(pass);
         SDL.SubmitGPUCommandBuffer(cb).Check("Submit command buffer");
