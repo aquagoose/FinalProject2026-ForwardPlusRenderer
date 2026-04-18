@@ -1,3 +1,6 @@
+using System.Runtime.InteropServices;
+using SDL3;
+
 namespace Renderer;
 
 /// <summary>
@@ -21,5 +24,14 @@ public static class ExtensionHelpers
                 };
             }
         }
+    }
+
+    extension(ShaderCross)
+    {
+        // SDL3-CS's ShaderCross bindings have the incorrect signature for this function, so I'm redefining it here with the
+        // correct signature.
+        [DllImport("SDL3_shadercross", EntryPoint = "SDL_ShaderCross_CompileComputePipelineFromSPIRV")]
+        public static extern IntPtr CompileComputePipelineFromSPIRV(IntPtr device, in ShaderCross.SPIRVInfo spirvInfo,
+            in ShaderCross.ComputePipelineMetadata metadata, uint props);
     }
 }

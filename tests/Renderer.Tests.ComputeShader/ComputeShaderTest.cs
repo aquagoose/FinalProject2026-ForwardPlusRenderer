@@ -47,7 +47,7 @@ public class ComputeShaderTest() : TestBase("Compute Shader Test")
             NumReadWriteStorageTextures = 1
         };
 
-        _pipeline = ShaderUtils.CompileComputePipelineFromSPIRV(device, in spirvInfo, in metadata, 0)
+        _pipeline = ShaderCross.CompileComputePipelineFromSPIRV(device, in spirvInfo, in metadata, 0)
             .Check("Compile compute pipeline");
 
         _material = new UnlitMaterial(Renderer, new Texture(Renderer, _texture), new MaterialInfo()
