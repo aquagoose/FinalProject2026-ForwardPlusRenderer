@@ -154,6 +154,14 @@ public abstract class Material : IDisposable
         SDL.ReleaseGPUShader(_device, pShader);
         SDL.ReleaseGPUShader(_device, vShader);
     }
+
+    /// <summary>
+    /// Releases and disposes all textures associated with this material and then dispose of the material.
+    /// </summary>
+    public virtual void ReleaseAllTexturesAndDispose()
+    {
+        Dispose();
+    }
     
     /// <summary>
     /// Dispose of this <see cref="Material"/>.

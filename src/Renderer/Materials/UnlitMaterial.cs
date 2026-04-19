@@ -23,6 +23,12 @@ public sealed class UnlitMaterial : Material
         Texture = texture;
     }
 
+    public override void ReleaseAllTexturesAndDispose()
+    {
+        Texture.Dispose();
+        base.ReleaseAllTexturesAndDispose();
+    }
+
     /// <inheritdoc />
     protected override void PopulateTextureBindings(ref SDL.GPUTextureSamplerBinding[] bindings)
     {

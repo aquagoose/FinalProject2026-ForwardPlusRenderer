@@ -46,7 +46,17 @@ public sealed class StandardMaterial : Material
         Roughness = renderer.WhiteTexture;
         Occlusion = renderer.WhiteTexture;
     }
-    
+
+    public override void ReleaseAllTexturesAndDispose()
+    {
+        Occlusion.Dispose();
+        Roughness.Dispose();
+        Metallic.Dispose();
+        Normal.Dispose();
+        Albedo.Dispose();
+        base.ReleaseAllTexturesAndDispose();
+    }
+
     /// <inheritdoc />
     protected override void PopulateTextureBindings(ref SDL.GPUTextureSamplerBinding[] bindings)
     {

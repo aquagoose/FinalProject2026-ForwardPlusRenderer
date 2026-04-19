@@ -2,6 +2,7 @@ using System.Drawing;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using Renderer.Materials;
+using Renderer.Math;
 using Renderer.Tests.Common;
 using Renderer.Utils;
 using SDL3;
@@ -82,8 +83,8 @@ public class ComputeShaderTest() : TestBase("Compute Shader Test")
         SDL.SubmitGPUCommandBuffer(cb).Check("Submit command buffer");
         
         Renderer.BackgroundColor = Color.CornflowerBlue;
-        Renderer.AddCamera(Camera.Perspective(new Vector3(0, 0, 3), Quaternion.Identity, float.DegreesToRadians(45),
-            new Rectangle(0, 0, 1280, 720), 0.1f, 100f));
+        Renderer.AddCamera(Camera.Perspective(new Vector3(0, 0, 1.5f), Quaternion.Identity, float.DegreesToRadians(45),
+            new Rectangle(Offset.Zero, Size), 0.1f, 100f));
         
         Renderer.Draw(_renderable, Matrix4x4.Identity);
     }
