@@ -57,6 +57,16 @@ public struct Color
         B = b / (float) byte.MaxValue;
         A = a / (float) byte.MaxValue;
     }
+
+    public static Color Normalize(Color color)
+    {
+        float length2 = color.R * color.R +
+                    color.G * color.G +
+                    color.B * color.B +
+                    color.A * color.A;
+        float length = float.Sqrt(length2);
+        return new Color(color.R / length, color.G / length, color.B / length, color.A / length);
+    }
     
         /// <summary>
     /// AliceBlue has an RGB value of 240, 248, 255 (0xF0F8FF)

@@ -1,4 +1,5 @@
-﻿using Renderer.Math;
+﻿using System.Diagnostics;
+using Renderer.Math;
 using SDL3;
 
 namespace Renderer.Tests.Common;
@@ -29,14 +30,20 @@ public class TestBase(string testName) : IDisposable
         if (!SDL.Init(SDL.InitFlags.Video | SDL.InitFlags.Events))
             throw new Exception($"Failed to initialize SDL: {SDL.GetError()}");
 
-        _window = SDL.CreateWindow(testName, 1280, 720, SDL.WindowFlags.HighPixelDensity | SDL.WindowFlags.Resizable);
+        SDL.WindowFlags flags = SDL.WindowFlags.HighPixelDensity | SDL.WindowFlags.Resizable;
+#if RELEASE
+        flags |= SDL.WindowFlags.Fullscreen;
+#endif
+        
+        _window = SDL.CreateWindow(testName, 1280, 720, flags);
         if (_window == IntPtr.Zero)
             throw new Exception($"Failed to create window: {SDL.GetError()}");
 
         _renderer = new Renderer(_window);
 
         Load();
-        
+
+        Stopwatch sw = Stopwatch.StartNew();
         _running = true;
         while (_running)
         {
@@ -57,7 +64,8 @@ public class TestBase(string testName) : IDisposable
                 }
             }
             
-            Loop(1.0f / 60.0f);
+            Loop((float) sw.Elapsed.TotalSeconds);
+            sw.Restart();
             _renderer.Render();
         }
     }
