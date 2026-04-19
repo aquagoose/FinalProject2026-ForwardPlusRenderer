@@ -52,18 +52,43 @@ public sealed class StandardMaterial : Material
         Roughness = renderer.WhiteTexture;
         Occlusion = renderer.WhiteTexture;
 
+        const uint numLights = 32;
+        
         IntPtr device = renderer.Device;
         _buffer = SDLUtils.CreateBuffer(device, SDL.GPUBufferUsageFlags.GraphicsStorageRead,
-            (uint) sizeof(ShaderLight) * 32);
+            (uint) sizeof(ShaderLight) * numLights);
 
-        ShaderLight[] lights =
+        ShaderLight[] lights = new ShaderLight[numLights];
+        Random random = new Random();
+        for (int i = 0; i < numLights; i++)
+        {
+            lights[i] = new ShaderLight()
+            {
+                Type = ShaderLight.LightType.Point,
+                Position = new Vector3
+                {
+                    X = float.Lerp(-8, 8, random.NextSingle()),
+                    Y = 1,
+                    Z = float.Lerp(-8, 8, random.NextSingle())
+                },
+                Color = new Color
+                {
+                    R = random.NextSingle(),
+                    G = random.NextSingle(),
+                    B = random.NextSingle(),
+                    A = 1
+                }
+            };
+        }
+        
+        /*ShaderLight[] lights =
         [
-            new ShaderLight { Type = ShaderLight.LightType.Point, Position = new Vector4(0, 1, 0, 0), Color = new Color(1.0f, 0.0f, 0.0f) },
-            new ShaderLight { Type = ShaderLight.LightType.Point, Position = new Vector4(-8, 1, -8, 0), Color = new Color(0.0f, 1.0f, 0.0f) },
-            new ShaderLight { Type = ShaderLight.LightType.Point, Position = new Vector4(8, 1, -8, 0), Color = new Color(0.0f, 0.0f, 1.0f) },
-            new ShaderLight { Type = ShaderLight.LightType.Point, Position = new Vector4(8, 1, 8, 0), Color = new Color(1.0f, 1.0f, 0.0f) },
-            new ShaderLight { Type = ShaderLight.LightType.Point, Position = new Vector4(-8, 1, 8, 0), Color = new Color(0.0f, 1.0f, 1.0f) }
-        ];
+            new ShaderLight { Type = ShaderLight.LightType.Point, Position = new Vector3(0, 1, 0), Color = new Color(1.0f, 0.0f, 0.0f) },
+            new ShaderLight { Type = ShaderLight.LightType.Point, Position = new Vector3(-8, 1, -8), Color = new Color(0.0f, 1.0f, 0.0f) },
+            new ShaderLight { Type = ShaderLight.LightType.Point, Position = new Vector3(8, 1, -8), Color = new Color(0.0f, 0.0f, 1.0f) },
+            new ShaderLight { Type = ShaderLight.LightType.Point, Position = new Vector3(8, 1, 8), Color = new Color(1.0f, 1.0f, 0.0f) },
+            new ShaderLight { Type = ShaderLight.LightType.Point, Position = new Vector3(-8, 1, 8), Color = new Color(0.0f, 1.0f, 1.0f) }
+        ];*/
         
         renderer.UpdateBuffer(_buffer, 0, lights);
     }

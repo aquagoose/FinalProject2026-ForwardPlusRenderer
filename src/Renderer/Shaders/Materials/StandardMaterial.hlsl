@@ -9,6 +9,7 @@ SAMPLER2D_PS(Metallic, 2)
 SAMPLER2D_PS(Roughness, 3)
 SAMPLER2D_PS(Occlusion, 4)
 
+//ByteAddressBuffer SceneLights : register(t5, space2);
 StructuredBuffer<Light> SceneLights : register(t5, space2);
 
 cbuffer SceneData : register(b0, space3)

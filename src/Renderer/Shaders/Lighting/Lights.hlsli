@@ -7,8 +7,8 @@
 
 struct Light
 {
+    float3 Position;
     uint LightType;
-    float4 Position;
     float4 Color;
 };
 

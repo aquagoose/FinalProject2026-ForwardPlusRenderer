@@ -37,7 +37,7 @@ internal class ForwardPlusRenderer : ISceneRenderer
         SceneData sceneData = new()
         {
             Camera = new ShaderCamera(camera.Projection, camera.View, new Vector4(inverseView.Translation, 0)),
-            NumLights = 5
+            NumLights = 32
         };
         SDL.PushGPUVertexUniformData(cb, 0, new IntPtr(&sceneData), (uint) sizeof(SceneData));
         SDL.PushGPUFragmentUniformData(cb, 0, new IntPtr(&sceneData), (uint) sizeof(SceneData));
