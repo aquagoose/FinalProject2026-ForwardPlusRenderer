@@ -60,13 +60,26 @@ float3 PointLight(const float3 position, const float3 color, const float power, 
     const float3 worldPos, const float3 view, const float3 albedo, const float3 normal, const float3 metallic,
     const float roughness)
 {
-    const float3 lightVector = normalize(position - worldPos);
-    const float distance = length(position - worldPos);
-    const float distance2 = distance * distance;
-    const float numerator = saturate(1 - pow((distance / radius), 4));
+    const float3 pos = position - worldPos;
+    const float3 lightVector = normalize(pos);
+    const float distance2 = dot(pos, pos);
+    //const float distance2 = distance * distance;
+    /*const float numerator = saturate(1 - pow((distance / radius), 4));
     const float denominator = (distance2 + 1);
     const float falloff = (numerator * numerator) / denominator;
-    const float3 radiance = color * falloff * power;
+    const float3 radiance = color * falloff * power;*/
+    
+    const float nDotL = max(dot(normal, lightVector), 0.0);
+    const float intensity = (power / (4 * M_PI * distance2));
+    
+    const float invRadius = 1.0 / radius;
+    const float factor = distance2 * invRadius * invRadius;
+    const float smoothFactor = max(1.0 - factor * factor, 0.0);
+    const float falloffAttenuation = (smoothFactor * smoothFactor) / max(distance2, 1e-4);
+    
+    // TODO: Radius doesn't work. Fix that
+    const float3 radiance = intensity * nDotL * color;
+    
     return Light(lightVector, radiance, view, albedo, normal, metallic, roughness);
 }
 
