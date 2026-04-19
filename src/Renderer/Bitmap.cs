@@ -1,3 +1,4 @@
+using Renderer.Math;
 using StbImageSharp;
 
 namespace Renderer;

@@ -1,4 +1,5 @@
 using System.Numerics;
+using Renderer.Math;
 using SDL3;
 
 namespace Renderer.Renderers;

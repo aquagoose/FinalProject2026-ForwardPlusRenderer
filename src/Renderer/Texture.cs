@@ -1,3 +1,4 @@
+using Renderer.Math;
 using Renderer.Utils;
 using SDL3;
 

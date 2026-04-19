@@ -1,5 +1,6 @@
 using System.Numerics;
 using Renderer.Materials;
+using Renderer.Math;
 using Renderer.Renderers.Structs;
 using Renderer.Utils;
 using SDL3;

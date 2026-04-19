@@ -1,4 +1,4 @@
-namespace Renderer;
+namespace Renderer.Math;
 
 /// <summary>
 /// Represents a 2D pixel size.

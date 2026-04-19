@@ -1,7 +1,10 @@
 using System.Drawing;
 using System.Numerics;
 using Renderer.Materials;
+using Renderer.Math;
 using Renderer.Tests.Common;
+using Rectangle = Renderer.Math.Rectangle;
+using Size = Renderer.Math.Size;
 
 namespace Renderer.Tests.HelloWorld;
 
@@ -51,10 +54,9 @@ public class HelloWorldTest() : TestBase("Hello World")
         
         Matrix4x4 world = Matrix4x4.CreateRotationY(_rotation);
         Renderer.Draw(_renderable, world);
-
-        Size size = Size;
+        
         Camera camera = Camera.Perspective(new Vector3(0, 0, 3), Quaternion.Identity, float.DegreesToRadians(45),
-            new Rectangle(0, 0, (int) size.Width, (int) size.Height), 0.1f, 100f);
+            new Rectangle(Offset.Zero, Size), 0.1f, 100f);
         Renderer.AddCamera(camera);
     }
 

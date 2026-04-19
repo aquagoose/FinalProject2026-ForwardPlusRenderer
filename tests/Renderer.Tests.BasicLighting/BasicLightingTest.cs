@@ -1,9 +1,12 @@
 using System.Drawing;
 using System.Numerics;
 using Renderer.Materials;
+using Renderer.Math;
 using Renderer.Primitives;
 using Renderer.Tests.Common;
 using Plane = Renderer.Primitives.Plane;
+using Rectangle = Renderer.Math.Rectangle;
+using Size = Renderer.Math.Size;
 
 namespace Renderer.Tests.BasicLighting;
 
@@ -57,10 +60,9 @@ public class BasicLightingTest() : TestBase("Basic Lighting Test")
 
             rotationOffset += 0.05f;
         }
-
-        Size size = Size;
+        
         Camera camera = Camera.Perspective(new Vector3(-3, 4, 3), Quaternion.CreateFromYawPitchRoll(-1, -1, 0), float.DegreesToRadians(45),
-            new Rectangle(0, 0, (int) size.Width, (int) size.Height), 0.1f, 100f);
+            new Rectangle(Offset.Zero, Size), 0.1f, 100f);
         Renderer.AddCamera(in camera);
     }
 

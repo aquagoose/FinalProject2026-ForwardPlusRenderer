@@ -1,7 +1,10 @@
 ﻿using System.Drawing;
 using System.Numerics;
+using Renderer.Math;
 using Renderer.Skyboxes;
 using Renderer.Tests.Common;
+using Rectangle = Renderer.Math.Rectangle;
+using Size = Renderer.Math.Size;
 
 namespace Renderer.Tests.SimpleModelLoading;
 
@@ -26,11 +29,9 @@ public class SimpleModelTest() : TestBase("Simple Model Test")
             _rotation -= float.Pi * 2 * 2;
         
         _model.Draw(Renderer, Matrix4x4.CreateScale(5) * Matrix4x4.CreateFromYawPitchRoll(_rotation * 0.5f, _rotation, _rotation));
-
-        Size size = Size;
         
         Camera camera = Camera.Perspective(new Vector3(0, 0f, 3), Quaternion.Identity, float.DegreesToRadians(45),
-            new Rectangle(0, 0, (int) size.Width, (int) size.Height), 0.1f, 100f, _skybox);
+            new Rectangle(Offset.Zero, Size), 0.1f, 100f, _skybox);
         Renderer.AddCamera(in camera);
     }
 

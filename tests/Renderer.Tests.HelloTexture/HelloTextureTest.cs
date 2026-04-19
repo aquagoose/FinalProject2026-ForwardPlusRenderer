@@ -4,6 +4,8 @@ using Renderer.Materials;
 using Renderer.Primitives;
 using Renderer.Tests.Common;
 using Plane = Renderer.Primitives.Plane;
+using Rectangle = Renderer.Math.Rectangle;
+using Size = Renderer.Math.Size;
 
 namespace Renderer.Tests.HelloTexture;
 
@@ -39,12 +41,12 @@ public class HelloTextureTest() : TestBase("Hello Texture")
         Size size = Size;
         
         Camera camera1 = Camera.Perspective(new Vector3(0, 0, 3), Quaternion.Identity, float.DegreesToRadians(45),
-            new Rectangle(0, 0, (int) size.Width / 2, (int) size.Height), 0.1f, 100f);
+            new Rectangle(0, 0, size.Width / 2, size.Height), 0.1f, 100f);
         Renderer.AddCamera(in camera1);
 
         // Multiple cameras
         Camera camera2 = Camera.Perspective(new Vector3(0, -2, 2), Quaternion.CreateFromYawPitchRoll(0, 0.8f, 0), float.DegreesToRadians(45),
-            new Rectangle((int) size.Width / 2, 0, (int) size.Width / 2, (int) size.Height), 0.1f, 100f);
+            new Rectangle((int) size.Width / 2, 0, size.Width / 2, size.Height), 0.1f, 100f);
         Renderer.AddCamera(in camera2);
     }
 

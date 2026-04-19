@@ -1,4 +1,5 @@
-﻿using SDL3;
+﻿using Renderer.Math;
+using SDL3;
 
 namespace Renderer.Tests.Common;
 

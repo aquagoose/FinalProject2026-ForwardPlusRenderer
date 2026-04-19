@@ -1,4 +1,5 @@
 using System.Numerics;
+using Renderer.Math;
 using Renderer.Primitives;
 using Renderer.Renderers.Structs;
 using Renderer.Utils;

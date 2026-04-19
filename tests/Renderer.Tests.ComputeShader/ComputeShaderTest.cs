@@ -6,6 +6,7 @@ using Renderer.Tests.Common;
 using Renderer.Utils;
 using SDL3;
 using Plane = Renderer.Primitives.Plane;
+using Rectangle = Renderer.Math.Rectangle;
 
 namespace Renderer.Tests.ComputeShader;
 

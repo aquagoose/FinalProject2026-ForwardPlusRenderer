@@ -1,5 +1,6 @@
 ﻿using System.Numerics;
 using System.Runtime.CompilerServices;
+using Renderer.Math;
 using Renderer.Renderers;
 using Renderer.Utils;
 using SDL3;

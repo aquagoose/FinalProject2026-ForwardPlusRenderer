@@ -1,6 +1,7 @@
 using System.Drawing;
 using System.Numerics;
 using Renderer.Skyboxes;
+using Rectangle = Renderer.Math.Rectangle;
 
 namespace Renderer;
 
