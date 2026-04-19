@@ -1,7 +1,15 @@
 #ifndef LIGHTING_LIGHTS_H
 #define LIGHTING_LIGHTS_H
 
+#define LIGHT_TYPE_POINT 1
+
 #include "BRDF.hlsli"
+
+struct Light
+{
+    uint LightType;
+    float3 Position;
+};
 
 float3 Light(const float3 lightVector, const float3 radiance, const float3 view, const float3 albedo,
              const float3 normal, const float3 metallic, const float roughness)
@@ -46,6 +54,20 @@ float3 DirectionalLight(const float2 direction, const float3 color, const float3
     
     // The radiance of a directional light is just equal to its color.
     return Light(l, color, view, albedo, normal, metallic, roughness);
+}
+
+float3 PointLight(const float3 position, const float3 color, const float power, const float radius,
+    const float3 worldPos, const float3 view, const float3 albedo, const float3 normal, const float3 metallic,
+    const float roughness)
+{
+    const float3 lightVector = normalize(position - worldPos);
+    const float distance = length(position - worldPos);
+    const float distance2 = distance * distance;
+    const float numerator = saturate(1 - pow((distance / radius), 4));
+    const float denominator = (distance2 + 1);
+    const float falloff = (numerator * numerator) / denominator;
+    const float3 radiance = color * falloff * power;
+    return Light(lightVector, radiance, view, albedo, normal, metallic, roughness);
 }
 
 #endif

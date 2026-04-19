@@ -9,6 +9,8 @@ SAMPLER2D_PS(Metallic, 2)
 SAMPLER2D_PS(Roughness, 3)
 SAMPLER2D_PS(Occlusion, 4)
 
+//StructuredBuffer<Light> SceneLights : register(u0);
+
 cbuffer CameraData : register(b0, space3)
 {
     Camera gCamera;
@@ -26,7 +28,16 @@ float4 PSMain(const in VertexOutput input): SV_Target0
     const float3 normal = GetNormal(SAMPLE(Normal, input.TexCoord).rgb, input.Normal, input.TexCoord, input.WorldPos);
     const float3 view = normalize((float3) gCamera.Position - input.WorldPos);
     
-    const float3 light = DirectionalLight(float2(0, -M_PI / 2), (float3) 1.0, view, albedo, normal, metallic, roughness);
+    //float3 light = DirectionalLight(float2(0, -M_PI / 2), (float3) 1.0, view, albedo, normal, metallic, roughness);
+    float3 light = (float3) 0;
+    
+    const float power = 10;
+    const float radius = 10;
+    light += PointLight(float3(0, 1, 0), float3(1, 0, 0), power, radius, input.WorldPos, view, albedo, normal, metallic, roughness);
+    light += PointLight(float3(-10, 1, -10), float3(0, 1, 0), power, radius, input.WorldPos, view, albedo, normal, metallic, roughness);
+    light += PointLight(float3(10, 1, -10), float3(0, 0, 1), power, radius, input.WorldPos, view, albedo, normal, metallic, roughness);
+    light += PointLight(float3(10, 1, 10), float3(1, 1, 0), power, radius, input.WorldPos, view, albedo, normal, metallic, roughness);
+    light += PointLight(float3(-10, 1, 10), float3(0, 1, 1), power, radius, input.WorldPos, view, albedo, normal, metallic, roughness);
     
     const float3 ambient = (float3) 0.03 * albedo * ao;
     float3 color = ambient + light;
