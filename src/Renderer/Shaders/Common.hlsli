@@ -10,4 +10,10 @@ struct Camera
     float4 Position;
 };
 
+struct Scene
+{
+    Camera Camera;
+    uint NumLights;
+};
+
 #endif

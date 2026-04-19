@@ -1,7 +1,7 @@
 using System.Numerics;
 using Renderer.Materials;
 using Renderer.Math;
-using Renderer.Renderers.Structs;
+using Renderer.Structs;
 using Renderer.Utils;
 using SDL3;
 
@@ -34,9 +34,13 @@ internal class ForwardPlusRenderer : ISceneRenderer
     {
         // TODO: Better way of doing this?
         Matrix4x4.Invert(camera.View, out Matrix4x4 inverseView);
-        ShaderCamera shaderCamera = new ShaderCamera(camera.Projection, camera.View, new Vector4(inverseView.Translation, 0));
-        SDL.PushGPUVertexUniformData(cb, 0, new IntPtr(&shaderCamera), (uint) sizeof(ShaderCamera));
-        SDL.PushGPUFragmentUniformData(cb, 0, new IntPtr(&shaderCamera), (uint) sizeof(ShaderCamera));
+        SceneData sceneData = new()
+        {
+            Camera = new ShaderCamera(camera.Projection, camera.View, new Vector4(inverseView.Translation, 0)),
+            NumLights = 5
+        };
+        SDL.PushGPUVertexUniformData(cb, 0, new IntPtr(&sceneData), (uint) sizeof(SceneData));
+        SDL.PushGPUFragmentUniformData(cb, 0, new IntPtr(&sceneData), (uint) sizeof(SceneData));
         
         SDL.GPUColorTargetInfo colorTarget = new()
         {
@@ -80,6 +84,8 @@ internal class ForwardPlusRenderer : ISceneRenderer
             SDL.GPUTextureSamplerBinding[] textureBindings = material.TextureBindings;
             SDL.BindGPUFragmentSamplers(pass, 0, textureBindings, (uint) textureBindings.Length);
 
+            material.BindFrameResources(pass);
+            
             SDL.GPUBufferBinding vertexBufferBinding = new()
             {
                 Buffer = renderable.VertexBuffer,

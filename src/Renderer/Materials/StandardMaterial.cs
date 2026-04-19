@@ -1,3 +1,7 @@
+using System.Numerics;
+using System.Runtime.CompilerServices;
+using Renderer.Structs;
+using Renderer.Utils;
 using SDL3;
 
 namespace Renderer.Materials;
@@ -7,6 +11,8 @@ namespace Renderer.Materials;
 /// </summary>
 public sealed class StandardMaterial : Material
 {
+    private IntPtr _buffer;
+    
     /// <summary>
     /// The albedo/base texture.
     /// </summary>
@@ -37,7 +43,7 @@ public sealed class StandardMaterial : Material
     /// </summary>
     /// <param name="renderer">The <see cref="Renderer"/> to associate this material with.</param>
     /// <param name="albedo">The albedo/base texture.</param>
-    public StandardMaterial(Renderer renderer, Texture albedo, MaterialInfo info = new())
+    public unsafe StandardMaterial(Renderer renderer, Texture albedo, MaterialInfo info = new())
         : base(renderer, in info, "Materials/BaseVertex", "Materials/StandardMaterial", 5)
     {
         Albedo = albedo;
@@ -45,6 +51,21 @@ public sealed class StandardMaterial : Material
         Metallic = renderer.WhiteTexture;
         Roughness = renderer.WhiteTexture;
         Occlusion = renderer.WhiteTexture;
+
+        IntPtr device = renderer.Device;
+        _buffer = SDLUtils.CreateBuffer(device, SDL.GPUBufferUsageFlags.GraphicsStorageRead,
+            (uint) sizeof(ShaderLight) * 32);
+
+        ShaderLight[] lights =
+        [
+            new ShaderLight { Type = ShaderLight.LightType.Point, Position = new Vector4(0, 1, 0, 0), Color = new Color(1.0f, 0.0f, 0.0f) },
+            new ShaderLight { Type = ShaderLight.LightType.Point, Position = new Vector4(-8, 1, -8, 0), Color = new Color(0.0f, 1.0f, 0.0f) },
+            new ShaderLight { Type = ShaderLight.LightType.Point, Position = new Vector4(8, 1, -8, 0), Color = new Color(0.0f, 0.0f, 1.0f) },
+            new ShaderLight { Type = ShaderLight.LightType.Point, Position = new Vector4(8, 1, 8, 0), Color = new Color(1.0f, 1.0f, 0.0f) },
+            new ShaderLight { Type = ShaderLight.LightType.Point, Position = new Vector4(-8, 1, 8, 0), Color = new Color(0.0f, 1.0f, 1.0f) }
+        ];
+        
+        renderer.UpdateBuffer(_buffer, 0, lights);
     }
 
     public override void ReleaseAllTexturesAndDispose()
@@ -89,5 +110,10 @@ public sealed class StandardMaterial : Material
             Texture = Occlusion.TextureHandle,
             Sampler = Occlusion.Sampler
         };
+    }
+
+    protected internal override unsafe void BindFrameResources(IntPtr pass)
+    {
+        SDL.BindGPUFragmentStorageBuffers(pass, 0, (nint) Unsafe.AsPointer(ref _buffer), 1);
     }
 }

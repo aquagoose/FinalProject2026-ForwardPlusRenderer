@@ -8,10 +8,11 @@
 struct Light
 {
     uint LightType;
-    float3 Position;
+    float4 Position;
+    float4 Color;
 };
 
-float3 Light(const float3 lightVector, const float3 radiance, const float3 view, const float3 albedo,
+float3 CalculateLight(const float3 lightVector, const float3 radiance, const float3 view, const float3 albedo,
              const float3 normal, const float3 metallic, const float roughness)
 {
     const float3 h = normalize(view + lightVector);
@@ -53,7 +54,7 @@ float3 DirectionalLight(const float2 direction, const float3 color, const float3
     const float3 l = normalize(-lightDir);
     
     // The radiance of a directional light is just equal to its color.
-    return Light(l, color, view, albedo, normal, metallic, roughness);
+    return CalculateLight(l, color, view, albedo, normal, metallic, roughness);
 }
 
 float3 PointLight(const float3 position, const float3 color, const float power, const float radius,
@@ -80,7 +81,7 @@ float3 PointLight(const float3 position, const float3 color, const float power, 
     // TODO: Radius doesn't work. Fix that
     const float3 radiance = intensity * nDotL * color;
     
-    return Light(lightVector, radiance, view, albedo, normal, metallic, roughness);
+    return CalculateLight(lightVector, radiance, view, albedo, normal, metallic, roughness);
 }
 
 #endif

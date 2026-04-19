@@ -177,4 +177,6 @@ public abstract class Material : IDisposable
     /// <param name="bindings">The bindings array.</param>
     /// <remarks>This array length will <b>always</b> the same length as the numTextures provided in the constructor.</remarks>
     protected abstract void PopulateTextureBindings(ref SDL.GPUTextureSamplerBinding[] bindings);
+
+    protected internal virtual void BindFrameResources(IntPtr pass) { }
 }

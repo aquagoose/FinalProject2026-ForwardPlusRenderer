@@ -1,7 +1,7 @@
 using System.Numerics;
 using System.Runtime.InteropServices;
 
-namespace Renderer.Renderers.Structs;
+namespace Renderer.Structs;
 
 [StructLayout(LayoutKind.Sequential)]
 internal struct ShaderCamera

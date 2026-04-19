@@ -29,7 +29,7 @@ public static class SDLUtils
         SDL.GPUBufferCreateInfo bufferInfo = new()
         {
             Usage = usage,
-            Size = size
+            Size = size,
         };
 
         return SDL.CreateGPUBuffer(device, in bufferInfo).Check("Create buffer");
