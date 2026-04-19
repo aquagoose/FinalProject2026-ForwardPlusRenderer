@@ -13,6 +13,8 @@ public class LightCasterTest() : TestBase("Light Caster Test")
     private Material _material = null!;
     private Renderable _renderable = null!;
 
+    private Light[] _lights = new Light[32];
+
     private float _value;
     
     protected override void Load()
@@ -31,6 +33,23 @@ public class LightCasterTest() : TestBase("Light Caster Test")
 
         Cube cube = new Cube();
         _renderable = new Renderable(Renderer, _material, cube.Vertices, cube.Indices);
+
+        Random random = new Random();
+        for (int i = 0; i < _lights.Length; i++)
+        {
+            _lights[i] = Light.Point(new Vector3
+            {
+                X = float.Lerp(-8, 8, random.NextSingle()),
+                Y = 1,
+                Z = float.Lerp(-8, 8, random.NextSingle())
+            }, new Color
+            {
+                R = random.NextSingle(),
+                G = random.NextSingle(),
+                B = random.NextSingle(),
+                A = 1
+            }, 800, 20);
+        }
     }
 
     protected override void Loop(float dt)
@@ -48,6 +67,9 @@ public class LightCasterTest() : TestBase("Light Caster Test")
         Renderer.AddCamera(Camera.Perspective(new Vector3(x, 4, z),
             Quaternion.CreateFromYawPitchRoll(_value, float.DegreesToRadians(-40), 0), float.DegreesToRadians(75),
             new Rectangle(Offset.Zero, Size), 0.1f, 100f, _skybox));
+        
+        foreach (Light light in _lights)
+            Renderer.AddLight(light);
     }
 
     public override void Dispose()

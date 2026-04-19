@@ -11,8 +11,6 @@ namespace Renderer.Materials;
 /// </summary>
 public sealed class StandardMaterial : Material
 {
-    private IntPtr _buffer;
-    
     /// <summary>
     /// The albedo/base texture.
     /// </summary>
@@ -51,46 +49,6 @@ public sealed class StandardMaterial : Material
         Metallic = renderer.WhiteTexture;
         Roughness = renderer.WhiteTexture;
         Occlusion = renderer.WhiteTexture;
-
-        const uint numLights = 32;
-        
-        IntPtr device = renderer.Device;
-        _buffer = SDLUtils.CreateBuffer(device, SDL.GPUBufferUsageFlags.GraphicsStorageRead,
-            (uint) sizeof(ShaderLight) * numLights);
-
-        ShaderLight[] lights = new ShaderLight[numLights];
-        Random random = new Random();
-        for (int i = 0; i < numLights; i++)
-        {
-            lights[i] = new ShaderLight()
-            {
-                Type = ShaderLight.LightType.Point,
-                Position = new Vector3
-                {
-                    X = float.Lerp(-8, 8, random.NextSingle()),
-                    Y = 1,
-                    Z = float.Lerp(-8, 8, random.NextSingle())
-                },
-                Color = new Color
-                {
-                    R = random.NextSingle(),
-                    G = random.NextSingle(),
-                    B = random.NextSingle(),
-                    A = 1
-                }
-            };
-        }
-        
-        /*ShaderLight[] lights =
-        [
-            new ShaderLight { Type = ShaderLight.LightType.Point, Position = new Vector3(0, 1, 0), Color = new Color(1.0f, 0.0f, 0.0f) },
-            new ShaderLight { Type = ShaderLight.LightType.Point, Position = new Vector3(-8, 1, -8), Color = new Color(0.0f, 1.0f, 0.0f) },
-            new ShaderLight { Type = ShaderLight.LightType.Point, Position = new Vector3(8, 1, -8), Color = new Color(0.0f, 0.0f, 1.0f) },
-            new ShaderLight { Type = ShaderLight.LightType.Point, Position = new Vector3(8, 1, 8), Color = new Color(1.0f, 1.0f, 0.0f) },
-            new ShaderLight { Type = ShaderLight.LightType.Point, Position = new Vector3(-8, 1, 8), Color = new Color(0.0f, 1.0f, 1.0f) }
-        ];*/
-        
-        renderer.UpdateBuffer(_buffer, 0, lights);
     }
 
     public override void ReleaseAllTexturesAndDispose()
@@ -135,10 +93,5 @@ public sealed class StandardMaterial : Material
             Texture = Occlusion.TextureHandle,
             Sampler = Occlusion.Sampler
         };
-    }
-
-    protected internal override unsafe void BindFrameResources(IntPtr pass)
-    {
-        SDL.BindGPUFragmentStorageBuffers(pass, 0, (nint) Unsafe.AsPointer(ref _buffer), 1);
     }
 }

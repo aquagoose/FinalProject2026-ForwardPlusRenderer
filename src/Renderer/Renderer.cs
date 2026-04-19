@@ -2,6 +2,7 @@
 using System.Runtime.CompilerServices;
 using Renderer.Math;
 using Renderer.Renderers;
+using Renderer.Structs;
 using Renderer.Utils;
 using SDL3;
 
@@ -91,7 +92,7 @@ public class Renderer : IDisposable
         _depthTexture = SDLUtils.CreateTexture(Device, SDL.GPUTextureType.TextureType2D, SDL.GPUTextureFormat.D32Float,
             (uint) w, (uint) h, 1, 1, SDL.GPUTextureUsageFlags.DepthStencilTarget);
         
-        _renderer = new ForwardPlusRenderer(Device);
+        _renderer = new ForwardPlusRenderer(this);
     }
 
     /// <summary>
@@ -120,6 +121,22 @@ public class Renderer : IDisposable
     public void AddCamera(in Camera camera)
     {
         _cameras.Add(camera);
+    }
+
+    /// <summary>
+    /// Add a <see cref="Light"/> to the scene.
+    /// </summary>
+    /// <param name="light">The <see cref="Light"/> to add.</param>
+    public void AddLight(in Light light)
+    {
+        ShaderLight shaderLight = new()
+        {
+            Type = light.Type,
+            Position = light.Position,
+            Color = light.Color
+        };
+        
+        _renderer.AddLight(in shaderLight);
     }
 
     /// <summary>
