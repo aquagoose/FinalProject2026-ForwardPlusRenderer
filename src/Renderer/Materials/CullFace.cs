@@ -1,5 +1,8 @@
 namespace Renderer.Materials;
 
+/// <summary>
+/// Represents the ways a face can be culled.
+/// </summary>
 public enum CullFace
 {
     /// <summary>

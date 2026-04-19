@@ -1,6 +1,5 @@
 using System.Drawing;
 using System.Numerics;
-using Renderer.Skyboxes;
 using Rectangle = Renderer.Math.Rectangle;
 
 namespace Renderer;
@@ -37,6 +36,7 @@ public struct Camera
     /// <param name="projection">The projection matrix.</param>
     /// <param name="view">The view matrix.</param>
     /// <param name="viewport">The viewport region on screen.</param>
+    /// <param name="skybox">The skybox for this camera, if any.</param>
     public Camera(Matrix4x4 projection, Matrix4x4 view, Rectangle viewport, Skybox? skybox = null)
     {
         Projection = projection;
@@ -54,6 +54,7 @@ public struct Camera
     /// <param name="viewport">The viewport region on screen.</param>
     /// <param name="near">The near plane distance.</param>
     /// <param name="far">The far plane distance.</param>
+    /// <param name="skybox">The skybox for this camera, if any.</param>
     /// <returns>A <see cref="Camera"/> with the matrices set up for perspective.</returns>
     public static Camera Perspective(Vector3 position, Quaternion orientation, float fov, Rectangle viewport,
         float near, float far, Skybox? skybox = null)

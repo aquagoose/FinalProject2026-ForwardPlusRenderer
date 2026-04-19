@@ -36,6 +36,11 @@ public class Bitmap
         Format = PixelFormat.RGBA8;
     }
 
+    /// <summary>
+    /// Load a <see cref="Bitmap"/> from a byte array of image data.
+    /// </summary>
+    /// <param name="imageData">The image data to load.</param>
+    /// <remarks>This is NOT raw image data. This must be the bytes of a recognized file type, such as PNG or JPEG.</remarks>
     public Bitmap(byte[] imageData)
     {
         ImageResult result = ImageResult.FromMemory(imageData, ColorComponents.RedGreenBlueAlpha);

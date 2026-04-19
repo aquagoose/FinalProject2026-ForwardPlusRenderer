@@ -2,7 +2,6 @@ using System.Drawing;
 using System.Numerics;
 using Renderer.Materials;
 using Renderer.Primitives;
-using Renderer.Skyboxes;
 using Renderer.Tests.Common;
 using Rectangle = Renderer.Math.Rectangle;
 

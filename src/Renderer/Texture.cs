@@ -4,9 +4,8 @@ using SDL3;
 
 namespace Renderer;
 
-// TODO: Better description.
 /// <summary>
-/// A GPU-stored image that can be applied to vertices.
+/// A Texture is an image that can be used for rendering.
 /// </summary>
 public sealed class Texture : IDisposable
 {
@@ -17,7 +16,6 @@ public sealed class Texture : IDisposable
     
     // TODO: Sampler struct, Renderer.GetSampler (like Sprout)
     internal readonly IntPtr Sampler;
-
     
     /// <summary>
     /// Create an empty <see cref="Texture"/>.
@@ -87,11 +85,17 @@ public sealed class Texture : IDisposable
     /// <param name="path">The path to the image file.</param>
     public Texture(Renderer renderer, string path) : this(renderer, new Bitmap(path)) { }
 
+    /// <summary>
+    /// Create a <see cref="Texture"/> from a raw SDL_GPU texture handle.
+    /// </summary>
+    /// <param name="renderer">The <see cref="Renderer"/> to associate this texture with.</param>
+    /// <param name="handle">The raw texture handle.</param>
     public Texture(Renderer renderer, IntPtr handle)
     {
         _device = renderer.Device;
         TextureHandle = handle;
         
+        // TODO: CreateSampler function? Probably should allow for custom samplers.
         SDL.GPUSamplerCreateInfo samplerInfo = new()
         {
             MinFilter = SDL.GPUFilter.Linear,

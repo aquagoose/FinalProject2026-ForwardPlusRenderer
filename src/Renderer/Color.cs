@@ -46,10 +46,10 @@ public struct Color
     /// <summary>
     /// Create a <see cref="Color"/> from 8-bit red, green, blue, and alpha components.
     /// </summary>
-    /// <param name="r"></param>
-    /// <param name="g"></param>
-    /// <param name="b"></param>
-    /// <param name="a"></param>
+    /// <param name="r">The red component.</param>
+    /// <param name="g">The green component.</param>
+    /// <param name="b">The blue component.</param>
+    /// <param name="a">The alpha component.</param>
     public Color(byte r, byte g, byte b, byte a = byte.MaxValue)
     {
         R = r / (float) byte.MaxValue;
@@ -58,6 +58,11 @@ public struct Color
         A = a / (float) byte.MaxValue;
     }
 
+    /// <summary>
+    /// Normalize a <see cref="Color"/> so it is always as bright as possible, while remaining in the correct 0-1 range.
+    /// </summary>
+    /// <param name="color">The <see cref="Color"/> to normalize.</param>
+    /// <returns>The normalized color.</returns>
     public static Color Normalize(Color color)
     {
         float length2 = color.R * color.R +

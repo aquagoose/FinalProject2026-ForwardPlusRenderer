@@ -23,6 +23,7 @@ public sealed class UnlitMaterial : Material
         Texture = texture;
     }
 
+    /// <inheritdoc />
     public override void ReleaseAllTexturesAndDispose()
     {
         Texture.Dispose();

@@ -51,6 +51,7 @@ public sealed class StandardMaterial : Material
         Occlusion = renderer.WhiteTexture;
     }
 
+    /// <inheritdoc />
     public override void ReleaseAllTexturesAndDispose()
     {
         Occlusion.Dispose();

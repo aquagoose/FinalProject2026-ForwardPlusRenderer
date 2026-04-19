@@ -2,7 +2,6 @@ using System.Numerics;
 using Renderer.Materials;
 using Renderer.Math;
 using Renderer.Primitives;
-using Renderer.Skyboxes;
 using Renderer.Tests.Common;
 
 namespace Renderer.Tests.LightCasters;

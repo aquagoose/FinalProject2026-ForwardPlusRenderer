@@ -1,5 +1,8 @@
 namespace Renderer.Math;
 
+/// <summary>
+/// Represents an offset in pixels, such as the offset into a rectangle.
+/// </summary>
 public struct Offset : IEquatable<Offset>
 {
     public static Offset Zero => new Offset(0);

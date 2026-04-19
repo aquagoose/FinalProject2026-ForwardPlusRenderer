@@ -1,7 +1,6 @@
 ﻿using System.Drawing;
 using System.Numerics;
 using Renderer.Math;
-using Renderer.Skyboxes;
 using Renderer.Tests.Common;
 using Rectangle = Renderer.Math.Rectangle;
 using Size = Renderer.Math.Size;

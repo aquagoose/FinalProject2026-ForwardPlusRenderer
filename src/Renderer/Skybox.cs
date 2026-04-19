@@ -5,8 +5,11 @@ using Renderer.Structs;
 using Renderer.Utils;
 using SDL3;
 
-namespace Renderer.Skyboxes;
+namespace Renderer;
 
+/// <summary>
+/// A textured skybox cube that surrounds the scene to add depth and realism.
+/// </summary>
 public class Skybox : IDisposable
 {
     private readonly IntPtr _device;
@@ -17,6 +20,16 @@ public class Skybox : IDisposable
     private readonly IntPtr _indexBuffer;
     private readonly IntPtr _pipeline;
     
+    /// <summary>
+    /// Create a <see cref="Skybox"/> from a set of bitmaps.
+    /// </summary>
+    /// <param name="renderer">The <see cref="Renderer"/> to associate this skybox with.</param>
+    /// <param name="right">The right texture. (+X)</param>
+    /// <param name="left">The left texture. (-X)</param>
+    /// <param name="top">The top texture. (+Y)</param>
+    /// <param name="bottom">The bottom texture. (-Y)</param>
+    /// <param name="front">The front texture. (+Z)</param>
+    /// <param name="back">The back texture. (-Z)</param>
     public unsafe Skybox(Renderer renderer, Bitmap right, Bitmap left, Bitmap top, Bitmap bottom, Bitmap front, Bitmap back)
     {
         _device = renderer.Device;
@@ -141,6 +154,16 @@ public class Skybox : IDisposable
         SDL.ReleaseGPUShader(_device, vertexShader);
     }
 
+    /// <summary>
+    /// Create a <see cref="Skybox"/> from a set of images.
+    /// </summary>
+    /// <param name="renderer">The <see cref="Renderer"/> to associate this skybox with.</param>
+    /// <param name="right">The right texture. (+X)</param>
+    /// <param name="left">The left texture. (-X)</param>
+    /// <param name="top">The top texture. (+Y)</param>
+    /// <param name="bottom">The bottom texture. (-Y)</param>
+    /// <param name="front">The front texture. (+Z)</param>
+    /// <param name="back">The back texture. (-Z)</param>
     public Skybox(Renderer renderer, string right, string left, string top, string bottom, string front, string back) :
         this(renderer, new Bitmap(right), new Bitmap(left), new Bitmap(top), new Bitmap(bottom), new Bitmap(front),
             new Bitmap(back)) { }

@@ -1,5 +1,8 @@
 namespace Renderer.Math;
 
+/// <summary>
+/// A rectangle with an offset and size.
+/// </summary>
 public struct Rectangle : IEquatable<Rectangle>
 {
     public Offset Offset;
