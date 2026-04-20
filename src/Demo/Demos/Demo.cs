@@ -4,7 +4,7 @@ using Renderer;
 
 namespace Demo.Demos;
 
-public abstract class Demo(string name) : IDisposable
+public abstract class Demo(string? name) : IDisposable
 {
     protected Renderer.Renderer Renderer => DemoApp.Renderer;
     
@@ -12,7 +12,11 @@ public abstract class Demo(string name) : IDisposable
 
     public virtual void Update(float dt)
     {
-        ImGui.Text(Vector2.Zero, 36, name, Color.White);
+        if (name != null)
+            ImGui.DrawText(Vector2.Zero, 36, name, Color.White);
+        
+        if (DemoApp.IsKeyPressed(Key.Escape))
+            DemoApp.SetDemo(new WelcomeScreen());
     }
 
     public virtual void Draw() { }

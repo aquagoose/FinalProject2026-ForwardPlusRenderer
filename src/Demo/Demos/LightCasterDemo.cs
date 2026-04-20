@@ -11,16 +11,23 @@ namespace Demo.Demos;
 public class LightCasterDemo() : Demo("Light Casters")
 {
     private Skybox _skybox = null!;
+    
     private Material _material = null!;
     private Renderable _cube = null!;
 
-    private Model _fox;
-    private Model _lamp;
+    private Material _lightMaterial = null!;
+    private Renderable _lightCube = null!;
+
+    private Model _fox = null!;
+    private Model _lamp = null!;
 
     private Light[] _lights = null!;
+    private int _numLights;
 
     private float _value;
     private bool _useArcball;
+    private bool _showLights;
+    
     private Vector3 _cameraPos;
     private Vector2 _cameraRotation;
     
@@ -36,12 +43,17 @@ public class LightCasterDemo() : Demo("Light Casters")
             Roughness = new Texture(Renderer, "Content/PBR/metalgrid3_roughness.png"),
             Occlusion = new Texture(Renderer, "Content/PBR/metalgrid3_AO.png")
         };
-        //_material = new StandardMaterial(Renderer, Renderer.WhiteTexture);
+        
+        _lightMaterial = new UnlitMaterial(Renderer, Renderer.WhiteTexture);
 
         Cube cube = new Cube();
         _cube = new Renderable(Renderer, _material, cube.Vertices, cube.Indices);
+        _lightCube = new Renderable(Renderer, _lightMaterial, cube.Vertices, cube.Indices);
 
-        SetLights(32);
+        // Max 1024 lights
+        _lights = new Light[1024];
+        _numLights = 32;
+        SetLights();
 
         _fox = new Model(Renderer, "Content/Models/Fox.glb");
         _lamp = new Model(Renderer, "Content/Models/WaterBottle.glb");
@@ -51,8 +63,6 @@ public class LightCasterDemo() : Demo("Light Casters")
 
     public override void Update(float dt)
     {
-        base.Update(dt);
-        
         if (DemoApp.IsKeyPressed(Key.C))
         {
             _useArcball = !_useArcball;
@@ -60,7 +70,21 @@ public class LightCasterDemo() : Demo("Light Casters")
         }
         
         if (DemoApp.IsKeyPressed(Key.R))
-            SetLights(_lights.Length);
+            SetLights();
+
+        if (_useArcball && ImGui.BeginDemoSettingsWindow())
+        {
+            if (ImGui.SliderInt("Number of Lights", ref _numLights, 1, _lights.Length))
+                SetLights();
+            
+            if (ImGui.Button("Randomize"))
+                SetLights();
+
+            ImGui.Checkbox("Show Lights", ref _showLights);
+            
+            ImGui.End();
+        }
+            
 
         if (_useArcball)
         {
@@ -104,6 +128,8 @@ public class LightCasterDemo() : Demo("Light Casters")
             if (DemoApp.IsKeyDown(Key.LCtrl))
                 _cameraPos -= up * cameraSpeed;
         }
+        
+        base.Update(dt);
     }
 
     public override void Draw()
@@ -120,13 +146,18 @@ public class LightCasterDemo() : Demo("Light Casters")
         _fox.Draw(Renderer, Matrix4x4.CreateScale(0.02f));
         _lamp.Draw(Renderer, Matrix4x4.CreateScale(10) * Matrix4x4.CreateTranslation(2, 1.3f, 6));
 
+        if (_showLights)
+        {
+            for (int i = 0; i < _numLights; i++)
+                Renderer.Draw(_lightCube, Matrix4x4.CreateScale(0.2f) * Matrix4x4.CreateTranslation(_lights[i].Position));
+        }
 
         Renderer.AddCamera(Camera.Perspective(_cameraPos,
             Quaternion.CreateFromYawPitchRoll(_cameraRotation.X, _cameraRotation.Y, 0), float.DegreesToRadians(75),
             new Rectangle(Offset.Zero, DemoApp.WindowSize), 0.1f, 100f, _skybox));
         
-        foreach (Light light in _lights)
-            Renderer.AddLight(light);
+        for (int i = 0; i < _numLights; i++)
+            Renderer.AddLight(_lights[i]);
     }
 
     public override void Dispose()
@@ -136,12 +167,10 @@ public class LightCasterDemo() : Demo("Light Casters")
         _skybox.Dispose();
     }
 
-    private void SetLights(int numLights)
+    private void SetLights()
     {
-        _lights = new Light[numLights];
-        
         Random random = new Random();
-        for (int i = 0; i < _lights.Length; i++)
+        for (int i = 0; i < _numLights; i++)
         {
             _lights[i] = Light.Point(new Vector3
             {

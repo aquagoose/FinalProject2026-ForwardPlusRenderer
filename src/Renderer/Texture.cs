@@ -12,7 +12,9 @@ public sealed class Texture : IDisposable
     private readonly IntPtr _device;
     private readonly uint _mipLevels;
 
-    internal readonly IntPtr TextureHandle;
+    public readonly IntPtr Handle;
+
+    public readonly Size Size;
     
     // TODO: Sampler struct, Renderer.GetSampler (like Sprout)
     internal readonly IntPtr Sampler;
@@ -26,6 +28,7 @@ public sealed class Texture : IDisposable
     public Texture(Renderer renderer, Size size, PixelFormat format)
     {
         _device = renderer.Device;
+        Size = size;
 
         SDL.GPUTextureFormat sdlFormat = format switch
         {
@@ -35,7 +38,7 @@ public sealed class Texture : IDisposable
 
         _mipLevels = SDLUtils.CalculateMipLevels(size.Width, size.Height);
 
-        TextureHandle = SDLUtils.CreateTexture(_device, SDL.GPUTextureType.TextureType2D, sdlFormat, size.Width,
+        Handle = SDLUtils.CreateTexture(_device, SDL.GPUTextureType.TextureType2D, sdlFormat, size.Width,
             size.Height, _mipLevels, 1, SDL.GPUTextureUsageFlags.Sampler | SDL.GPUTextureUsageFlags.ColorTarget);
         
         SDL.GPUSamplerCreateInfo samplerInfo = new()
@@ -64,11 +67,11 @@ public sealed class Texture : IDisposable
     public Texture(Renderer renderer, ReadOnlySpan<byte> data, Size size, PixelFormat format) : this(renderer, size, format)
     {
         uint bytesPerPixel = format.BytesPerPixel;
-        renderer.UpdateTexture(TextureHandle, 0, 0, size.Width, size.Height, bytesPerPixel, data);
+        renderer.UpdateTexture(Handle, 0, 0, size.Width, size.Height, bytesPerPixel, data);
         
         // Can only generate mipmaps if there is more than one level, as SDL throws an assertion error otherwise.
         if (_mipLevels > 1)
-            renderer.GenerateMipmapsQueue.Enqueue(TextureHandle);
+            renderer.GenerateMipmapsQueue.Enqueue(Handle);
     }
 
     /// <summary>
@@ -93,7 +96,7 @@ public sealed class Texture : IDisposable
     public Texture(Renderer renderer, IntPtr handle)
     {
         _device = renderer.Device;
-        TextureHandle = handle;
+        Handle = handle;
         
         // TODO: CreateSampler function? Probably should allow for custom samplers.
         SDL.GPUSamplerCreateInfo samplerInfo = new()
@@ -118,6 +121,6 @@ public sealed class Texture : IDisposable
     public void Dispose()
     {
         SDL.ReleaseGPUSampler(_device, Sampler);
-        SDL.ReleaseGPUTexture(_device, TextureHandle);
+        SDL.ReleaseGPUTexture(_device, Handle);
     }
 }

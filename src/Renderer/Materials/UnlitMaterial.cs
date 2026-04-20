@@ -35,7 +35,7 @@ public sealed class UnlitMaterial : Material
     {
         bindings[0] = new SDL.GPUTextureSamplerBinding
         {
-            Texture = Texture.TextureHandle,
+            Texture = Texture.Handle,
             Sampler = Texture.Sampler
         };
     }

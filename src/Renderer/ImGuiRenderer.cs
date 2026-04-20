@@ -23,6 +23,7 @@ internal sealed class ImGuiRenderer : IDisposable
     private IntPtr _vertexBuffer;
     private IntPtr _indexBuffer;
     private IntPtr _transferBuffer;
+    private uint _transferBufferSize;
 
     private IntPtr _pipeline;
     private IntPtr _sampler;
@@ -46,8 +47,8 @@ internal sealed class ImGuiRenderer : IDisposable
         _vertexBuffer = SDLUtils.CreateBuffer(_device, SDL.GPUBufferUsageFlags.Vertex, vBufferSizeBytes);
         _indexBuffer = SDLUtils.CreateBuffer(_device, SDL.GPUBufferUsageFlags.Index, iBufferSizeBytes);
 
-        _transferBuffer = SDLUtils.CreateTransferBuffer(_device, SDL.GPUTransferBufferUsage.Upload,
-            vBufferSizeBytes + iBufferSizeBytes);
+        _transferBufferSize = vBufferSizeBytes + iBufferSizeBytes;
+        _transferBuffer = SDLUtils.CreateTransferBuffer(_device, SDL.GPUTransferBufferUsage.Upload, _transferBufferSize);
 
         IntPtr vertexShader = ShaderUtils.LoadShader(_device, ShaderCross.ShaderStage.Vertex, "ImGui");
         IntPtr pixelShader = ShaderUtils.LoadShader(_device, ShaderCross.ShaderStage.Fragment, "ImGui");
@@ -171,8 +172,8 @@ internal sealed class ImGuiRenderer : IDisposable
             uint iBufferSizeBytes = _iBufferSize * sizeof(uint);
             
             SDL.ReleaseGPUTransferBuffer(_device, _transferBuffer);
-            _transferBuffer = SDLUtils.CreateTransferBuffer(_device, SDL.GPUTransferBufferUsage.Upload,
-                vBufferSizeBytes + iBufferSizeBytes);
+            _transferBufferSize = vBufferSizeBytes + iBufferSizeBytes;
+            _transferBuffer = SDLUtils.CreateTransferBuffer(_device, SDL.GPUTransferBufferUsage.Upload, _transferBufferSize);
         }
 
         uint vertexOffset = 0;
@@ -377,14 +378,54 @@ internal sealed class ImGuiRenderer : IDisposable
             
             case ImTextureStatus.WantUpdates:
             {
-                ref ImVector<ImTextureRect> updates = ref textureData.Updates; 
-                for (int i = 0; i < updates.Size; i++)
+                // For reasons that I don't quite understand and don't have time to work out (I suspect its due to
+                // the way ImGui packs its texture data), the texture uploads aren't compatible with Renderer.UpdateTexture
+                // and lead to garbage results. I've re-implemented the way the official ImGui backend does it, and it
+                // works fine: https://github.com/ocornut/imgui/blob/master/backends/imgui_impl_sdlgpu3.cpp#L353
+                ImTextureRect rect = textureData.UpdateRect;
+
+                uint uploadPitch = (uint) (rect.W * textureData.BytesPerPixel);
+                uint uploadSize = (uint) (rect.W * rect.H * textureData.BytesPerPixel);
+                
+                if (uploadSize > _transferBufferSize)
                 {
-                    ImTextureRect rect = updates[i];
-                    _renderer.UpdateTexture(textureData.TexID, rect.X, rect.Y, rect.W, rect.H,
-                        (uint) textureData.BytesPerPixel, textureData.GetPixelsAt(rect.X, rect.Y));
-                    textureData.Status = ImTextureStatus.Ok;
+                    SDL.ReleaseGPUTransferBuffer(_device, _transferBuffer);
+                    _transferBufferSize = uploadSize + 1024;
+                    _transferBuffer = SDLUtils.CreateTransferBuffer(_device, SDL.GPUTransferBufferUsage.Upload,
+                        _transferBufferSize);
                 }
+
+                void* transferPtr = (void*) SDL.MapGPUTransferBuffer(_device, _transferBuffer, true);
+                for (int y = 0; y < rect.H; y++)
+                {
+                    Unsafe.CopyBlock((byte*) transferPtr + y * uploadPitch, textureData.GetPixelsAt(rect.X, rect.Y + y),
+                        uploadPitch);
+                }
+                SDL.UnmapGPUTransferBuffer(_device, _transferBuffer);
+
+                SDL.GPUTextureTransferInfo transferInfo = new()
+                {
+                    TransferBuffer = _transferBuffer,
+                    Offset = 0
+                };
+
+                SDL.GPUTextureRegion region = new()
+                {
+                    Texture = textureData.TexID,
+                    X = rect.X,
+                    Y = rect.Y,
+                    W = rect.W,
+                    H = rect.H,
+                    D = 1
+                };
+
+                IntPtr cb = SDL.AcquireGPUCommandBuffer(_device).Check("Acquire command buffer");
+                IntPtr pass = SDL.BeginGPUCopyPass(cb).Check("Begin copy pass");
+                SDL.UploadToGPUTexture(pass, in transferInfo, in region, false);
+                SDL.EndGPUCopyPass(pass);
+                SDL.SubmitGPUCommandBuffer(cb);
+
+                textureData.Status = ImTextureStatus.Ok;
 
                 break;
             }

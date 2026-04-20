@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Numerics;
 using Demo.Demos;
 using Hexa.NET.ImGui;
+using Renderer;
 using Renderer.Math;
 using SDL3;
 
@@ -21,8 +22,12 @@ public static class DemoApp
     private static Renderer.Renderer _renderer = null!;
     private static Demos.Demo _currentDemo = null!;
     private static Demos.Demo? _demoToSwitch = null;
+
+    private static Texture[] _backgroundTextures;
     
     public static Renderer.Renderer Renderer => _renderer;
+
+    public static Texture[] BackgroundTextures => _backgroundTextures;
 
     public static Size WindowSize
     {
@@ -47,6 +52,16 @@ public static class DemoApp
     public static bool IsKeyPressed(Key key)
         => _keysPressed.Contains(key);
 
+    public static void SetDemo(Demos.Demo demo)
+    {
+        _currentDemo = demo;
+    }
+
+    public static void LoadDemo(Demos.Demo demo)
+    {
+        _demoToSwitch = new LoadingScreen(demo);
+    }
+
     public static void Run()
     {
         if (!SDL.Init(SDL.InitFlags.Video | SDL.InitFlags.Events))
@@ -65,7 +80,12 @@ public static class DemoApp
         ImFontPtr font = ImGui.AddFont("Content/Roboto-Regular.ttf");
         ImGui.GetIO().FontDefault = font;
 
-        _currentDemo = new LightCasterDemo();
+        string[] paths = Directory.GetFiles("Content/DemoImages");
+        _backgroundTextures = new Texture[paths.Length];
+        for (int i = 0; i < paths.Length; i++)
+            _backgroundTextures[i] = new Texture(_renderer, paths[i]);
+
+        _currentDemo = new WelcomeScreen();
         _currentDemo.Initialize();
 
         Stopwatch sw = Stopwatch.StartNew();
@@ -130,6 +150,16 @@ public static class DemoApp
             sw.Restart();
             
             Renderer.NewFrame();
+
+            if (_demoToSwitch != null)
+            {
+                _currentDemo.Dispose();
+                _currentDemo = null!;
+                GC.Collect();
+                _currentDemo = _demoToSwitch;
+                _currentDemo.Initialize();
+                _demoToSwitch = null;
+            }
             
             _currentDemo.Update(dt);
             _currentDemo.Draw();

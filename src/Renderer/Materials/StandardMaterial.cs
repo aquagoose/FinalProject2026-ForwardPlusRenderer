@@ -67,31 +67,31 @@ public sealed class StandardMaterial : Material
     {
         bindings[0] = new SDL.GPUTextureSamplerBinding
         {
-            Texture = Albedo.TextureHandle,
+            Texture = Albedo.Handle,
             Sampler = Albedo.Sampler
         };
 
         bindings[1] = new SDL.GPUTextureSamplerBinding
         {
-            Texture = Normal.TextureHandle,
+            Texture = Normal.Handle,
             Sampler = Normal.Sampler
         };
 
         bindings[2] = new SDL.GPUTextureSamplerBinding
         {
-            Texture = Metallic.TextureHandle,
+            Texture = Metallic.Handle,
             Sampler = Metallic.Sampler
         };
 
         bindings[3] = new SDL.GPUTextureSamplerBinding
         {
-            Texture = Roughness.TextureHandle,
+            Texture = Roughness.Handle,
             Sampler = Roughness.Sampler
         };
 
         bindings[4] = new SDL.GPUTextureSamplerBinding
         {
-            Texture = Occlusion.TextureHandle,
+            Texture = Occlusion.Handle,
             Sampler = Occlusion.Sampler
         };
     }
