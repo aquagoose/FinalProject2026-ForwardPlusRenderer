@@ -124,26 +124,19 @@ internal sealed class ImGuiRenderer : IDisposable
 
         ImGuiIOPtr io = ImGui.GetIO();
         io.DisplaySize = new Vector2(size.Width, size.Height);
-        io.BackendFlags = ImGuiBackendFlags.RendererHasVtxOffset | ImGuiBackendFlags.RendererHasTextures;
+        io.BackendFlags |= ImGuiBackendFlags.RendererHasVtxOffset | ImGuiBackendFlags.RendererHasTextures;
         io.IniFilename = null;
         io.LogFilename = null;
-        
-        ImGui.NewFrame();
     }
 
     public unsafe bool Render(IntPtr cb, IntPtr colorTarget, bool shouldClear)
     {
-        ImGui.SetCurrentContext(_imguiContext);
-        
         ImGui.Render();
         ImDrawDataPtr drawData = ImGui.GetDrawData();
 
         // Don't bother rendering if there is nothing to draw.
         if (drawData.CmdListsCount == 0)
-        {
-            ImGui.NewFrame();
             return false;
-        }
         
         //SdlUtils.PushDebugGroup(cb, "ImGUI Buffer Copy");
 
@@ -344,8 +337,6 @@ internal sealed class ImGuiRenderer : IDisposable
         SDL.EndGPURenderPass(renderPass);
         
         //SdlUtils.PopDebugGroup(cb);
-        
-        ImGui.NewFrame();
 
         return true;
     }

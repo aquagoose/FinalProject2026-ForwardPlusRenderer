@@ -12,9 +12,12 @@ namespace Demo;
 
 public static class DemoApp
 {
+    public const float ActivityTimeout = 30;
+    
     private static IntPtr _sdlWindow;
     private static bool _alive;
-
+    private static float _activityTimer;
+    
     private static HashSet<Key> _keysDown = [];
     private static HashSet<Key> _keysPressed = [];
     private static Vector2 _mouseDelta;
@@ -23,7 +26,7 @@ public static class DemoApp
     private static Demos.Demo _currentDemo = null!;
     private static Demos.Demo? _demoToSwitch = null;
 
-    private static Texture[] _backgroundTextures;
+    private static Texture[] _backgroundTextures = null!;
     
     public static Renderer.Renderer Renderer => _renderer;
 
@@ -78,7 +81,6 @@ public static class DemoApp
 
         _renderer = new Renderer.Renderer(_sdlWindow);
         ImFontPtr font = ImGui.AddFont("Content/Roboto-Regular.ttf");
-        ImGui.GetIO().FontDefault = font;
 
         string[] paths = Directory.GetFiles("Content/DemoImages");
         _backgroundTextures = new Texture[paths.Length];
@@ -111,6 +113,7 @@ public static class DemoApp
 
                     case SDL.EventType.KeyDown:
                     {
+                        _activityTimer = 0;
                         // Ignore the key repeat command
                         if (winEvent.Key.Repeat)
                             break;
@@ -122,6 +125,7 @@ public static class DemoApp
 
                     case SDL.EventType.KeyUp:
                     {
+                        _activityTimer = 0;
                         _keysDown.Remove(winEvent.Key.Key);
                         _keysPressed.Remove(winEvent.Key.Key);
                         break;
@@ -129,18 +133,22 @@ public static class DemoApp
 
                     case SDL.EventType.MouseMotion:
                     {
+                        _activityTimer = 0;
                         _mouseDelta += new Vector2(winEvent.Motion.XRel, winEvent.Motion.YRel);
                         io.AddMousePosEvent(winEvent.Motion.X, winEvent.Motion.Y);
                         break;
                     }
 
                     case SDL.EventType.MouseButtonDown:
+                        _activityTimer = 0;
                         io.AddMouseButtonEvent((int) MouseButtonToImGui((MouseButton) winEvent.Button.Button), true);
                         break;
                     case SDL.EventType.MouseButtonUp:
+                        _activityTimer = 0;
                         io.AddMouseButtonEvent((int) MouseButtonToImGui((MouseButton) winEvent.Button.Button), false);
                         break;
                     case SDL.EventType.MouseWheel:
+                        _activityTimer = 0;
                         io.AddMouseWheelEvent(winEvent.Wheel.X, winEvent.Wheel.Y);
                         break;
                 }
@@ -148,8 +156,16 @@ public static class DemoApp
 
             float dt = (float) sw.Elapsed.TotalSeconds;
             sw.Restart();
-            
+
+            if (_currentDemo is not (WelcomeScreen or LoadingScreen))
+            {
+                _activityTimer += dt;
+                if (_activityTimer >= ActivityTimeout)
+                    LoadDemo(new WelcomeScreen());
+            }
+
             Renderer.NewFrame();
+            ImGui.NewFrame();
 
             if (_demoToSwitch != null)
             {
@@ -162,6 +178,7 @@ public static class DemoApp
             }
             
             _currentDemo.Update(dt);
+            _currentDemo.DisplayUI();
             _currentDemo.Draw();
             
             Renderer.Render();

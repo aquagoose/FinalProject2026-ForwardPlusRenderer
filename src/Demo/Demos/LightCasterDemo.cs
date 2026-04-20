@@ -61,17 +61,8 @@ public class LightCasterDemo() : Demo("Light Casters")
         _useArcball = true;
     }
 
-    public override void Update(float dt)
+    public override void DisplayUI()
     {
-        if (DemoApp.IsKeyPressed(Key.C))
-        {
-            _useArcball = !_useArcball;
-            DemoApp.MouseVisible = _useArcball;
-        }
-        
-        if (DemoApp.IsKeyPressed(Key.R))
-            SetLights();
-
         if (_useArcball && ImGui.BeginDemoSettingsWindow())
         {
             if (ImGui.SliderInt("Number of Lights", ref _numLights, 1, _lights.Length))
@@ -84,7 +75,20 @@ public class LightCasterDemo() : Demo("Light Casters")
             
             ImGui.End();
         }
-            
+        
+        base.DisplayUI();
+    }
+
+    public override void Update(float dt)
+    {
+        if (DemoApp.IsKeyPressed(Key.C))
+        {
+            _useArcball = !_useArcball;
+            DemoApp.MouseVisible = _useArcball;
+        }
+
+        if (DemoApp.IsKeyPressed(Key.R))
+            SetLights();
 
         if (_useArcball)
         {

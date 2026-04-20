@@ -10,13 +10,16 @@ public abstract class Demo(string? name) : IDisposable
     
     public virtual void Initialize() { }
 
-    public virtual void Update(float dt)
+    public virtual void DisplayUI()
     {
         if (name != null)
             ImGui.DrawText(Vector2.Zero, 36, name, Color.White);
-        
+    }
+    
+    public virtual void Update(float dt)
+    {
         if (DemoApp.IsKeyPressed(Key.Escape))
-            DemoApp.SetDemo(new WelcomeScreen());
+            DemoApp.LoadDemo(new WelcomeScreen());
     }
 
     public virtual void Draw() { }

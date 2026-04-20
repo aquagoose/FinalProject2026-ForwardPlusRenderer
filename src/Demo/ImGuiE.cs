@@ -19,14 +19,22 @@ public static class ImGuiE
         {
             uint packedTint = tint?.PackedValue ?? uint.MaxValue;
             
-            ImGui.GetForegroundDrawList().AddImage(new ImTextureRef(texId: texture.Handle), position,
+            ImGui.GetBackgroundDrawList().AddImage(new ImTextureRef(texId: texture.Handle), position,
                 new Vector2(position.X + size.Width, position.Y + size.Height), packedTint);
         }
 
-        public static unsafe void DrawRectangle(Vector2 position, Size size, Color color)
+        public static void DrawRectangle(Vector2 position, Size size, Color color)
         {
-            ImGui.GetForegroundDrawList().AddRectFilled(position,
+            ImGui.GetBackgroundDrawList().AddRectFilled(position,
                 new Vector2(position.X + size.Width, position.Y + size.Height), color.PackedValue);
+        }
+
+        public static void DrawRectangle(Vector2 position, Size size, Color topLeft, Color topRight, Color bottomLeft,
+            Color bottomRight)
+        {
+            ImGui.GetBackgroundDrawList().AddRectFilledMultiColor(position,
+                new Vector2(position.X + size.Width, position.Y + size.Height), topLeft.PackedValue,
+                topRight.PackedValue, bottomRight.PackedValue, bottomLeft.PackedValue);
         }
 
         public static bool BeginDemoSettingsWindow()
@@ -40,14 +48,14 @@ public static class ImGuiE
             
             ImFontConfig config = new()
             {
-                MergeMode = (byte) (fonts.Fonts.Size > 1 ? 1 : 0),
+                MergeMode = (byte) (fonts.Fonts.Size > 0 ? 1 : 0),
                 FontDataOwnedByAtlas = 1,
                 RasterizerDensity = 1,
                 RasterizerMultiply = 1,
                 GlyphMaxAdvanceX = float.MaxValue
             };
             
-            ImFontPtr font = fonts.AddFontFromFileTTF(path, 36, &config);
+            ImFontPtr font = fonts.AddFontFromFileTTF(path, 18, &config);
             return font;
         }
     }
