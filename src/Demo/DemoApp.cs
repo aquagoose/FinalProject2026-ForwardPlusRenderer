@@ -157,15 +157,22 @@ public static class DemoApp
             float dt = (float) sw.Elapsed.TotalSeconds;
             sw.Restart();
 
+            Renderer.NewFrame();
+            ImGui.NewFrame();
+            
             if (_currentDemo is not (WelcomeScreen or LoadingScreen))
             {
                 _activityTimer += dt;
+
+                if (_activityTimer >= ActivityTimeout - 5)
+                {
+                    ImGui.DrawText(new Vector2(0, WindowSize.Height - 50), 48,
+                        $"Returning to menu in {-(_activityTimer - ActivityTimeout):0.0}...", Color.Red);
+                }
+                
                 if (_activityTimer >= ActivityTimeout)
                     LoadDemo(new WelcomeScreen());
             }
-
-            Renderer.NewFrame();
-            ImGui.NewFrame();
 
             if (_demoToSwitch != null)
             {

@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using Hexa.NET.ImGui;
 using Renderer.Math;
 using SDL3;
 
@@ -48,6 +49,7 @@ public class TestBase(string testName) : IDisposable
         while (_running)
         {
             _renderer.NewFrame();
+            ImGui.NewFrame();
             
             while (SDL.PollEvent(out SDL.Event sdlEvent))
             {
@@ -63,9 +65,11 @@ public class TestBase(string testName) : IDisposable
                         break;
                 }
             }
-            
-            Loop((float) sw.Elapsed.TotalSeconds);
+
+            float dt = (float) sw.Elapsed.TotalSeconds;
             sw.Restart();
+            
+            Loop(dt);
             _renderer.Render();
         }
     }

@@ -32,6 +32,8 @@ public class WelcomeScreen() : Demo(null)
             ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, new Vector2(15, 20));
             if (ImGui.Button("Light Casters"))
                 DemoApp.LoadDemo(new LightCasterDemo());
+            //if (ImGui.Button("Sponza"))
+            //    DemoApp.LoadDemo(new SponzaDemo());
             ImGui.PopStyleVar();
             
             ImGui.End();
