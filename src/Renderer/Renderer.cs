@@ -24,6 +24,8 @@ public class Renderer : IDisposable
     private IntPtr _depthTexture;
     
     private readonly ISceneRenderer _renderer;
+    private readonly ImGuiRenderer _imguiRenderer;
+    
     private readonly List<Camera> _cameras;
     
     public readonly IntPtr Device;
@@ -93,6 +95,7 @@ public class Renderer : IDisposable
             (uint) w, (uint) h, 1, 1, SDL.GPUTextureUsageFlags.DepthStencilTarget);
         
         _renderer = new ForwardPlusRenderer(this);
+        _imguiRenderer = new ImGuiRenderer(this, new Size((uint) w, (uint) h), RendererTargetFormat);
     }
 
     /// <summary>
@@ -188,6 +191,8 @@ public class Renderer : IDisposable
             camera.Skybox?.Draw(cb, swapchainTexture, _depthTexture, camera);
         }
 
+        _imguiRenderer.Render(cb, swapchainTexture, clear);
+
         SDL.SubmitGPUCommandBuffer(cb).Check("Submit command buffer");
     }
 
@@ -198,6 +203,7 @@ public class Renderer : IDisposable
     public void Resize(Size size)
     {
         _renderer.Resize(size);
+        _imguiRenderer.Resize(size);
         // Recreate depth texture
         SDL.ReleaseGPUTexture(Device, _depthTexture);
         _depthTexture = SDLUtils.CreateTexture(Device, SDL.GPUTextureType.TextureType2D, SDL.GPUTextureFormat.D32Float,

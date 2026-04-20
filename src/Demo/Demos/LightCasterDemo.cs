@@ -1,4 +1,5 @@
 using System.Numerics;
+using Hexa.NET.ImGui;
 using Renderer;
 using Renderer.Materials;
 using Renderer.Math;
@@ -50,6 +51,8 @@ public class LightCasterDemo() : Demo("Light Casters")
 
     public override void Update(float dt)
     {
+        base.Update(dt);
+        
         if (DemoApp.IsKeyPressed(Key.C))
         {
             _useArcball = !_useArcball;

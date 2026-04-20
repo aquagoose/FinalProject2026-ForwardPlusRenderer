@@ -9,6 +9,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="Hexa.NET.ImGui" Version="2.2.7" />
       <PackageReference Include="SDL3-CS" Version="3.4.2" />
       <PackageReference Include="SDL3-CS.Native" Version="3.4.2" />
       <PackageReference Include="Silk.NET.Assimp" Version="2.23.0" />
@@ -23,15 +24,15 @@
     <ItemGroup>
         <None Include="ShaderCrossNative/linux-x64/*">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <Link>runtimes/linux-x64/native/%(Filename)%(Extension)</Link>
+            <Link>%(Filename)%(Extension)</Link>
         </None>
         <None Include="ShaderCrossNative/osx-arm64/*">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <Link>runtimes/osx-arm64/native/%(Filename)%(Extension)</Link>
+            <Link>%(Filename)%(Extension)</Link>
         </None>
         <None Include="ShaderCrossNative/win-x64/*">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <Link>runtimes/win-x64/native/%(Filename)%(Extension)</Link>
+            <Link>%(Filename)%(Extension)</Link>
         </None>
     </ItemGroup>
 

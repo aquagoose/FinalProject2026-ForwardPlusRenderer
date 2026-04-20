@@ -3,6 +3,7 @@ global using MouseButton = SDL3.SDL.MouseButtonFlags;
 using System.Diagnostics;
 using System.Numerics;
 using Demo.Demos;
+using Hexa.NET.ImGui;
 using Renderer.Math;
 using SDL3;
 
@@ -72,6 +73,7 @@ public static class DemoApp
         {
             _keysPressed.Clear();
             _mouseDelta = Vector2.Zero;
+            ImGuiIOPtr io = ImGui.GetIO();
             
             while (SDL.PollEvent(out SDL.Event winEvent))
             {
@@ -106,8 +108,19 @@ public static class DemoApp
                     case SDL.EventType.MouseMotion:
                     {
                         _mouseDelta += new Vector2(winEvent.Motion.XRel, winEvent.Motion.YRel);
+                        io.AddMousePosEvent(winEvent.Motion.X, winEvent.Motion.Y);
                         break;
                     }
+
+                    case SDL.EventType.MouseButtonDown:
+                        io.AddMouseButtonEvent((int) MouseButtonToImGui((MouseButton) winEvent.Button.Button), true);
+                        break;
+                    case SDL.EventType.MouseButtonUp:
+                        io.AddMouseButtonEvent((int) MouseButtonToImGui((MouseButton) winEvent.Button.Button), false);
+                        break;
+                    case SDL.EventType.MouseWheel:
+                        io.AddMouseWheelEvent(winEvent.Wheel.X, winEvent.Wheel.Y);
+                        break;
                 }
             }
 
@@ -125,5 +138,16 @@ public static class DemoApp
         Renderer.Dispose();
         SDL.DestroyWindow(_sdlWindow);
         SDL.Quit();
+    }
+
+    private static ImGuiMouseButton MouseButtonToImGui(MouseButton button)
+    {
+        return button switch
+        {
+            MouseButton.Left => ImGuiMouseButton.Left,
+            MouseButton.Middle => ImGuiMouseButton.Middle,
+            MouseButton.Right => ImGuiMouseButton.Right,
+            _ => ImGuiMouseButton.Left // return left as a fallback. it'll do.
+        };
     }
 }

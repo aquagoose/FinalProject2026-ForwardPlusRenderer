@@ -1,3 +1,7 @@
+using System.Numerics;
+using Hexa.NET.ImGui;
+using Renderer;
+
 namespace Demo.Demos;
 
 public abstract class Demo(string name) : IDisposable
@@ -6,7 +10,10 @@ public abstract class Demo(string name) : IDisposable
     
     public virtual void Initialize() { }
 
-    public virtual void Update(float dt) { }
+    public virtual void Update(float dt)
+    {
+        ImGui.Text(Vector2.Zero, 24, name, Color.White);
+    }
 
     public virtual void Draw() { }
 
