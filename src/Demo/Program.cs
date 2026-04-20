@@ -1,3 +1,3 @@
-﻿// See https://aka.ms/new-console-template for more information
+﻿using Demo;
 
-Console.WriteLine("Hello, World!");
+DemoApp.Run();
