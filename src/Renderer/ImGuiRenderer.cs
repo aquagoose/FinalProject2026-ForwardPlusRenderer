@@ -7,8 +7,9 @@ using SDL3;
 
 namespace Renderer;
 
-// Dear ImGui renderer, modified from the one I wrote for the Crimson Engine, for time sake.
+// Dear ImGui renderer, modified from the ones I wrote for the Crimson Engine and Glimpse, for time sake.
 // https://github.com/Aquatic-Games/CrimsonEngine/blob/main/src/Crimson.Graphics/Renderers/ImGuiRenderer.cs
+// https://github.com/aquagoose/Glimpse/blob/main/src/Glimpse/Graphics/ImGuiRenderer.cs
 internal sealed class ImGuiRenderer : IDisposable
 {
     private readonly Renderer _renderer;
@@ -24,8 +25,6 @@ internal sealed class ImGuiRenderer : IDisposable
     private IntPtr _transferBuffer;
 
     private IntPtr _pipeline;
-
-    private IntPtr? _texture;
     private IntPtr _sampler;
 
     public ImGuiContextPtr Context => _imguiContext;
@@ -124,20 +123,9 @@ internal sealed class ImGuiRenderer : IDisposable
 
         ImGuiIOPtr io = ImGui.GetIO();
         io.DisplaySize = new Vector2(size.Width, size.Height);
-        io.BackendFlags = ImGuiBackendFlags.RendererHasVtxOffset;
+        io.BackendFlags = ImGuiBackendFlags.RendererHasVtxOffset | ImGuiBackendFlags.RendererHasTextures;
         io.IniFilename = null;
         io.LogFilename = null;
-        
-        /*if (info.Font != null)
-        {
-            Debug.Assert(info.FontSize != null);
-            string path = Content.Content.GetFullyQualifiedName(info.Font);
-            io.Fonts.AddFontFromFileTTF(path, info.FontSize.Value);
-        }
-        else*/
-            io.Fonts.AddFontDefault();
-
-        RecreateFontTexture();
         
         ImGui.NewFrame();
     }
@@ -243,6 +231,14 @@ internal sealed class ImGuiRenderer : IDisposable
         SDL.UploadToGPUBuffer(copyPass, in indexSource, in indexDest, false);
         
         SDL.EndGPUCopyPass(copyPass);
+
+        ref ImVector<ImTextureDataPtr> textures = ref drawData.Textures;
+        for (int i = 0; i < textures.Size; i++)
+        {
+            ImTextureDataPtr texture = textures[i];
+            if (texture.Status != ImTextureStatus.Ok)
+                UpdateTexture(texture);
+        }
         
         //SdlUtils.PopDebugGroup(cb);
 
@@ -308,11 +304,6 @@ internal sealed class ImGuiRenderer : IDisposable
                 
                 if (drawCmd.UserCallback != null)
                     continue;
-
-                IntPtr texture = _texture!.Value;
-
-                if (drawCmd.TextureId != ImTextureID.Null)
-                    texture = (IntPtr) drawCmd.TextureId.Handle;
                 
                 Vector2 clipMin = new Vector2(drawCmd.ClipRect.X - clipOff.X, drawCmd.ClipRect.Y - clipOff.Y);
                 Vector2 clipMax = new Vector2(drawCmd.ClipRect.Z - clipOff.X, drawCmd.ClipRect.W - clipOff.Y);
@@ -332,7 +323,7 @@ internal sealed class ImGuiRenderer : IDisposable
 
                 SDL.GPUTextureSamplerBinding samplerBinding = new()
                 {
-                    Texture = texture,
+                    Texture = drawCmd.GetTexID(),
                     Sampler = _sampler
                 };
 
@@ -363,25 +354,63 @@ internal sealed class ImGuiRenderer : IDisposable
         ImGui.GetIO().DisplaySize = new Vector2(size.Width, size.Height);
     }
 
-    private unsafe void RecreateFontTexture()
+    private unsafe void UpdateTexture(ImTextureDataPtr textureData)
     {
-        if (_texture != null)
-            SDL.ReleaseGPUTexture(_device, _texture.Value);
+        Console.WriteLine(textureData.Status);
+        
+        switch (textureData.Status)
+        {
+            case ImTextureStatus.WantCreate:
+            {
+                IntPtr texture = SDLUtils.CreateTexture(_device, SDL.GPUTextureType.TextureType2D,
+                    SDL.GPUTextureFormat.R8G8B8A8Unorm, (uint) textureData.Width, (uint) textureData.Height, 1, 1,
+                    SDL.GPUTextureUsageFlags.Sampler);
+                
+                _renderer.UpdateTexture(texture, 0, 0, (uint) textureData.Width, (uint) textureData.Height,
+                    (uint) textureData.BytesPerPixel, textureData.Pixels);
 
-        ImGuiIOPtr io = ImGui.GetIO();
-        byte* imagePixels;
-        int width, height;
-        io.Fonts.GetTexDataAsRGBA32(&imagePixels, &width, &height);
+                textureData.TexID = texture;
+                textureData.Status = ImTextureStatus.Ok;
+                
+                break;
+            }
+            
+            case ImTextureStatus.WantUpdates:
+            {
+                ref ImVector<ImTextureRect> updates = ref textureData.Updates; 
+                for (int i = 0; i < updates.Size; i++)
+                {
+                    ImTextureRect rect = updates[i];
+                    _renderer.UpdateTexture(textureData.TexID, rect.X, rect.Y, rect.W, rect.H,
+                        (uint) textureData.BytesPerPixel, textureData.GetPixelsAt(rect.X, rect.Y));
+                    textureData.Status = ImTextureStatus.Ok;
+                }
 
-        _texture = SDLUtils.CreateTexture(_device, SDL.GPUTextureType.TextureType2D, SDL.GPUTextureFormat.R8G8B8A8Unorm,
-            (uint) width, (uint) height, 1, 1, SDL.GPUTextureUsageFlags.Sampler);
-        _renderer.UpdateTexture(_texture.Value, 0, 0, (uint) width, (uint) height, 4,
-            new ReadOnlySpan<byte>(imagePixels, width * height * 4));
+                break;
+            }
+
+            case ImTextureStatus.WantDestroy:
+            {
+                SDL.ReleaseGPUTexture(_device, textureData.TexID);
+                textureData.TexID = ImTextureID.Null;
+                textureData.Status = ImTextureStatus.Destroyed;
+                break;
+            }
+            
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
     }
 
     public void Dispose()
     {
-        SDL.ReleaseGPUTexture(_device, _texture!.Value);
+        ref ImVector<ImTextureDataPtr> textures = ref ImGui.GetPlatformIO().Textures;
+        for (int i = 0; i < textures.Size; i++)
+        {
+            textures[i].Status = ImTextureStatus.Destroyed;
+            UpdateTexture(textures[i]);
+        }
+        
         SDL.ReleaseGPUSampler(_device, _sampler);
         SDL.ReleaseGPUGraphicsPipeline(_device, _pipeline);
         SDL.ReleaseGPUTransferBuffer(_device, _transferBuffer);

@@ -62,6 +62,8 @@ public static class DemoApp
             throw new Exception($"Startup failure: Failed to create window: {SDL.GetError()}");
 
         _renderer = new Renderer.Renderer(_sdlWindow);
+        ImFontPtr font = ImGui.AddFont("Content/Roboto-Regular.ttf");
+        ImGui.GetIO().FontDefault = font;
 
         _currentDemo = new LightCasterDemo();
         _currentDemo.Initialize();

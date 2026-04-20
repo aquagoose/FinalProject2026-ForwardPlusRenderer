@@ -244,17 +244,14 @@ public class Renderer : IDisposable
         SDL.SubmitGPUCommandBuffer(cb).Check("Submit command buffer");
     }
 
-    internal unsafe void UpdateTexture<T>(IntPtr texture, uint x, uint y, uint width, uint height, uint bytesPerPixel,
-        in ReadOnlySpan<T> data, uint arrayLayer = 0) where T : unmanaged
+    internal unsafe void UpdateTexture(IntPtr texture, uint x, uint y, uint width, uint height, uint bytesPerPixel,
+        void* data, uint arrayLayer = 0)
     {
         uint size = width * height * bytesPerPixel;
         
         // TODO: Don't cycle the buffer!
         void* transferPtr = (void*) SDL.MapGPUTransferBuffer(Device, _transferBuffer, true);
-        fixed (T* pData = data)
-        {
-            Unsafe.CopyBlock((byte*) transferPtr + _currentTransferBufferOffset, pData, size);
-        }
+        Unsafe.CopyBlock((byte*) transferPtr + _currentTransferBufferOffset, data, size);
         SDL.UnmapGPUTransferBuffer(Device, _transferBuffer);
 
         IntPtr cb = SDL.AcquireGPUCommandBuffer(Device).Check("Acquire command buffer");
@@ -272,7 +269,7 @@ public class Renderer : IDisposable
         {
             Texture = texture,
             X = x,
-            Y = x,
+            Y = y,
             Z = 0,
             W = width,
             H = height,
@@ -285,5 +282,12 @@ public class Renderer : IDisposable
         
         SDL.EndGPUCopyPass(pass);
         SDL.SubmitGPUCommandBuffer(cb).Check("Submit command buffer");
+    }
+
+    internal unsafe void UpdateTexture<T>(IntPtr texture, uint x, uint y, uint width, uint height, uint bytesPerPixel,
+        in ReadOnlySpan<T> data, uint arrayLayer = 0) where T : unmanaged
+    {
+        fixed (T* pData = data)
+            UpdateTexture(texture, x, y, width, height, bytesPerPixel, pData, arrayLayer);
     }
 }
