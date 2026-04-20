@@ -15,8 +15,8 @@ public class SimpleModelTest() : TestBase("Simple Model Test")
     
     protected override void Load()
     {
-        _skybox = new Skybox(Renderer, "Content/Skybox/right.jpg", "Content/Skybox/left.jpg", "Content/Skybox/top.jpg",
-            "Content/Skybox/bottom.jpg", "Content/Skybox/front.jpg", "Content/Skybox/back.jpg");
+        _skybox = new Skybox(Renderer, "Content/Skybox/Standard/right.jpg", "Content/Skybox/Standard/left.jpg", "Content/Skybox/Standard/top.jpg",
+            "Content/Skybox/Standard/bottom.jpg", "Content/Skybox/Standard/front.jpg", "Content/Skybox/Standard/back.jpg");
         
         _model = new Model(Renderer, "Content/Models/WaterBottle.glb");
     }

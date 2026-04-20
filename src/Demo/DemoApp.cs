@@ -1,4 +1,7 @@
+global using Key = SDL3.SDL.Keycode;
+global using MouseButton = SDL3.SDL.MouseButtonFlags;
 using System.Diagnostics;
+using System.Numerics;
 using Demo.Demos;
 using Renderer.Math;
 using SDL3;
@@ -9,10 +12,15 @@ public static class DemoApp
 {
     private static IntPtr _sdlWindow;
     private static bool _alive;
+
+    private static HashSet<Key> _keysDown = [];
+    private static HashSet<Key> _keysPressed = [];
+    private static Vector2 _mouseDelta;
+    
     private static Renderer.Renderer _renderer = null!;
     private static Demos.Demo _currentDemo = null!;
     private static Demos.Demo? _demoToSwitch = null;
-
+    
     public static Renderer.Renderer Renderer => _renderer;
 
     public static Size WindowSize
@@ -23,6 +31,20 @@ public static class DemoApp
             return new Size((uint) w, (uint) h);
         }
     }
+
+    public static Vector2 MouseDelta => _mouseDelta;
+
+    public static bool MouseVisible
+    {
+        get => !SDL.GetWindowRelativeMouseMode(_sdlWindow);
+        set => SDL.SetWindowRelativeMouseMode(_sdlWindow, !value);
+    }
+
+    public static bool IsKeyDown(Key key)
+        => _keysDown.Contains(key);
+
+    public static bool IsKeyPressed(Key key)
+        => _keysPressed.Contains(key);
 
     public static void Run()
     {
@@ -48,6 +70,9 @@ public static class DemoApp
         _alive = true;
         while (_alive)
         {
+            _keysPressed.Clear();
+            _mouseDelta = Vector2.Zero;
+            
             while (SDL.PollEvent(out SDL.Event winEvent))
             {
                 switch ((SDL.EventType) winEvent.Type)
@@ -56,6 +81,33 @@ public static class DemoApp
                     case SDL.EventType.Quit:
                         _alive = false;
                         break;
+                    case SDL.EventType.WindowResized:
+                        Renderer.Resize(WindowSize);
+                        break;
+
+                    case SDL.EventType.KeyDown:
+                    {
+                        // Ignore the key repeat command
+                        if (winEvent.Key.Repeat)
+                            break;
+
+                        _keysDown.Add(winEvent.Key.Key);
+                        _keysPressed.Add(winEvent.Key.Key);
+                        break;
+                    }
+
+                    case SDL.EventType.KeyUp:
+                    {
+                        _keysDown.Remove(winEvent.Key.Key);
+                        _keysPressed.Remove(winEvent.Key.Key);
+                        break;
+                    }
+
+                    case SDL.EventType.MouseMotion:
+                    {
+                        _mouseDelta += new Vector2(winEvent.Motion.XRel, winEvent.Motion.YRel);
+                        break;
+                    }
                 }
             }
 
