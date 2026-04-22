@@ -79,8 +79,14 @@ public static class DemoApp
         if (_sdlWindow == IntPtr.Zero)
             throw new Exception($"Startup failure: Failed to create window: {SDL.GetError()}");
 
+        float scale = SDL.GetWindowDisplayScale(_sdlWindow);
+        float pixelDensity = SDL.GetWindowPixelDensity(_sdlWindow);
+        
         _renderer = new Renderer.Renderer(_sdlWindow);
         ImFontPtr font = ImGui.AddFont("Content/Roboto-Regular.ttf");
+        ImGuiStylePtr style = ImGui.GetStyle();
+        style.ScaleAllSizes(scale);
+        style.FontScaleDpi = scale;
 
         string[] paths = Directory.GetFiles("Content/DemoImages");
         _backgroundTextures = new Texture[paths.Length];
@@ -110,6 +116,14 @@ public static class DemoApp
                     case SDL.EventType.WindowResized:
                         Renderer.Resize(WindowSize);
                         break;
+                    case SDL.EventType.WindowDisplayScaleChanged:
+                        scale = SDL.GetWindowDisplayScale(_sdlWindow);
+                        pixelDensity = SDL.GetWindowPixelDensity(_sdlWindow);
+
+                        style = ImGui.GetStyle();
+                        style.MainScale = scale;
+                        style.FontScaleDpi = scale;
+                        break;
 
                     case SDL.EventType.KeyDown:
                     {
@@ -134,8 +148,10 @@ public static class DemoApp
                     case SDL.EventType.MouseMotion:
                     {
                         _activityTimer = 0;
-                        _mouseDelta += new Vector2(winEvent.Motion.XRel, winEvent.Motion.YRel);
-                        io.AddMousePosEvent(winEvent.Motion.X, winEvent.Motion.Y);
+                        ref readonly SDL.MouseMotionEvent motion = ref winEvent.Motion;
+                        
+                        _mouseDelta += new Vector2(motion.XRel, motion.YRel);
+                        io.AddMousePosEvent(motion.X * pixelDensity, motion.Y * pixelDensity);
                         break;
                     }
 

@@ -12,7 +12,8 @@ public static class ImGuiE
     {
         public static unsafe void DrawText(Vector2 position, uint size, string text, Color color)
         {
-            ImGui.GetForegroundDrawList().AddText(ImGui.GetIO().FontDefault, size, position, color.PackedValue, text);
+            ImGui.GetForegroundDrawList().AddText(ImGui.GetIO().FontDefault,
+                (uint) (size * ImGui.GetStyle().FontScaleDpi), position, color.PackedValue, text);
         }
 
         public static unsafe void DrawImage(Texture texture, Vector2 position, Size size, Color? tint = null)
