@@ -81,6 +81,8 @@ public class Renderer : IDisposable
 #endif
 
         Device = SDL.CreateGPUDeviceWithProperties(deviceProps).Check("Create device");
+        Console.WriteLine(SDL.GetStringProperty(SDL.GetGPUDeviceProperties(Device), SDL.Props.GPUDeviceNameString,
+            "Unknown"));
         SDL.ClaimWindowForGPUDevice(Device, _window).Check("Claim window for device");
 
         _transferBuffer = SDLUtils.CreateTransferBuffer(Device, SDL.GPUTransferBufferUsage.Upload, TransferBufferSize);

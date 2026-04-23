@@ -7,7 +7,11 @@ namespace Demo.Demos;
 
 public class WelcomeScreen() : Demo(null)
 {
+    private const float TimeOnScreen = 5;
+    private const float TransitionTime = 1;
+    
     private uint _currentBackground;
+    private uint _nextBackground;
     private float _timer;
     private float _fade;
     
@@ -45,10 +49,17 @@ public class WelcomeScreen() : Demo(null)
     public override void Update(float dt)
     {
         _timer += dt;
-        if (_timer >= 5)
+        if (_timer >= TimeOnScreen)
         {
-            _timer -= 5;
-            _currentBackground = (uint) ((_currentBackground + 1) % DemoApp.BackgroundTextures.Length);
+            _fade = (_timer - TimeOnScreen) / TransitionTime;
+            _nextBackground = (uint) ((_currentBackground + 1) % DemoApp.BackgroundTextures.Length);
+
+            if (_fade >= 1.0f)
+            {
+                _timer -= TimeOnScreen + TransitionTime;
+                _fade = 0;
+                _currentBackground = _nextBackground;
+            }
         }
     }
 
@@ -57,6 +68,12 @@ public class WelcomeScreen() : Demo(null)
         Texture texture = DemoApp.BackgroundTextures[_currentBackground];
         
         ImGui.DrawImage(texture, Vector2.Zero, DemoApp.WindowSize);
+        if (_fade > 0)
+        {
+            Texture fadeTexture = DemoApp.BackgroundTextures[_nextBackground];
+            ImGui.DrawImage(fadeTexture, Vector2.Zero, DemoApp.WindowSize, Color.White with { A = _fade });
+        }
+        
         ImGui.DrawRectangle(Vector2.Zero, new Size(1200, DemoApp.WindowSize.Height), Color.Black, Color.Transparent,
             Color.Black, Color.Transparent);
     }
