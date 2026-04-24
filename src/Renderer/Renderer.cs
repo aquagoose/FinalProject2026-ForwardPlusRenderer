@@ -21,6 +21,7 @@ public class Renderer : IDisposable
     private readonly IntPtr _transferBuffer;
     private uint _currentTransferBufferOffset;
 
+    private Size _renderSize;
     private IntPtr _depthTexture;
     
     private readonly ISceneRenderer _renderer;
@@ -52,6 +53,11 @@ public class Renderer : IDisposable
         get => _renderer.BackgroundColor;
         set => _renderer.BackgroundColor = value;
     }
+
+    /// <summary>
+    /// Get the size of the render output in pixels.
+    /// </summary>
+    public Size Size => _renderSize;
 
     /// <summary>
     /// Create a <see cref="Renderer"/> from the given window.
@@ -93,6 +99,7 @@ public class Renderer : IDisposable
         EmptyNormalTexture = new Texture(this, [128, 128, 255, 255], new Size(1), PixelFormat.RGBA8);
 
         SDL.GetWindowSizeInPixels(_window, out int w, out int h);
+        _renderSize = new Size((uint) w, (uint) h);
         _depthTexture = SDLUtils.CreateTexture(Device, SDL.GPUTextureType.TextureType2D, SDL.GPUTextureFormat.D32Float,
             (uint) w, (uint) h, 1, 1, SDL.GPUTextureUsageFlags.DepthStencilTarget);
         
@@ -204,6 +211,7 @@ public class Renderer : IDisposable
     /// <param name="size">The <see cref="Size"/> in pixels.</param>
     public void Resize(Size size)
     {
+        _renderSize = size;
         _renderer.Resize(size);
         _imguiRenderer.Resize(size);
         // Recreate depth texture

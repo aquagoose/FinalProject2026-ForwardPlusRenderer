@@ -17,6 +17,10 @@ public static class DemoApp
     private static IntPtr _sdlWindow;
     private static bool _alive;
     private static float _activityTimer;
+    private static float _fpsUpdateTimer;
+    private static uint _fpsCounter;
+    private static uint _currentFps;
+    private static float _currentDeltaTime;
     
     private static HashSet<Key> _keysDown = [];
     private static HashSet<Key> _keysPressed = [];
@@ -31,6 +35,10 @@ public static class DemoApp
     public static Renderer.Renderer Renderer => _renderer;
 
     public static Texture[] BackgroundTextures => _backgroundTextures;
+
+    public static uint FPS => _currentFps;
+
+    public static float DeltaTime => _currentDeltaTime;
 
     public static Size WindowSize
     {
@@ -173,6 +181,16 @@ public static class DemoApp
 
             float dt = (float) sw.Elapsed.TotalSeconds;
             sw.Restart();
+
+            _fpsUpdateTimer += dt;
+            _fpsCounter++;
+            _currentDeltaTime = dt;
+            if (_fpsUpdateTimer >= 1.0f)
+            {
+                _fpsUpdateTimer -= 1.0f;
+                _currentFps = _fpsCounter;
+                _fpsCounter = 0;
+            }
 
             Renderer.NewFrame();
             ImGui.NewFrame();

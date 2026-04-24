@@ -208,6 +208,8 @@ public class LightCasterDemo() : Demo("Light Casters")
         
         for (int i = 0; i < _numLights; i++)
             Renderer.AddLight(_lights[i]);
+        
+        base.Draw();
     }
 
     public override void Dispose()
