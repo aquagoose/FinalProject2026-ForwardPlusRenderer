@@ -25,8 +25,16 @@ public class LoadingScreen(Demo demoToLoad) : Demo(null)
         
         // TODO: Don't use DemoApp.WindowSize for the demo images!
         ImGui.DrawImage(DemoApp.BackgroundTextures[Random.Shared.Next(DemoApp.BackgroundTextures.Length)], Vector2.Zero, windowSize);
-        
-        ImGui.DrawRectangle(new Vector2(0, windowSize.Height - 200), new Size(windowSize.Width, 200), Color.Black with { A = 0.5f });
-        ImGui.DrawText(new Vector2(10, windowSize.Height - 200), 120, "Loading...", Color.White);
+        //ImGui.DrawImage(DemoApp.BackgroundTextures[0], Vector2.Zero, windowSize);
+
+        const string loadingText = "Loading...";
+        const uint size = 120;
+        Size textSize = ImGui.MeasureText(size, loadingText);
+
+        uint height = textSize.Height + 200;
+        ImGui.DrawRectangle(new Vector2(0, windowSize.Height - height),
+            new Size(windowSize.Width, height), Color.Transparent, Color.Transparent, Color.Black,
+            Color.Black);
+        ImGui.DrawText(new Vector2(10, windowSize.Height - textSize.Height), size, "Loading...", Color.White);
     }
 }

@@ -27,6 +27,7 @@ public class LightCasterDemo() : Demo("Light Casters")
     private float _value;
     private bool _useArcball;
     private bool _showLights;
+    private float _renderScale;
     
     private Vector3 _cameraPos;
     private Vector2 _cameraRotation;
@@ -59,6 +60,7 @@ public class LightCasterDemo() : Demo("Light Casters")
         _lamp = new Model(Renderer, "Content/Models/WaterBottle.glb");
 
         _useArcball = true;
+        _renderScale = 1;
     }
 
     public override void DisplayUI()
@@ -67,11 +69,45 @@ public class LightCasterDemo() : Demo("Light Casters")
         {
             if (ImGui.SliderInt("Number of Lights", ref _numLights, 1, _lights.Length))
                 SetLights();
+            ImGui.SetItemTooltip("Increase/decrease the number of lights on-screen,\nand see how it affects performance.");
             
-            if (ImGui.Button("Randomize"))
+            if (ImGui.Button("Randomize Lights"))
                 SetLights();
+            ImGui.SetItemTooltip("Randomize the position of each light.");
 
             ImGui.Checkbox("Show Lights", ref _showLights);
+            ImGui.SetItemTooltip("Show the light casters on screen.");
+
+            ImGui.SliderFloat("Render Scale", ref _renderScale, 0.1f, 1.0f);
+            ImGui.SetItemTooltip("Set how much of the screen is taken up by the image,\nand see how it affects performance.");
+
+            if (ImGui.Button("Enter Free-look mode"))
+            {
+                _useArcball = false;
+                DemoApp.MouseVisible = false;
+            }
+            ImGui.SetItemTooltip("Enter a free-look mode where you can use the mouse & keyboard\nto move the camera around freely.");
+
+            ImGui.Separator();
+            
+            if (ImGui.Button("Exit Demo"))
+                DemoApp.LoadDemo(new WelcomeScreen());
+            ImGui.SetItemTooltip("Exit the demo and return to the main menu.");
+            
+            ImGui.End();
+        }
+        else if (ImGui.BeginDemoSettingsWindow())
+        {
+            ImGui.PushFont(ImFontPtr.Null, 48);
+            ImGui.Text("Free-look Mode");
+            ImGui.PopFont();
+            
+            ImGui.Text("Press C to exit.");
+            
+            ImGui.SeparatorText("Controls");
+            ImGui.Text("W, A, S, D: Movement");
+            ImGui.Text("Mouse: Look Around");
+            ImGui.Text("Shift: Speed up");
             
             ImGui.End();
         }
@@ -92,7 +128,7 @@ public class LightCasterDemo() : Demo("Light Casters")
 
         if (_useArcball)
         {
-            _value += dt * 0.25f;
+            _value += dt * 0.15f;
             if (_value >= float.Pi * 2)
                 _value -= float.Pi * 2;
             
@@ -156,9 +192,19 @@ public class LightCasterDemo() : Demo("Light Casters")
                 Renderer.Draw(_lightCube, Matrix4x4.CreateScale(0.2f) * Matrix4x4.CreateTranslation(_lights[i].Position));
         }
 
+        Size windowSize = DemoApp.WindowSize;
+        Size renderSize = new()
+        {
+            Width = (uint) (windowSize.Width * _renderScale),
+            Height = (uint) (windowSize.Height * _renderScale)
+        };
+
+        Offset offset = new Offset((int) (windowSize.Width / 2 - renderSize.Width / 2),
+            (int) (windowSize.Height / 2 - renderSize.Height / 2));
+        
         Renderer.AddCamera(Camera.Perspective(_cameraPos,
             Quaternion.CreateFromYawPitchRoll(_cameraRotation.X, _cameraRotation.Y, 0), float.DegreesToRadians(75),
-            new Rectangle(Offset.Zero, DemoApp.WindowSize), 0.1f, 100f, _skybox));
+            new Rectangle(offset, renderSize), 0.1f, 100f, _skybox));
         
         for (int i = 0; i < _numLights; i++)
             Renderer.AddLight(_lights[i]);

@@ -10,6 +10,15 @@ public static class ImGuiE
 {
     extension(ImGui)
     {
+        public static Size MeasureText(uint size, string text)
+        {
+            ImGui.PushFont(ImFontPtr.Null, size);
+            Vector2 textSize = ImGui.CalcTextSize(text);
+            ImGui.PopFont();
+
+            return new Size((uint) textSize.X, (uint) textSize.Y);
+        }
+        
         public static unsafe void DrawText(Vector2 position, uint size, string text, Color color)
         {
             ImGui.GetForegroundDrawList().AddText(ImGui.GetIO().FontDefault,

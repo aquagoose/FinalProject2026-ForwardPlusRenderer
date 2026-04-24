@@ -119,6 +119,7 @@ public static class DemoApp
                     case SDL.EventType.WindowDisplayScaleChanged:
                         scale = SDL.GetWindowDisplayScale(_sdlWindow);
                         pixelDensity = SDL.GetWindowPixelDensity(_sdlWindow);
+                        Renderer.Resize(WindowSize);
 
                         style = ImGui.GetStyle();
                         style.MainScale = scale;
@@ -182,8 +183,11 @@ public static class DemoApp
 
                 if (_activityTimer >= ActivityTimeout - 5)
                 {
-                    ImGui.DrawText(new Vector2(0, WindowSize.Height - 50), 48,
-                        $"Returning to menu in {-(_activityTimer - ActivityTimeout):0.0}...", Color.Red);
+                    string text = $"Returning to menu in {-(_activityTimer - ActivityTimeout):0.0}...";
+                    const uint size = 48;
+                    Size textSize = ImGui.MeasureText(size, text);
+                    
+                    ImGui.DrawText(new Vector2(0, WindowSize.Height - textSize.Height), size, text, Color.White);
                 }
                 
                 if (_activityTimer >= ActivityTimeout)
