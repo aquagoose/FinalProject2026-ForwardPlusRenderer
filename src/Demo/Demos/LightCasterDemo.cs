@@ -11,7 +11,7 @@ namespace Demo.Demos;
 public class LightCasterDemo() : Demo("Light Casters")
 {
     private Skybox _skybox = null!;
-    
+
     private Material _material = null!;
     private Renderable _cube = null!;
 
@@ -28,15 +28,15 @@ public class LightCasterDemo() : Demo("Light Casters")
     private bool _useArcball;
     private bool _showLights;
     private float _renderScale;
-    
+
     private Vector3 _cameraPos;
     private Vector2 _cameraRotation;
-    
+
     public override void Initialize()
     {
         _skybox = new Skybox(Renderer, "Content/Skybox/Space1/right.png", "Content/Skybox/Space1/left.png", "Content/Skybox/Space1/top.png",
             "Content/Skybox/Space1/bottom.png", "Content/Skybox/Space1/front.png", "Content/Skybox/Space1/back.png");
-        
+
         _material = new StandardMaterial(Renderer, new Texture(Renderer, "Content/PBR/metalgrid3_basecolor.png"))
         {
             Normal = new Texture(Renderer, "Content/PBR/metalgrid3_normal-dx.png"),
@@ -44,7 +44,7 @@ public class LightCasterDemo() : Demo("Light Casters")
             Roughness = new Texture(Renderer, "Content/PBR/metalgrid3_roughness.png"),
             Occlusion = new Texture(Renderer, "Content/PBR/metalgrid3_AO.png")
         };
-        
+
         _lightMaterial = new UnlitMaterial(Renderer, Renderer.WhiteTexture);
 
         Cube cube = new Cube();
@@ -70,7 +70,7 @@ public class LightCasterDemo() : Demo("Light Casters")
             if (ImGui.SliderInt("Number of Lights", ref _numLights, 1, _lights.Length))
                 SetLights();
             ImGui.SetItemTooltip("Increase/decrease the number of lights on-screen,\nand see how it affects performance.");
-            
+
             if (ImGui.Button("Randomize Lights"))
                 SetLights();
             ImGui.SetItemTooltip("Randomize the position of each light.");
@@ -89,11 +89,11 @@ public class LightCasterDemo() : Demo("Light Casters")
             ImGui.SetItemTooltip("Enter a free-look mode where you can use the mouse & keyboard\nto move the camera around freely.");
 
             ImGui.Separator();
-            
+
             if (ImGui.Button("Exit Demo"))
                 DemoApp.LoadDemo(new WelcomeScreen());
             ImGui.SetItemTooltip("Exit the demo and return to the main menu.");
-            
+
             ImGui.End();
         }
         else if (ImGui.BeginDemoSettingsWindow())
@@ -101,17 +101,17 @@ public class LightCasterDemo() : Demo("Light Casters")
             ImGui.PushFont(ImFontPtr.Null, 48);
             ImGui.Text("Free-look Mode");
             ImGui.PopFont();
-            
+
             ImGui.Text("Press C to exit.");
-            
+
             ImGui.SeparatorText("Controls");
             ImGui.Text("W, A, S, D: Movement");
             ImGui.Text("Mouse: Look Around");
             ImGui.Text("Shift: Speed up");
-            
+
             ImGui.End();
         }
-        
+
         base.DisplayUI();
     }
 
@@ -131,7 +131,7 @@ public class LightCasterDemo() : Demo("Light Casters")
             _value += dt * 0.15f;
             if (_value >= float.Pi * 2)
                 _value -= float.Pi * 2;
-            
+
             // Arcball camera
             const float distance = 12;
             float x = float.Sin(_value) * distance;
@@ -147,7 +147,7 @@ public class LightCasterDemo() : Demo("Light Casters")
             _cameraRotation.Y -= mouseDelta.Y * mouseSensitivity;
             // Clamp camera rotation to 180 degree range to prevent gimbal lock
             _cameraRotation.Y = float.Clamp(_cameraRotation.Y, -float.Pi / 2, float.Pi / 2);
-            
+
             Quaternion rotation = Quaternion.CreateFromYawPitchRoll(_cameraRotation.X, _cameraRotation.Y, 0);
             Vector3 forward = Vector3.Transform(-Vector3.UnitZ, rotation);
             Vector3 right = Vector3.Transform(Vector3.UnitX, rotation);
@@ -168,7 +168,7 @@ public class LightCasterDemo() : Demo("Light Casters")
             if (DemoApp.IsKeyDown(Key.LCtrl))
                 _cameraPos -= up * cameraSpeed;
         }
-        
+
         base.Update(dt);
     }
 
@@ -182,7 +182,7 @@ public class LightCasterDemo() : Demo("Light Casters")
         Renderer.Draw(_cube, Matrix4x4.CreateTranslation(9, 0.5f, 4));
         Renderer.Draw(_cube, Matrix4x4.CreateTranslation(-8, 0.5f, -3));
         Renderer.Draw(_cube, Matrix4x4.CreateTranslation(-6, 0.5f, -8));
-        
+
         _fox.Draw(Renderer, Matrix4x4.CreateScale(0.02f));
         _lamp.Draw(Renderer, Matrix4x4.CreateScale(10) * Matrix4x4.CreateTranslation(2, 1.3f, 6));
 
@@ -201,14 +201,14 @@ public class LightCasterDemo() : Demo("Light Casters")
 
         Offset offset = new Offset((int) (windowSize.Width / 2 - renderSize.Width / 2),
             (int) (windowSize.Height / 2 - renderSize.Height / 2));
-        
+
         Renderer.AddCamera(Camera.Perspective(_cameraPos,
             Quaternion.CreateFromYawPitchRoll(_cameraRotation.X, _cameraRotation.Y, 0), float.DegreesToRadians(75),
             new Rectangle(offset, renderSize), 0.1f, 100f, _skybox));
-        
+
         for (int i = 0; i < _numLights; i++)
             Renderer.AddLight(_lights[i]);
-        
+
         base.Draw();
     }
 

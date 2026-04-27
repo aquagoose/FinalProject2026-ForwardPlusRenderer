@@ -8,12 +8,12 @@ namespace Demo.Demos;
 public class LoadingScreen(Demo demoToLoad) : Demo(null)
 {
     private bool _hasDrawn;
-    
+
     public override void Update(float dt)
     {
         if (!_hasDrawn)
             return;
-        
+
         demoToLoad.Initialize();
         DemoApp.SetDemo(demoToLoad);
     }
@@ -22,7 +22,7 @@ public class LoadingScreen(Demo demoToLoad) : Demo(null)
     {
         _hasDrawn = true;
         Size windowSize = DemoApp.WindowSize;
-        
+
         // TODO: Don't use DemoApp.WindowSize for the demo images!
         ImGui.DrawImage(DemoApp.BackgroundTextures[Random.Shared.Next(DemoApp.BackgroundTextures.Length)], Vector2.Zero, windowSize);
         //ImGui.DrawImage(DemoApp.BackgroundTextures[0], Vector2.Zero, windowSize);
