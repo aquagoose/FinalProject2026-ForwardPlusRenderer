@@ -116,7 +116,7 @@ public abstract class Material : IDisposable
         SDL.GPUDepthStencilState depthStencilState = new()
         {
             EnableDepthTest = true,
-            EnableDepthWrite = true,
+            EnableDepthWrite = false, // No need to write to the depth buffer as we're doing a depth pre-pass.
             CompareOp = SDL.GPUCompareOp.LessOrEqual,
         };
 

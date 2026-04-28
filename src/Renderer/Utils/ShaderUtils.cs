@@ -5,6 +5,15 @@ namespace Renderer.Utils;
 
 public static class ShaderUtils
 {
+    /// <summary>
+    /// Compile an HLSL shader from the given path to SPIR-V.
+    /// </summary>
+    /// <param name="stage">The <see cref="ShaderCross.ShaderStage"/> to compile.</param>
+    /// <param name="path">The full file path to the HLSL file.</param>
+    /// <param name="entryPoint">The entry point of the shader.</param>
+    /// <param name="size">The SPIR-V size in bytes.</param>
+    /// <returns>A native array of SPIR-V with <paramref name="size"/> bytes of data.</returns>
+    /// <remarks>Unless you intend to compile shaders separately, you probably want <see cref="LoadShader"/> instead.</remarks>
     public static unsafe IntPtr CompileShader(ShaderCross.ShaderStage stage, string path, string entryPoint, out nuint size)
     {
         string? includeDir = Path.GetDirectoryName(path);
@@ -22,6 +31,13 @@ public static class ShaderUtils
         return spirv;
     }
     
+    /// <summary>
+    /// Compile and load an HLSL shader.
+    /// </summary>
+    /// <param name="device">The SDL GPU device associated with this shader.</param>
+    /// <param name="stage">The <see cref="ShaderCross.ShaderStage"/> to compile.</param>
+    /// <param name="name">The name of the shader. This is <b>NOT</b> a full path.</param>
+    /// <returns>The compiled and created SDL_GPUShader.</returns>
     public static unsafe IntPtr LoadShader(IntPtr device, ShaderCross.ShaderStage stage, string name)
     {
         string fullPath = Path.Combine(AppContext.BaseDirectory, "Shaders", $"{name}.hlsl");
