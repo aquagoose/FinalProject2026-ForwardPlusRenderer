@@ -101,7 +101,8 @@ public class Renderer : IDisposable
         SDL.GetWindowSizeInPixels(_window, out int w, out int h);
         _renderSize = new Size((uint) w, (uint) h);
         _depthTexture = SDLUtils.CreateTexture(Device, SDL.GPUTextureType.TextureType2D, SDL.GPUTextureFormat.D32Float,
-            (uint) w, (uint) h, 1, 1, SDL.GPUTextureUsageFlags.DepthStencilTarget);
+            (uint) w, (uint) h, 1, 1,
+            SDL.GPUTextureUsageFlags.DepthStencilTarget | SDL.GPUTextureUsageFlags.Sampler);
         
         _renderer = new ForwardPlusRenderer(this);
         _imguiRenderer = new ImGuiRenderer(this, new Size((uint) w, (uint) h), RendererTargetFormat);
@@ -217,7 +218,8 @@ public class Renderer : IDisposable
         // Recreate depth texture
         SDL.ReleaseGPUTexture(Device, _depthTexture);
         _depthTexture = SDLUtils.CreateTexture(Device, SDL.GPUTextureType.TextureType2D, SDL.GPUTextureFormat.D32Float,
-            size.Width, size.Height, 1, 1, SDL.GPUTextureUsageFlags.DepthStencilTarget);
+            size.Width, size.Height, 1, 1,
+            SDL.GPUTextureUsageFlags.DepthStencilTarget | SDL.GPUTextureUsageFlags.Sampler);
     }
 
     internal unsafe void UpdateBuffer<T>(IntPtr buffer, uint offset, in ReadOnlySpan<T> data) where T : unmanaged
