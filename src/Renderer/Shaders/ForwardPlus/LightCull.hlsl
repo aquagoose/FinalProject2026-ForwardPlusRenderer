@@ -6,7 +6,7 @@
 
 #define NUM_THREADS_PER_TILE TILE_SIZE * TILE_SIZE
 
-Texture2D<float> DepthTexture : register(t0, space0);
+//Texture2D<float> DepthTexture : register(t0, space0);
 StructuredBuffer<Light> SceneLights : register(t5, space0);
 
 groupshared uint LightIndexCounter;
@@ -33,6 +33,21 @@ float3 CreatePlaneEquation(float3 b, float3 c)
 float4 ConvertProjToView(float4 p)
 {
     return mul(gScene.Camera.View, p);
+}
+
+float GetSignedDistanceFromPlane(const float3 p, const float3 equation)
+{
+    return dot(equation, p);
+}
+
+bool TestFrustumSides(const float3 center, const float radius, const float3 planes[4])
+{
+    const bool intersectingOrInside0 = GetSignedDistanceFromPlane(center, planes[0]) < radius;
+    const bool intersectingOrInside1 = GetSignedDistanceFromPlane(center, planes[1]) < radius;
+    const bool intersectingOrInside2 = GetSignedDistanceFromPlane(center, planes[2]) < radius;
+    const bool intersectingOrInside3 = GetSignedDistanceFromPlane(center, planes[3]) < radius;
+    
+    return intersectingOrInside0 && intersectingOrInside1 && intersectingOrInside2 && intersectingOrInside3;
 }
 
 [numthreads(TILE_SIZE, TILE_SIZE, 1)]
@@ -63,12 +78,23 @@ void CSMain(uint3 globalID : SV_DispatchThreadID, uint3 localID : SV_GroupThread
     frustumEquations[3] = CreatePlaneEquation(frustum3, frustum0);
 
     GroupMemoryBarrierWithGroupSync();
-
+    
     for (uint i = localIDindex; i < gScene.NumLights; i += NUM_THREADS_PER_TILE)
     {
         float3 center = SceneLights[i].Position;
         const float radius = 2;
-
+        center.xyz = mul(gScene.Camera.Projection, mul(gScene.Camera.View, float4(center, 1.0))).xyz;
         
+        if (TestFrustumSides(center, radius, frustumEquations))
+        {
+            if (-center.z < radius)
+            {
+                uint destinationIndex = 0;
+                InterlockedAdd(LightIndexCounter, 1, destinationIndex);
+                LightIndices[destinationIndex] = i;
+            }
+        }
     }
+    
+    GroupMemoryBarrierWithGroupSync();
 }

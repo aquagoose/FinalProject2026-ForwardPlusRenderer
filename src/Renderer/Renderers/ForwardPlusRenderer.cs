@@ -18,6 +18,7 @@ internal class ForwardPlusRenderer : ISceneRenderer
     private IntPtr _lightBuffer;
 
     private IntPtr _depthPrepassPipeline;
+    private IntPtr _lightCullComputePipeline;
 
     public Color BackgroundColor { get; set; }
     
@@ -110,6 +111,31 @@ internal class ForwardPlusRenderer : ISceneRenderer
 
         _depthPrepassPipeline = SDL.CreateGPUGraphicsPipeline(device, in pipelineInfo)
             .Check("Create depth prepass pipeline");
+
+        IntPtr spirv = ShaderUtils.CompileShader(ShaderCross.ShaderStage.Compute, "Shaders/ForwardPlus/LightCull.hlsl",
+            "CSMain", out nuint spirvSize);
+
+        ShaderCross.SPIRVInfo info = new()
+        {
+            ByteCode = spirv,
+            ByteCodeSize = spirvSize,
+            ManagedEntrypoint = "CSMain",
+            ShaderStage = ShaderCross.ShaderStage.Compute
+        };
+
+        ShaderCross.ComputePipelineMetadata pipelineMetadata = new()
+        {
+            NumReadOnlyStorageBuffers = 1,
+            //NumSamplers = 1,
+            NumUniformBuffers = 1,
+            ThreadCountX = 16,
+            ThreadCountY = 16,
+            ThreadCountZ = 1
+        };
+
+        _lightCullComputePipeline =
+            ShaderCross.CompileComputePipelineFromSPIRV(device, in info, in pipelineMetadata, 0)
+                .Check("Create compute pipeline");
     }
 
     public void ClearDrawQueues()
@@ -153,6 +179,7 @@ internal class ForwardPlusRenderer : ISceneRenderer
         };
         SDL.PushGPUVertexUniformData(cb, 0, new IntPtr(&sceneData), (uint) sizeof(SceneData));
         SDL.PushGPUFragmentUniformData(cb, 0, new IntPtr(&sceneData), (uint) sizeof(SceneData));
+        SDL.PushGPUComputeUniformData(cb, 0, new IntPtr(&sceneData), (uint) sizeof(SceneData));
         
         SDL.GPUDepthStencilTargetInfo depthTarget = new()
         {
@@ -201,6 +228,20 @@ internal class ForwardPlusRenderer : ISceneRenderer
         }
         
         SDL.EndGPURenderPass(depthPrepass);
+
+        // Light culling compute pass
+        { 
+            IntPtr lightCullPass = SDL.BeginGPUComputePass(cb, [], 0, [], 0).Check("Begin light cull pass");
+            
+            SDL.BindGPUComputePipeline(lightCullPass, _lightCullComputePipeline);
+            
+            SDL.BindGPUComputeStorageBuffers(lightCullPass, 0, _lightBuffer, 1);
+            //SDL.BindGPUComputeSamplers(lightCullPass, 0, );
+
+            SDL.DispatchGPUCompute(lightCullPass, camera.Viewport.Width / 16, camera.Viewport.Height / 16, 1);
+            
+            SDL.EndGPUComputePass(lightCullPass);
+        }
         
         SDL.GPUColorTargetInfo colorTarget = new()
         {
