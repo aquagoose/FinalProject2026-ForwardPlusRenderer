@@ -2,6 +2,7 @@
 
 #include "Common.hlsli"
 #include "../Lighting/Lights.hlsli"
+#include "../ForwardPlus/Common.hlsli"
 
 SAMPLER2D_PS(Albedo, 0)
 SAMPLER2D_PS(Normal, 1)
@@ -11,6 +12,7 @@ SAMPLER2D_PS(Occlusion, 4)
 
 //ByteAddressBuffer SceneLights : register(t5, space2);
 StructuredBuffer<Light> SceneLights : register(t5, space2);
+StructuredBuffer<uint> LightIndices : register(t6, space2);
 
 cbuffer SceneData : register(b0, space3)
 {
@@ -19,6 +21,25 @@ cbuffer SceneData : register(b0, space3)
 
 float4 PSMain(const in VertexOutput input): SV_Target0
 {
+    const float2 normalizedPos = input.Position.xy / gScene.TargetSize;
+    const uint2 numTiles = GetNumberOfTiles(gScene.TargetSize);
+    const uint2 currentTile = numTiles * normalizedPos;
+    const uint currentTileIndex = currentTile.y * numTiles.x + currentTile.x;
+    const uint startOffset = currentTileIndex * MAX_LIGHTS_PER_TILE;
+        
+    uint numLightsInThisTile = 0;
+    for (int i = 0; i < MAX_LIGHTS_PER_TILE; i++)
+    {
+        const uint lightIndex = LightIndices[startOffset + i];
+        if (lightIndex == LIGHT_BUFFER_END_OF_ARRAY)
+            break;
+        
+        numLightsInThisTile++;
+    }
+    
+    //return float4(currentTileIndex / (float) (numTiles.x * numTiles.y), 0.0, 0.0, 1.0);
+    return float4(numLightsInThisTile / 512.0, 0.0, 0.0, 1.0);
+    
     float3 albedo = SAMPLE(Albedo, input.TexCoord).rgb * (float3) input.Color;
     // Sample the metallic texture's blue channel, and the roughness texture's green channel.
     // Most Metallic-Roughness textures will provide the same color on each of the RGB channels,

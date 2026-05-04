@@ -14,7 +14,7 @@ struct Scene
 {
     Camera Camera;
     uint NumLights;
-    float2 TargetSize;
+    uint2 TargetSize;
 };
 
 #endif

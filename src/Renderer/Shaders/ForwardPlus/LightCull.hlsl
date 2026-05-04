@@ -7,7 +7,8 @@
 #define NUM_THREADS_PER_TILE TILE_SIZE * TILE_SIZE
 
 //Texture2D<float> DepthTexture : register(t0, space0);
-StructuredBuffer<Light> SceneLights : register(t5, space0);
+StructuredBuffer<Light> SceneLights : register(t0, space0);
+RWStructuredBuffer<uint> LightIndexBuffer : register(u0, space1);
 
 groupshared uint LightIndexCounter;
 groupshared uint LightIndices[MAX_LIGHTS_PER_TILE];
@@ -15,14 +16,6 @@ groupshared uint LightIndices[MAX_LIGHTS_PER_TILE];
 cbuffer SceneData : register(b0, space2)
 {
     Scene gScene;
-}
-
-// Calculate the number of tiles. This adds one extra tile if the screen size does not cleanly divide by TILE_SIZE.
-uint2 GetNumberOfTiles()
-{
-    const uint x = (uint) ((gScene.TargetSize.x + TILE_SIZE - 1) / (float) TILE_SIZE);
-    const uint y = (uint) ((gScene.TargetSize.y + TILE_SIZE - 1) / (float) TILE_SIZE);
-    return uint2(x, y);
 }
 
 float3 CreatePlaneEquation(float3 b, float3 c)
@@ -65,7 +58,7 @@ void CSMain(uint3 globalID : SV_DispatchThreadID, uint3 localID : SV_GroupThread
     uint pxp = TILE_SIZE * (groupID.x + 1);
     uint pyp = TILE_SIZE * (groupID.y + 1);
 
-    uint2 targetSizeEvenlyDivisibleByTileRes = GetNumberOfTiles() * TILE_SIZE;
+    uint2 targetSizeEvenlyDivisibleByTileRes = GetNumberOfTiles(gScene.TargetSize) * TILE_SIZE;
 
     float3 frustum0 = ConvertProjToView(float4(pxm / (float)targetSizeEvenlyDivisibleByTileRes.x * 2.0 - 1.0, (targetSizeEvenlyDivisibleByTileRes.y - pym) / (float)targetSizeEvenlyDivisibleByTileRes.y * 2.0 - 1.0, 1.0, 1.0)).xyz;
     float3 frustum1 = ConvertProjToView(float4(pxp / (float)targetSizeEvenlyDivisibleByTileRes.x * 2.0 - 1.0, (targetSizeEvenlyDivisibleByTileRes.y - pym) / (float)targetSizeEvenlyDivisibleByTileRes.y * 2.0 - 1.0, 1.0, 1.0)).xyz;
@@ -97,4 +90,17 @@ void CSMain(uint3 globalID : SV_DispatchThreadID, uint3 localID : SV_GroupThread
     }
     
     GroupMemoryBarrierWithGroupSync();
+    
+    const uint tileIndex = groupID.y * GetNumberOfTiles(gScene.TargetSize).y + groupID.x;
+    const uint startOffset = MAX_LIGHTS_PER_TILE * tileIndex;
+    
+    for (uint i = localIDindex; i < LightIndexCounter; i++)
+    {
+        LightIndexBuffer[startOffset + i] = LightIndices[i]; 
+    }
+    
+    if (localIDindex == 0)
+    {
+        LightIndexBuffer[startOffset + LightIndexCounter] = LIGHT_BUFFER_END_OF_ARRAY;
+    }
 }

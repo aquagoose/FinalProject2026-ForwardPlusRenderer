@@ -1,4 +1,5 @@
 using System.Runtime.InteropServices;
+using Renderer.Math;
 
 namespace Renderer.Structs;
 
@@ -7,4 +8,5 @@ internal struct SceneData
 {
     public ShaderCamera Camera;
     public uint NumLights;
+    public Size TargetSize;
 }
