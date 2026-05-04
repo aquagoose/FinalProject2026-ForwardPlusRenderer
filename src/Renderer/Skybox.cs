@@ -170,7 +170,7 @@ public class Skybox : IDisposable
 
     internal unsafe void Draw(IntPtr cb, IntPtr colorTexture, IntPtr depthTexture, Camera camera)
     {
-        ShaderCamera shaderCamera = new ShaderCamera(camera.Projection, camera.View, Vector4.Zero);
+        ShaderCamera shaderCamera = new ShaderCamera(camera.Projection, Matrix4x4.Identity, camera.View, Vector4.Zero);
         SDL.PushGPUVertexUniformData(cb, 0, new IntPtr(&shaderCamera), (uint) sizeof(ShaderCamera));
         
         SDL.GPUColorTargetInfo colorTargetInfo = new()

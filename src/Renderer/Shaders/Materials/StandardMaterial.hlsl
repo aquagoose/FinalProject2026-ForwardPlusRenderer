@@ -28,17 +28,16 @@ float4 PSMain(const in VertexOutput input): SV_Target0
     const uint startOffset = currentTileIndex * MAX_LIGHTS_PER_TILE;
         
     uint numLightsInThisTile = 0;
-    for (int i = 0; i < MAX_LIGHTS_PER_TILE; i++)
+    /*for (int i = 0; i < MAX_LIGHTS_PER_TILE; i++)
     {
         const uint lightIndex = LightIndices[startOffset + i];
         if (lightIndex == LIGHT_BUFFER_END_OF_ARRAY)
             break;
         
         numLightsInThisTile++;
-    }
+    }*/
     
     //return float4(currentTileIndex / (float) (numTiles.x * numTiles.y), 0.0, 0.0, 1.0);
-    return float4(numLightsInThisTile / 512.0, 0.0, 0.0, 1.0);
     
     float3 albedo = SAMPLE(Albedo, input.TexCoord).rgb * (float3) input.Color;
     // Sample the metallic texture's blue channel, and the roughness texture's green channel.
@@ -61,9 +60,13 @@ float4 PSMain(const in VertexOutput input): SV_Target0
     light += PointLight(float3(8, 1, 8), float3(1, 1, 0), power, radius, input.WorldPos, view, albedo, normal, metallic, roughness);
     light += PointLight(float3(-8, 1, 8), float3(0, 1, 1), power, radius, input.WorldPos, view, albedo, normal, metallic, roughness);*/
     
-    for (int i = 0; i < gScene.NumLights; i++)
+    for (int i = 0; i < MAX_LIGHTS_PER_TILE; i++)
     {
-        Light l = SceneLights[i];
+        const uint lightIndex = LightIndices[startOffset + i];
+        if (lightIndex == LIGHT_BUFFER_END_OF_ARRAY)
+            break;
+        Light l = SceneLights[lightIndex];
+        //Light l = SceneLights[i];
         light += PointLight(l.Position.xyz, l.Color.xyz, power, radius, input.WorldPos, view, albedo, normal, metallic, roughness);
     }
     
@@ -72,5 +75,5 @@ float4 PSMain(const in VertexOutput input): SV_Target0
     color /= color + (float3) 1.0;
     color = pow(color, (float3) 1.0 / 2.2);
     
-    return float4(color, 1.0);
+    return float4(color + float4(numLightsInThisTile, 0, 0, 0), 1.0);
 }

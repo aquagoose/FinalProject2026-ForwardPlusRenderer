@@ -12,7 +12,7 @@ internal class ForwardPlusRenderer : ISceneRenderer
 {
     // These constants must match the values in Shaders/ForwardPlus/Common.hlsli
     private const uint TileSize = 16;
-    private const uint MaxLightsPerTile = 32;
+    private const uint MaxLightsPerTile = 512;
     
     private readonly Renderer _renderer;
     private readonly List<(Renderable renderable, Matrix4x4 world)> _opaques;
@@ -184,11 +184,12 @@ internal class ForwardPlusRenderer : ISceneRenderer
         _renderer.UpdateBuffer(_lightBuffer, 0, _lights);
 
         // TODO: Better way of doing this?
+        Matrix4x4.Invert(camera.Projection, out Matrix4x4 inverseProjection);
         Matrix4x4.Invert(camera.View, out Matrix4x4 inverseView);
         Vector3 cameraPos = inverseView.Translation;
         SceneData sceneData = new()
         {
-            Camera = new ShaderCamera(camera.Projection, camera.View, new Vector4(cameraPos, 0)),
+            Camera = new ShaderCamera(camera.Projection, inverseProjection, camera.View, new Vector4(cameraPos, 0)),
             NumLights = _numLights,
             TargetSize = _renderer.Size
         };

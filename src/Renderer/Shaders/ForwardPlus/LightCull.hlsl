@@ -25,7 +25,9 @@ float3 CreatePlaneEquation(float3 b, float3 c)
 
 float4 ConvertProjToView(float4 p)
 {
-    return mul(gScene.Camera.View, p);
+    float4 proj = mul(gScene.Camera.InverseProjection, p);
+    proj /= proj.w;
+    return proj;
 }
 
 float GetSignedDistanceFromPlane(const float3 p, const float3 equation)
@@ -60,10 +62,10 @@ void CSMain(uint3 globalID : SV_DispatchThreadID, uint3 localID : SV_GroupThread
 
     uint2 targetSizeEvenlyDivisibleByTileRes = GetNumberOfTiles(gScene.TargetSize) * TILE_SIZE;
 
-    float3 frustum0 = ConvertProjToView(float4(pxm / (float)targetSizeEvenlyDivisibleByTileRes.x * 2.0 - 1.0, (targetSizeEvenlyDivisibleByTileRes.y - pym) / (float)targetSizeEvenlyDivisibleByTileRes.y * 2.0 - 1.0, 1.0, 1.0)).xyz;
-    float3 frustum1 = ConvertProjToView(float4(pxp / (float)targetSizeEvenlyDivisibleByTileRes.x * 2.0 - 1.0, (targetSizeEvenlyDivisibleByTileRes.y - pym) / (float)targetSizeEvenlyDivisibleByTileRes.y * 2.0 - 1.0, 1.0, 1.0)).xyz;
-    float3 frustum2 = ConvertProjToView(float4(pxp / (float)targetSizeEvenlyDivisibleByTileRes.x * 2.0 - 1.0, (targetSizeEvenlyDivisibleByTileRes.y - pyp) / (float)targetSizeEvenlyDivisibleByTileRes.y * 2.0 - 1.0, 1.0, 1.0)).xyz;
-    float3 frustum3 = ConvertProjToView(float4(pxm / (float)targetSizeEvenlyDivisibleByTileRes.x * 2.0 - 1.0, (targetSizeEvenlyDivisibleByTileRes.y - pyp) / (float)targetSizeEvenlyDivisibleByTileRes.y * 2.0 - 1.0, 1.0, 1.0)).xyz;
+    float3 frustum0 = ConvertProjToView(float4(pxm / (float) targetSizeEvenlyDivisibleByTileRes.x * 2.0 - 1.0, (targetSizeEvenlyDivisibleByTileRes.y - pym) / (float) targetSizeEvenlyDivisibleByTileRes.y * 2.0 - 1.0, 1.0, 1.0)).xyz;
+    float3 frustum1 = ConvertProjToView(float4(pxp / (float) targetSizeEvenlyDivisibleByTileRes.x * 2.0 - 1.0, (targetSizeEvenlyDivisibleByTileRes.y - pym) / (float) targetSizeEvenlyDivisibleByTileRes.y * 2.0 - 1.0, 1.0, 1.0)).xyz;
+    float3 frustum2 = ConvertProjToView(float4(pxp / (float) targetSizeEvenlyDivisibleByTileRes.x * 2.0 - 1.0, (targetSizeEvenlyDivisibleByTileRes.y - pyp) / (float) targetSizeEvenlyDivisibleByTileRes.y * 2.0 - 1.0, 1.0, 1.0)).xyz;
+    float3 frustum3 = ConvertProjToView(float4(pxm / (float) targetSizeEvenlyDivisibleByTileRes.x * 2.0 - 1.0, (targetSizeEvenlyDivisibleByTileRes.y - pyp) / (float) targetSizeEvenlyDivisibleByTileRes.y * 2.0 - 1.0, 1.0, 1.0)).xyz;
 
     frustumEquations[0] = CreatePlaneEquation(frustum0, frustum1);
     frustumEquations[1] = CreatePlaneEquation(frustum1, frustum2);
@@ -76,11 +78,12 @@ void CSMain(uint3 globalID : SV_DispatchThreadID, uint3 localID : SV_GroupThread
     {
         float3 center = SceneLights[i].Position;
         const float radius = 2;
-        center.xyz = mul(gScene.Camera.Projection, mul(gScene.Camera.View, float4(center, 1.0))).xyz;
+        //center.xyz = mul(gScene.Camera.Projection, mul(gScene.Camera.View, float4(center, 1.0))).xyz;
+        center.xyz = mul(gScene.Camera.View, float4(center, 1.0)).xyz;
         
         if (TestFrustumSides(center, radius, frustumEquations))
         {
-            if (-center.z < radius)
+            //if (-center.z < radius)
             {
                 uint destinationIndex = 0;
                 InterlockedAdd(LightIndexCounter, 1, destinationIndex);
@@ -91,10 +94,10 @@ void CSMain(uint3 globalID : SV_DispatchThreadID, uint3 localID : SV_GroupThread
     
     GroupMemoryBarrierWithGroupSync();
     
-    const uint tileIndex = groupID.y * GetNumberOfTiles(gScene.TargetSize).y + groupID.x;
+    const uint tileIndex = groupID.y * GetNumberOfTiles(gScene.TargetSize).x + groupID.x;
     const uint startOffset = MAX_LIGHTS_PER_TILE * tileIndex;
     
-    for (uint i = localIDindex; i < LightIndexCounter; i++)
+    for (uint i = localIDindex; i < LightIndexCounter; i += NUM_THREADS_PER_TILE)
     {
         LightIndexBuffer[startOffset + i] = LightIndices[i]; 
     }
