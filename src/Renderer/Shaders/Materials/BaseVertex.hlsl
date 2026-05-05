@@ -9,6 +9,8 @@ struct Vertex
     float3 Normal:   TEXCOORD3;
 };
 
+StructuredBuffer<Object> PerObjectData : register(t0, space0);
+
 cbuffer SceneData : register(b0, space1)
 {
     Scene gScene;
@@ -16,23 +18,20 @@ cbuffer SceneData : register(b0, space1)
 
 cbuffer DrawData : register(b1, space1)
 {
-    float4x4 World;
-}
-
-cbuffer TempMatrixData : register(b2, space1)
-{
-    float4x4 NormalMatrix;
+    uint ObjectIndex;
 }
 
 VertexOutput VSMain(const in Vertex input)
 {
     VertexOutput output;
     
-    output.WorldPos = (float3) mul(World, float4(input.Position, 1.0));
+    Object object = PerObjectData[ObjectIndex];
+    
+    output.WorldPos = (float3) mul(object.WorldMatrix, float4(input.Position, 1.0));
     output.Position = mul(gScene.Camera.Projection, mul(gScene.Camera.View, float4(output.WorldPos, 1.0)));
     output.TexCoord = input.TexCoord;
     output.Color = input.Color;
-    output.Normal = mul((float3x3) NormalMatrix, input.Normal);
+    output.Normal = mul((float3x3) object.NormalMatrix, input.Normal);
     
     return output;
 }

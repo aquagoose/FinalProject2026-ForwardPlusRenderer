@@ -18,4 +18,10 @@ struct Scene
     uint2 TargetSize;
 };
 
+struct Object
+{
+    float4x4 WorldMatrix;
+    float4x4 NormalMatrix;
+};
+
 #endif
