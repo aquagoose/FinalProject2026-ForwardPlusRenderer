@@ -8,7 +8,7 @@ using SDL3;
 
 namespace Renderer.Renderers;
 
-internal class ForwardPlusRenderer : ISceneRenderer
+internal class ForwardPlusRenderer : IRenderer
 {
     // These constants must match the values in Shaders/ForwardPlus/Common.hlsli
     private const uint TileSize = 16;
@@ -31,12 +31,15 @@ internal class ForwardPlusRenderer : ISceneRenderer
     private uint _numTiles;
     private IntPtr _lightIndexBuffer;
 
+    public bool ForwardPlusEnabled;
+    
     public Color BackgroundColor { get; set; }
 
     public unsafe ForwardPlusRenderer(Renderer renderer)
     {
         _renderer = renderer;
         _opaques = [];
+        ForwardPlusEnabled = true;
 
         IntPtr device = _renderer.Device;
 
@@ -219,7 +222,8 @@ internal class ForwardPlusRenderer : ISceneRenderer
         {
             Camera = new ShaderCamera(camera.Projection, inverseProjection, camera.View, new Vector4(cameraPos, 0)),
             NumLights = _numLights,
-            TargetSize = _renderer.Size
+            TargetSize = _renderer.Size,
+            UseLightIndices = ForwardPlusEnabled
         };
         SDL.PushGPUVertexUniformData(cb, 0, new IntPtr(&sceneData), (uint) sizeof(SceneData));
         SDL.PushGPUFragmentUniformData(cb, 0, new IntPtr(&sceneData), (uint) sizeof(SceneData));
@@ -281,6 +285,7 @@ internal class ForwardPlusRenderer : ISceneRenderer
         }
 
         // Light culling compute pass
+        if (ForwardPlusEnabled)
         {
             IntPtr lightCullPass = SDL.BeginGPUComputePass(cb, [], 0, [
                 new SDL.GPUStorageBufferReadWriteBinding

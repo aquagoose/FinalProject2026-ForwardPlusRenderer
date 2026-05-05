@@ -1,10 +1,12 @@
 using System.Numerics;
+using System.Runtime.InteropServices;
 
 namespace Renderer.Structs;
 
 /// <summary>
 /// Per-object data.
 /// </summary>
+[StructLayout(LayoutKind.Sequential)]
 internal struct ObjectData
 {
     public Matrix4x4 WorldMatrix;

@@ -61,6 +61,8 @@ public class LightCasterDemo() : Demo("Light Casters")
 
         _useArcball = true;
         _renderScale = 1;
+
+        Renderer.UseForwardPlus = true;
     }
 
     public override void DisplayUI()
@@ -77,6 +79,9 @@ public class LightCasterDemo() : Demo("Light Casters")
 
             ImGui.Checkbox("Show Lights", ref _showLights);
             ImGui.SetItemTooltip("Show the light casters on screen.");
+
+            ImGui.Checkbox("Use Forward+", ref Renderer.UseForwardPlus);
+            ImGui.SetItemTooltip("Enable/disable Forward+ rendering to see how the performance is affected");
 
             ImGui.SliderFloat("Render Scale", ref _renderScale, 0.1f, 1.0f);
             ImGui.SetItemTooltip("Set how much of the screen is taken up by the image,\nand see how it affects performance.");

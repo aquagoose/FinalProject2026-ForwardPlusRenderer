@@ -1,0 +1,20 @@
+// Project-local debug tasks
+//
+// For more documentation on how to configure debug tasks,
+// see: https://zed.dev/docs/debugger
+[
+  {
+    "label": "Debug Demo",
+    "adapter": "netcoredbg",
+    "request": "launch",
+    "program": "${ZED_WORKTREE_ROOT}/src/Demo/bin/Debug/net10.0/Demo.dll",
+    "cwd": "${ZED_WORKTREE_ROOT}/src/Demo/bin/Debug/net10.0",
+    "env": {
+      "METAL_CAPTURE_ENABLED": "1",
+    },
+    "build": {
+      "command": "dotnet",
+      "args": ["build", "${ZED_WORKTREE_ROOT}/src/Demo/Demo.csproj"],
+    },
+  },
+]

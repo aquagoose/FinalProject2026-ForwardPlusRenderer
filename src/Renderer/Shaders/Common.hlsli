@@ -16,6 +16,7 @@ struct Scene
     Camera Camera;
     uint NumLights;
     uint2 TargetSize;
+    bool UseLightIndices;
 };
 
 struct Object

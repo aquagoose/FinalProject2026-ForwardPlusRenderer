@@ -24,7 +24,7 @@ public class Renderer : IDisposable
     private Size _renderSize;
     private IntPtr _depthTexture;
     
-    private readonly ISceneRenderer _renderer;
+    private readonly ForwardPlusRenderer _renderer;
     private readonly ImGuiRenderer _imguiRenderer;
     
     private readonly List<Camera> _cameras;
@@ -58,6 +58,11 @@ public class Renderer : IDisposable
     /// Get the size of the render output in pixels.
     /// </summary>
     public Size Size => _renderSize;
+
+    /// <summary>
+    /// Enable/disable Forward+ rendering.
+    /// </summary>
+    public ref bool UseForwardPlus => ref _renderer.ForwardPlusEnabled;
 
     /// <summary>
     /// Create a <see cref="Renderer"/> from the given window.

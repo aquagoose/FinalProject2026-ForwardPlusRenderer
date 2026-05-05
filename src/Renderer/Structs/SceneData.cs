@@ -9,4 +9,13 @@ internal struct SceneData
     public ShaderCamera Camera;
     public uint NumLights;
     public Size TargetSize;
+    public bool UseLightIndices;
+
+    public SceneData(ShaderCamera camera, uint numLights, Size targetSize, bool useLightIndices)
+    {
+        Camera = camera;
+        NumLights = numLights;
+        TargetSize = targetSize;
+        UseLightIndices = useLightIndices;
+    }
 }
