@@ -6,12 +6,15 @@
 
 #define NUM_THREADS_PER_TILE TILE_SIZE * TILE_SIZE
 
-//Texture2D<float> DepthTexture : register(t0, space0);
-StructuredBuffer<Light> SceneLights : register(t0, space0);
+Texture2D<float> DepthTexture : register(t0, space0);
+StructuredBuffer<Light> SceneLights : register(t1, space0);
 RWStructuredBuffer<uint> LightIndexBuffer : register(u0, space1);
 
 groupshared uint LightIndexCounter;
 groupshared uint LightIndices[MAX_LIGHTS_PER_TILE];
+
+groupshared uint LightIndexMin;
+groupshared uint LightIndexMax;
 
 cbuffer SceneData : register(b0, space2)
 {
@@ -28,6 +31,23 @@ float4 ConvertProjToView(float4 p)
     float4 proj = mul(gScene.Camera.InverseProjection, p);
     proj /= proj.w;
     return proj;
+}
+
+float ConvertProjDepthToView(float z)
+{
+    return 1.0 / (z * gScene.Camera.InverseProjection._43 + gScene.Camera.InverseProjection._44);
+}
+
+void CalculateMinMaxDepth(uint3 globalID)
+{
+    float depth = DepthTexture.Load(uint3(globalID.x, globalID.y, 0));
+    float viewPosZ = ConvertProjDepthToView(depth);
+    uint z = asuint(viewPosZ);
+    //if (depth >= 0.0)
+    {
+        InterlockedAdd(LightIndexMax, z);
+        InterlockedAdd(LightIndexMin, z);
+    }
 }
 
 float GetSignedDistanceFromPlane(const float3 p, const float3 equation)
@@ -52,7 +72,11 @@ void CSMain(uint3 globalID : SV_DispatchThreadID, uint3 localID : SV_GroupThread
     const uint localIDindex = localID.y * TILE_SIZE + localID.x;
 
     if (localIDindex == 0)
+    {
         LightIndexCounter = 0;
+        LightIndexMin = 0x7F7FFFFF;
+        LightIndexMax = 0;
+    }
 
     float3 frustumEquations[4];
     uint pxm = TILE_SIZE * groupID.x;
@@ -74,16 +98,24 @@ void CSMain(uint3 globalID : SV_DispatchThreadID, uint3 localID : SV_GroupThread
 
     GroupMemoryBarrierWithGroupSync();
     
+    float minZ = FLOAT_MAX;
+    float maxZ = 0;
+    CalculateMinMaxDepth(globalID);
+    GroupMemoryBarrierWithGroupSync();
+    maxZ = asfloat(LightIndexMax);
+    minZ = asfloat(LightIndexMin);
+    
     for (uint i = localIDindex; i < gScene.NumLights; i += NUM_THREADS_PER_TILE)
     {
         float3 center = SceneLights[i].Position;
-        const float radius = 2;
-        //center.xyz = mul(gScene.Camera.Projection, mul(gScene.Camera.View, float4(center, 1.0))).xyz;
-        center.xyz = mul(gScene.Camera.View, float4(center, 1.0)).xyz;
+        const float radius = 20;
+        //center = mul(gScene.Camera.Projection, mul(gScene.Camera.View, float4(center, 1.0))).xyz;
+        center = mul(gScene.Camera.View, float4(center, 1.0)).xyz;
         
         if (TestFrustumSides(center, radius, frustumEquations))
         {
             //if (-center.z < radius)
+            if (-center.z + minZ < radius && center.z - maxZ < radius)
             {
                 uint destinationIndex = 0;
                 InterlockedAdd(LightIndexCounter, 1, destinationIndex);

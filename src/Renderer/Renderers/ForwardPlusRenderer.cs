@@ -31,6 +31,8 @@ internal class ForwardPlusRenderer : IRenderer
     private uint _numTiles;
     private IntPtr _lightIndexBuffer;
 
+    private readonly IntPtr _sampler;
+
     public bool ForwardPlusEnabled;
     
     public Color BackgroundColor { get; set; }
@@ -147,7 +149,7 @@ internal class ForwardPlusRenderer : IRenderer
         {
             NumReadOnlyStorageBuffers = 1,
             NumReadwriteStorageBuffers = 1,
-            //NumSamplers = 1,
+            NumReadOnlyStorageTextures = 1,
             NumUniformBuffers = 1,
             ThreadCountX = 16,
             ThreadCountY = 16,
@@ -163,6 +165,19 @@ internal class ForwardPlusRenderer : IRenderer
         _lightIndexBuffer = SDLUtils.CreateBuffer(device,
              SDL.GPUBufferUsageFlags.ComputeStorageWrite | SDL.GPUBufferUsageFlags.GraphicsStorageRead,
             (_numTiles * MaxLightsPerTile) * sizeof(uint));
+
+        SDL.GPUSamplerCreateInfo samplerInfo = new()
+        {
+            AddressModeU = SDL.GPUSamplerAddressMode.Repeat,
+            AddressModeV = SDL.GPUSamplerAddressMode.Repeat,
+            CompareOp = SDL.GPUCompareOp.GreaterOrEqual,
+            MinFilter = SDL.GPUFilter.Nearest,
+            MagFilter = SDL.GPUFilter.Nearest,
+            MinLod = 0,
+            MaxLod = float.MaxValue
+        };
+
+        _sampler = SDL.CreateGPUSampler(device, in samplerInfo).Check("Create sampler");
     }
 
     public void ClearDrawQueues()
@@ -296,9 +311,9 @@ internal class ForwardPlusRenderer : IRenderer
             ], 1).Check("Begin light cull pass");
 
             SDL.BindGPUComputePipeline(lightCullPass, _lightCullComputePipeline);
-            
+
+            SDL.BindGPUComputeStorageTextures(lightCullPass, 0, [depthTexture], 1);
             SDL.BindGPUComputeStorageBuffers(lightCullPass, 0, (nint) Unsafe.AsPointer(ref _lightBuffer), 1);
-            //SDL.BindGPUComputeSamplers(lightCullPass, 0, );
 
             SDL.DispatchGPUCompute(lightCullPass, camera.Viewport.Width / 16, camera.Viewport.Height / 16, 1);
 
