@@ -64,6 +64,17 @@ public class Renderer : IDisposable
     /// </summary>
     public ref bool UseForwardPlus => ref _renderer.ForwardPlusEnabled;
 
+    public bool VSync
+    {
+        get => field;
+        set
+        {
+            field = value;
+            SDL.SetGPUSwapchainParameters(Device, _window, SDL.GPUSwapchainComposition.SDR,
+                value ? SDL.GPUPresentMode.VSync : SDL.GPUPresentMode.Immediate);
+        }
+    }
+
     /// <summary>
     /// Create a <see cref="Renderer"/> from the given window.
     /// </summary>
@@ -95,6 +106,8 @@ public class Renderer : IDisposable
         Console.WriteLine(SDL.GetStringProperty(SDL.GetGPUDeviceProperties(Device), SDL.Props.GPUDeviceNameString,
             "Unknown"));
         SDL.ClaimWindowForGPUDevice(Device, _window).Check("Claim window for device");
+
+        VSync = true;
 
         _transferBuffer = SDLUtils.CreateTransferBuffer(Device, SDL.GPUTransferBufferUsage.Upload, TransferBufferSize);
 

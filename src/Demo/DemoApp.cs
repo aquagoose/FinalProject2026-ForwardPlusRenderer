@@ -2,6 +2,7 @@ global using Key = SDL3.SDL.Keycode;
 global using MouseButton = SDL3.SDL.MouseButtonFlags;
 using System.Diagnostics;
 using System.Numerics;
+using System.Runtime.InteropServices;
 using Demo.Demos;
 using Hexa.NET.ImGui;
 using Renderer;
@@ -29,6 +30,8 @@ public static class DemoApp
     private static Renderer.Renderer _renderer = null!;
     private static Demos.Demo _currentDemo = null!;
     private static Demos.Demo? _demoToSwitch = null;
+
+    public static bool EnableIdleTimer = true;
 
     private static Texture[] _backgroundTextures = null!;
 
@@ -195,7 +198,7 @@ public static class DemoApp
             Renderer.NewFrame();
             ImGui.NewFrame();
 
-            if (_currentDemo is not LoadingScreen)
+            if (EnableIdleTimer && _currentDemo is not LoadingScreen)
             {
                 _activityTimer += dt;
 
@@ -234,6 +237,33 @@ public static class DemoApp
         Renderer.Dispose();
         SDL.DestroyWindow(_sdlWindow);
         SDL.Quit();
+    }
+
+    public static void ShowSaveFilePopup(string fileTypes, string fileTypeName, string textToWrite)
+    {
+        SDL.DialogFileFilter filter = new(fileTypeName, fileTypes);
+        GCHandle handle = GCHandle.Alloc(textToWrite, GCHandleType.Pinned);
+        string? location = Environment.GetFolderPath(Environment.SpecialFolder.MyComputer);
+        if (string.IsNullOrWhiteSpace(location))
+            location = null;
+        
+        SDL.ShowSaveFileDialog(FileCallback, (nint) handle, _sdlWindow, [filter], 1, location);
+    }
+
+    private static unsafe void FileCallback(IntPtr userdata, IntPtr filelist, int filter)
+    {
+        GCHandle handle = (GCHandle) userdata;
+        
+        sbyte** files = (sbyte**) filelist;
+        while (*files != null)
+        {
+            string filePath = new string(*files);
+            string textToWrite = (string) handle.Target;
+            File.WriteAllText(filePath, textToWrite);
+            files++;
+        }
+        
+        handle.Free();
     }
 
     private static ImGuiMouseButton MouseButtonToImGui(MouseButton button)
