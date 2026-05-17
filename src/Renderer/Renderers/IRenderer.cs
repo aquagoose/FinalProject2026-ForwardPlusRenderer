@@ -13,7 +13,7 @@ internal interface IRenderer : IDisposable
     
     public void AddLight(ref readonly ShaderLight light);
     
-    public void AddOpaqueRenderable(Renderable renderable, in Matrix4x4 world);
+    public void AddRenderable(Renderable renderable, in Matrix4x4 world);
 
     public void RenderCamera(IntPtr cb, IntPtr colorTexture, IntPtr depthTexture, Camera camera, bool clear);
 

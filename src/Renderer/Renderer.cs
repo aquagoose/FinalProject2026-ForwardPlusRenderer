@@ -164,7 +164,7 @@ public class Renderer : IDisposable
     /// <param name="world">The world matrix.</param>
     public void Draw(Renderable renderable, in Matrix4x4 world)
     {
-        _renderer.AddOpaqueRenderable(renderable, in world);
+        _renderer.AddRenderable(renderable, in world);
     }
 
     /// <summary>
@@ -202,8 +202,6 @@ public class Renderer : IDisposable
         {
             _renderer.RenderCamera(cb, swapchainTexture, _depthTexture, camera, clear);
             clear = false;
-            
-            camera.Skybox?.Draw(cb, swapchainTexture, _depthTexture, camera);
         }
 
         _imguiRenderer.Render(cb, swapchainTexture, clear);

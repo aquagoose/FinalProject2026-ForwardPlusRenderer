@@ -12,6 +12,8 @@ public abstract class Material : IDisposable
 
     internal readonly IntPtr Pipeline;
 
+    internal readonly bool TransparencyEnabled;
+
     internal SDL.GPUTextureSamplerBinding[] TextureBindings
     {
         get
@@ -32,6 +34,7 @@ public abstract class Material : IDisposable
         string pixelShader, uint numTextures)
     {
         _device = renderer.Device;
+        TransparencyEnabled = info.EnableTransparency;
         TextureBindings = new SDL.GPUTextureSamplerBinding[numTextures];
 
         IntPtr vShader = ShaderUtils.LoadShader(_device, ShaderCross.ShaderStage.Vertex, vertexShader);
@@ -99,9 +102,15 @@ public abstract class Material : IDisposable
             Format = renderer.RendererTargetFormat,
             BlendState = new SDL.GPUColorTargetBlendState
             {
-                EnableBlend = false,
+                EnableBlend = info.EnableTransparency,
+                SrcColorBlendFactor = SDL.GPUBlendFactor.SrcAlpha,
+                DstColorBlendFactor = SDL.GPUBlendFactor.OneMinusSrcAlpha,
+                ColorBlendOp = SDL.GPUBlendOp.Add,
+                SrcAlphaBlendFactor = SDL.GPUBlendFactor.SrcAlpha,
+                DstAlphaBlendFactor = SDL.GPUBlendFactor.OneMinusDstAlpha,
+                AlphaBlendOp = SDL.GPUBlendOp.Add,
                 ColorWriteMask = SDL.GPUColorComponentFlags.R | SDL.GPUColorComponentFlags.G |
-                                 SDL.GPUColorComponentFlags.B | SDL.GPUColorComponentFlags.A
+                                 SDL.GPUColorComponentFlags.B | SDL.GPUColorComponentFlags.A,
             }
         };
 
@@ -116,7 +125,11 @@ public abstract class Material : IDisposable
         SDL.GPUDepthStencilState depthStencilState = new()
         {
             EnableDepthTest = true,
-            EnableDepthWrite = false, // No need to write to the depth buffer as we're doing a depth pre-pass.
+            // Do not write to the depth buffer unless transparency is enabled.
+            // The depth prepass negates the need to write to the depth buffer,
+            // however transparent materials are not included in the depth prepass,
+            // so they must write to the depth buffer.
+            EnableDepthWrite = info.EnableTransparency,
             CompareOp = SDL.GPUCompareOp.LessOrEqual,
         };
 

@@ -16,6 +16,7 @@ internal class ForwardPlusRenderer : IRenderer
     
     private readonly Renderer _renderer;
     private readonly List<(Renderable renderable, uint index)> _opaques;
+    private readonly List<(Renderable renderable, uint index)> _transparents;
 
     private ObjectData[] _objects;
     private uint _numObjects;
@@ -41,6 +42,7 @@ internal class ForwardPlusRenderer : IRenderer
     {
         _renderer = renderer;
         _opaques = [];
+        _transparents = [];
         ForwardPlusEnabled = true;
 
         IntPtr device = _renderer.Device;
@@ -183,10 +185,11 @@ internal class ForwardPlusRenderer : IRenderer
     public void ClearDrawQueues()
     {
         _opaques.Clear();
+        _transparents.Clear();
         _numLights = 0;
     }
 
-    public unsafe void AddOpaqueRenderable(Renderable renderable, in Matrix4x4 world)
+    public unsafe void AddRenderable(Renderable renderable, in Matrix4x4 world)
     {
         if (_numObjects + 1 >= _objects.Length)
         {
@@ -204,7 +207,10 @@ internal class ForwardPlusRenderer : IRenderer
         uint index = _numObjects++;
         _objects[index] = new ObjectData(world, normalMatrix);
         
-        _opaques.Add((renderable, index));
+        if (renderable.Material.TransparencyEnabled)
+            _transparents.Add((renderable, index));
+        else
+            _opaques.Add((renderable, index));
     }
 
     public unsafe void AddLight(ref readonly ShaderLight light)
@@ -248,16 +254,27 @@ internal class ForwardPlusRenderer : IRenderer
         IOrderedEnumerable<(Renderable, uint)> frontToBackOpaques =
             _opaques.OrderBy(tuple => Vector3.Distance(_objects[tuple.index].WorldMatrix.Translation, cameraPos));
         
+        IOrderedEnumerable<(Renderable, uint)> backToFrontTransparents = _transparents.OrderBy(tuple =>
+            -Vector3.Distance(_objects[tuple.index].WorldMatrix.Translation, cameraPos));
+        
+        SDL.GPUColorTargetInfo colorTarget = new()
+        {
+            Texture = colorTexture,
+            ClearColor = new SDL.FColor(BackgroundColor.R, BackgroundColor.G, BackgroundColor.B, BackgroundColor.A),
+            LoadOp = clear ? SDL.GPULoadOp.Clear : SDL.GPULoadOp.Load,
+            StoreOp = SDL.GPUStoreOp.Store
+        };
+
+        SDL.GPUDepthStencilTargetInfo depthTarget = new()
+        {
+            Texture = depthTexture,
+            LoadOp = clear ? SDL.GPULoadOp.Clear : SDL.GPULoadOp.Load,
+            StoreOp = SDL.GPUStoreOp.Store,
+            ClearDepth = 1.0f
+        };
+        
         // Depth pre-pass
         {
-            SDL.GPUDepthStencilTargetInfo depthTarget = new()
-            {
-                Texture = depthTexture,
-                LoadOp = clear ? SDL.GPULoadOp.Clear : SDL.GPULoadOp.Load,
-                StoreOp = SDL.GPUStoreOp.Store,
-                ClearDepth = 1.0f
-            };
-            
             IntPtr depthPrepass = SDL.BeginGPURenderPass(cb, 0, 0, in depthTarget).Check("Begin depth prepass");
             SDL.SetGPUViewport(depthPrepass, new SDL.GPUViewport
             {
@@ -319,74 +336,22 @@ internal class ForwardPlusRenderer : IRenderer
 
             SDL.EndGPUComputePass(lightCullPass);
         }
-
+        
+        // Color opaque render pass
+        if (_opaques.Count > 0)
         {
-            SDL.GPUColorTargetInfo colorTarget = new()
-            {
-                Texture = colorTexture,
-                ClearColor = new SDL.FColor(BackgroundColor.R, BackgroundColor.G, BackgroundColor.B, BackgroundColor.A),
-                LoadOp = clear ? SDL.GPULoadOp.Clear : SDL.GPULoadOp.Load,
-                StoreOp = SDL.GPUStoreOp.Store
-            };
-
-            SDL.GPUDepthStencilTargetInfo depthTarget = new()
-            {
-                Texture = depthTexture,
-                LoadOp = SDL.GPULoadOp.Load,
-                StoreOp = SDL.GPUStoreOp.Store
-            };
-
-            // Color render pass
-            IntPtr pass = SDL.BeginGPURenderPass(cb, new IntPtr(&colorTarget), 1, in depthTarget)
-                .Check("Begin render pass");
-            SDL.SetGPUViewport(pass, new SDL.GPUViewport
-            {
-                X = camera.Viewport.X,
-                Y = camera.Viewport.Y,
-                W = camera.Viewport.Width,
-                H = camera.Viewport.Height,
-                MinDepth = 0,
-                MaxDepth = 1
-            });
-
-            nint* fragmentBuffers = stackalloc nint[]
-            {
-                _lightBuffer,
-                _lightIndexBuffer
-            };
-
-            SDL.BindGPUVertexStorageBuffers(pass, 0, [_perObjectDataBuffer], 1);
-            SDL.BindGPUFragmentStorageBuffers(pass, 0, (nint) fragmentBuffers, 2);
-
-            foreach ((Renderable renderable, uint index) in frontToBackOpaques)
-            {
-                Material material = renderable.Material;
-
-                SDL.PushGPUVertexUniformData(cb, 1, new IntPtr(&index), sizeof(uint));
-
-                SDL.BindGPUGraphicsPipeline(pass, material.Pipeline);
-
-                SDL.GPUTextureSamplerBinding[] textureBindings = material.TextureBindings;
-                SDL.BindGPUFragmentSamplers(pass, 0, textureBindings, (uint) textureBindings.Length);
-
-                SDL.GPUBufferBinding vertexBufferBinding = new()
-                {
-                    Buffer = renderable.VertexBuffer,
-                    Offset = 0
-                };
-                SDL.BindGPUVertexBuffers(pass, 0, new IntPtr(&vertexBufferBinding), 1);
-
-                SDL.GPUBufferBinding indexBufferBinding = new()
-                {
-                    Buffer = renderable.IndexBuffer,
-                    Offset = 0
-                };
-                SDL.BindGPUIndexBuffer(pass, in indexBufferBinding, SDL.GPUIndexElementSize.IndexElementSize32Bit);
-
-                SDL.DrawGPUIndexedPrimitives(pass, renderable.NumDraws, 1, 0, 0, 0);
-            }
-
-            SDL.EndGPURenderPass(pass);
+            depthTarget.LoadOp = SDL.GPULoadOp.Load;
+            PerformRenderPass(cb, colorTarget, depthTarget, in camera, frontToBackOpaques);
+        }
+        
+        camera.Skybox?.Draw(cb, colorTexture, depthTexture, camera);
+        
+        // Transparent color pass
+        if (_transparents.Count > 0)
+        {
+            colorTarget.LoadOp = SDL.GPULoadOp.Load;
+            depthTarget.LoadOp = SDL.GPULoadOp.Load;
+            PerformRenderPass(cb, colorTarget, depthTarget, in camera, backToFrontTransparents);
         }
     }
 
@@ -398,5 +363,59 @@ internal class ForwardPlusRenderer : IRenderer
     public void Dispose()
     {
 
+    }
+
+    private unsafe void PerformRenderPass(IntPtr cb, SDL.GPUColorTargetInfo colorTarget, SDL.GPUDepthStencilTargetInfo depthTarget, in Camera camera, IEnumerable<(Renderable renderable, uint index)> drawList)
+    {
+        IntPtr pass = SDL.BeginGPURenderPass(cb, new IntPtr(&colorTarget), 1, in depthTarget)
+            .Check("Begin render pass");
+        SDL.SetGPUViewport(pass, new SDL.GPUViewport
+        {
+            X = camera.Viewport.X,
+            Y = camera.Viewport.Y,
+            W = camera.Viewport.Width,
+            H = camera.Viewport.Height,
+            MinDepth = 0,
+            MaxDepth = 1
+        });
+
+        nint* fragmentBuffers = stackalloc nint[]
+        {
+            _lightBuffer,
+            _lightIndexBuffer
+        };
+
+        SDL.BindGPUVertexStorageBuffers(pass, 0, [_perObjectDataBuffer], 1);
+        SDL.BindGPUFragmentStorageBuffers(pass, 0, (nint) fragmentBuffers, 2);
+        
+        foreach ((Renderable renderable, uint index) in drawList)
+        {
+            Material material = renderable.Material;
+
+            SDL.PushGPUVertexUniformData(cb, 1, new IntPtr(&index), sizeof(uint));
+
+            SDL.BindGPUGraphicsPipeline(pass, material.Pipeline);
+
+            SDL.GPUTextureSamplerBinding[] textureBindings = material.TextureBindings;
+            SDL.BindGPUFragmentSamplers(pass, 0, textureBindings, (uint) textureBindings.Length);
+
+            SDL.GPUBufferBinding vertexBufferBinding = new()
+            {
+                Buffer = renderable.VertexBuffer,
+                Offset = 0
+            };
+            SDL.BindGPUVertexBuffers(pass, 0, new IntPtr(&vertexBufferBinding), 1);
+
+            SDL.GPUBufferBinding indexBufferBinding = new()
+            {
+                Buffer = renderable.IndexBuffer,
+                Offset = 0
+            };
+            SDL.BindGPUIndexBuffer(pass, in indexBufferBinding, SDL.GPUIndexElementSize.IndexElementSize32Bit);
+
+            SDL.DrawGPUIndexedPrimitives(pass, renderable.NumDraws, 1, 0, 0, 0);
+        }
+        
+        SDL.EndGPURenderPass(pass);
     }
 }

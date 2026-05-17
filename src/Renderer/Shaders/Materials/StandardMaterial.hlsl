@@ -85,5 +85,5 @@ float4 PSMain(const in VertexOutput input): SV_Target0
     color /= color + (float3) 1.0;
     color = pow(color, (float3) 1.0 / 2.2);
     
-    return float4(color + float3(numLightsInThisTile / (float) gScene.NumLights, 0, 0), 1.0);
+    return float4(color, 1.0);
 }

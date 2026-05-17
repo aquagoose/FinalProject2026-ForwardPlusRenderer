@@ -37,7 +37,7 @@ public class LightCasterDemo() : Demo("Light Casters")
         _skybox = new Skybox(Renderer, "Content/Skybox/Space1/right.png", "Content/Skybox/Space1/left.png", "Content/Skybox/Space1/top.png",
             "Content/Skybox/Space1/bottom.png", "Content/Skybox/Space1/front.png", "Content/Skybox/Space1/back.png");
 
-        _material = new StandardMaterial(Renderer, new Texture(Renderer, "Content/PBR/metalgrid3_basecolor.png"))
+        _material = new StandardMaterial(Renderer, new Texture(Renderer, "Content/PBR/metalgrid3_basecolor.png"), new MaterialInfo { EnableTransparency = true })
         {
             Normal = new Texture(Renderer, "Content/PBR/metalgrid3_normal-dx.png"),
             Metallic = new Texture(Renderer, "Content/PBR/metalgrid3_metallic.png"),

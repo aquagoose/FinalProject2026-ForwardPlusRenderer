@@ -14,4 +14,9 @@ public struct MaterialInfo
     /// The winding order of the vertices.
     /// </summary>
     public WindingOrder WindingOrder;
+    
+    /// <summary>
+    /// Enable transparency effects.
+    /// </summary>
+    public bool EnableTransparency;
 }
