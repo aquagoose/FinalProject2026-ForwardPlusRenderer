@@ -12,7 +12,7 @@ internal class ForwardPlusRenderer : IRenderer
 {
     // These constants must match the values in Shaders/ForwardPlus/Common.hlsli
     private const uint TileSize = 16;
-    private const uint MaxLightsPerTile = 512;
+    private const uint MaxLightsPerTile = 1024;
     
     private readonly Renderer _renderer;
     private readonly List<(Renderable renderable, uint index)> _opaques;

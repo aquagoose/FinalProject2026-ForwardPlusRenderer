@@ -108,14 +108,14 @@ void CSMain(uint3 globalID : SV_DispatchThreadID, uint3 localID : SV_GroupThread
     for (uint i = localIDindex; i < gScene.NumLights; i += NUM_THREADS_PER_TILE)
     {
         float3 center = SceneLights[i].Position;
-        const float radius = 20;
+        const float radius = 5;
         //center = mul(gScene.Camera.Projection, mul(gScene.Camera.View, float4(center, 1.0))).xyz;
         center = mul(gScene.Camera.View, float4(center, 1.0)).xyz;
         
         if (TestFrustumSides(center, radius, frustumEquations))
         {
             //if (-center.z < radius)
-            if (-center.z + minZ < radius && center.z - maxZ < radius)
+            //if (-center.z + minZ < radius && center.z - maxZ < radius)
             {
                 uint destinationIndex = 0;
                 InterlockedAdd(LightIndexCounter, 1, destinationIndex);

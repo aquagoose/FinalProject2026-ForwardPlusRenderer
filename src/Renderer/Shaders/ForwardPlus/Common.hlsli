@@ -4,7 +4,7 @@
 #include "../Common.hlsli"
 
 #define TILE_SIZE 16
-#define MAX_LIGHTS_PER_TILE 512
+#define MAX_LIGHTS_PER_TILE 1024
 
 #define LIGHT_BUFFER_END_OF_ARRAY 0x7FFFFFF
 

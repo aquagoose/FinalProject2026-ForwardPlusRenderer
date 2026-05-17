@@ -138,10 +138,10 @@ public class LightCasterDemo() : Demo("Light Casters")
                 _value -= float.Pi * 2;
 
             // Arcball camera
-            const float distance = 12;
+            const float distance = 24;
             float x = float.Sin(_value) * distance;
             float z = float.Cos(_value) * distance;
-            _cameraPos = new Vector3(x, 4, z);
+            _cameraPos = new Vector3(x, 8, z);
             _cameraRotation = new Vector2(_value, float.DegreesToRadians(-40));
         }
         else
@@ -179,7 +179,7 @@ public class LightCasterDemo() : Demo("Light Casters")
 
     public override void Draw()
     {
-        Renderer.Draw(_cube, Matrix4x4.CreateScale(20, 0.1f, 20));
+        Renderer.Draw(_cube, Matrix4x4.CreateScale(40, 0.1f, 40));
         Renderer.Draw(_cube, Matrix4x4.CreateTranslation(-5, 0.5f, 3));
         Renderer.Draw(_cube, Matrix4x4.CreateTranslation(6, 0.5f, -6));
         Renderer.Draw(_cube, Matrix4x4.CreateTranslation(-2, 0.5f, -2));
@@ -231,9 +231,9 @@ public class LightCasterDemo() : Demo("Light Casters")
         {
             _lights[i] = Light.Point(new Vector3
             {
-                X = float.Lerp(-8, 8, random.NextSingle()),
+                X = float.Lerp(-18, 18, random.NextSingle()),
                 Y = 1,
-                Z = float.Lerp(-8, 8, random.NextSingle())
+                Z = float.Lerp(-18, 18, random.NextSingle())
             }, Color.Normalize(new Color
             {
                 R = random.NextSingle(),
