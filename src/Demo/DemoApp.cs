@@ -22,6 +22,7 @@ public static class DemoApp
     private static uint _fpsCounter;
     private static uint _currentFps;
     private static float _currentDeltaTime;
+    private static SDL.DialogFileCallback _fileCallback;
 
     private static HashSet<Key> _keysDown = [];
     private static HashSet<Key> _keysPressed = [];
@@ -74,6 +75,11 @@ public static class DemoApp
     public static void LoadDemo(Demos.Demo demo)
     {
         _demoToSwitch = new LoadingScreen(demo);
+    }
+
+    static DemoApp()
+    {
+        _fileCallback = FileCallback;
     }
 
     public static void Run()
@@ -247,7 +253,7 @@ public static class DemoApp
         if (string.IsNullOrWhiteSpace(location))
             location = null;
         
-        SDL.ShowSaveFileDialog(FileCallback, (nint) handle, _sdlWindow, [filter], 1, location);
+        SDL.ShowSaveFileDialog(_fileCallback, (nint) handle, _sdlWindow, [filter], 1, location);
     }
 
     private static unsafe void FileCallback(IntPtr userdata, IntPtr filelist, int filter)

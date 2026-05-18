@@ -124,6 +124,7 @@ public class LightCasterDemo() : Demo("Light Casters")
                 _value = 0;
                 Renderer.VSync = false;
                 DemoApp.EnableIdleTimer = false;
+                DemoApp.MouseVisible = false;
                 _benchmarkStopwatch.Restart();
             }
 
@@ -164,6 +165,7 @@ public class LightCasterDemo() : Demo("Light Casters")
                 _isBenchmarking = false;
                 DemoApp.EnableIdleTimer = true;
                 Renderer.VSync = true;
+                DemoApp.MouseVisible = true;
                 StringBuilder builder = new StringBuilder("Elapsed,DeltaTime,FPS\n");
                 for (int i = 0; i < _currentBenchmarkResult; i++)
                 {

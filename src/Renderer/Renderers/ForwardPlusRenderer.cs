@@ -274,6 +274,7 @@ internal class ForwardPlusRenderer : IRenderer
         };
         
         // Depth pre-pass
+        if (_opaques.Count > 0)
         {
             IntPtr depthPrepass = SDL.BeginGPURenderPass(cb, 0, 0, in depthTarget).Check("Begin depth prepass");
             SDL.SetGPUViewport(depthPrepass, new SDL.GPUViewport
@@ -340,6 +341,7 @@ internal class ForwardPlusRenderer : IRenderer
         // Color opaque render pass
         if (_opaques.Count > 0)
         {
+            clear = false;
             depthTarget.LoadOp = SDL.GPULoadOp.Load;
             PerformRenderPass(cb, colorTarget, depthTarget, in camera, frontToBackOpaques);
         }
@@ -349,8 +351,8 @@ internal class ForwardPlusRenderer : IRenderer
         // Transparent color pass
         if (_transparents.Count > 0)
         {
-            colorTarget.LoadOp = SDL.GPULoadOp.Load;
-            depthTarget.LoadOp = SDL.GPULoadOp.Load;
+            // Clear the screen if the opaque pass didn't run.
+            colorTarget.LoadOp = clear ? SDL.GPULoadOp.Clear : SDL.GPULoadOp.Load;
             PerformRenderPass(cb, colorTarget, depthTarget, in camera, backToFrontTransparents);
         }
     }
