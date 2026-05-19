@@ -211,7 +211,17 @@ public static class DemoApp
                 if (_activityTimer >= ActivityTimeout)
                 {
                     _activityTimer = 0;
-                    LoadDemo(_currentDemo is WelcomeScreen ? new LightCasterDemo() : new WelcomeScreen());
+                    if (_currentDemo is WelcomeScreen)
+                    {
+                        // Weight it towards the Light Caster demo because it's better
+                        int random = Random.Shared.Next(3);
+                        if (random == 1)
+                            LoadDemo(new TransparencyDemo());
+                        else
+                            LoadDemo(new LightCasterDemo());
+                    }
+                    else
+                        LoadDemo(new WelcomeScreen());
                 }
                 else if (_activityTimer >= ActivityTimeout - 5 && _currentDemo is not WelcomeScreen)
                 {
