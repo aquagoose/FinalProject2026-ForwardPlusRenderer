@@ -206,7 +206,7 @@ public static class DemoApp
 
             if (EnableIdleTimer && _currentDemo is not LoadingScreen)
             {
-                //_activityTimer += dt;
+                _activityTimer += dt;
 
                 if (_activityTimer >= ActivityTimeout)
                 {
