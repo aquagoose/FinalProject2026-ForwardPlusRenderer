@@ -428,9 +428,6 @@ internal sealed class ImGuiRenderer : IDisposable
                 textureData.Status = ImTextureStatus.Destroyed;
                 break;
             }
-            
-            default:
-                throw new ArgumentOutOfRangeException();
         }
     }
 
@@ -439,7 +436,7 @@ internal sealed class ImGuiRenderer : IDisposable
         ref ImVector<ImTextureDataPtr> textures = ref ImGui.GetPlatformIO().Textures;
         for (int i = 0; i < textures.Size; i++)
         {
-            textures[i].Status = ImTextureStatus.Destroyed;
+            textures[i].Status = ImTextureStatus.WantDestroy;
             UpdateTexture(textures[i]);
         }
         

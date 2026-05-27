@@ -283,7 +283,11 @@ public class LightCasterDemo() : Demo("Light Casters")
 
     public override void Dispose()
     {
+        _lamp.Dispose();
+        _fox.Dispose();
+        _lightCube.Dispose();
         _cube.Dispose();
+        _lightMaterial.Dispose();
         _material.ReleaseAllTexturesAndDispose();
         _skybox.Dispose();
     }

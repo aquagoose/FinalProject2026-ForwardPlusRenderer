@@ -117,6 +117,8 @@ public class Model : IDisposable
         
         foreach (Texture texture in _textures)
             texture.Dispose();
+        
+        _assimp.Dispose();
     }
 
     public void Draw(Renderer renderer, in Matrix4x4 worldMatrix)

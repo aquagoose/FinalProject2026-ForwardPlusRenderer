@@ -249,6 +249,11 @@ public static class DemoApp
 
             Renderer.Render();
         }
+        
+        _currentDemo.Dispose();
+        
+        foreach (Texture texture in _backgroundTextures)
+            texture.Dispose();
 
         Renderer.Dispose();
         SDL.DestroyWindow(_sdlWindow);

@@ -135,6 +135,9 @@ internal class ForwardPlusRenderer : IRenderer
 
         _depthPrepassPipeline = SDL.CreateGPUGraphicsPipeline(device, in pipelineInfo)
             .Check("Create depth prepass pipeline");
+        
+        SDL.ReleaseGPUShader(device, fragmentShader);
+        SDL.ReleaseGPUShader(device, vertexShader);
 
         IntPtr spirv = ShaderUtils.CompileShader(ShaderCross.ShaderStage.Compute, "Shaders/ForwardPlus/LightCull.hlsl",
             "CSMain", out nuint spirvSize);
@@ -161,6 +164,8 @@ internal class ForwardPlusRenderer : IRenderer
         _lightCullComputePipeline =
             ShaderCross.CompileComputePipelineFromSPIRV(device, in info, in pipelineMetadata, 0)
                 .Check("Create compute pipeline");
+        
+        SDL.Free(spirv);
 
         Size rendererSize = _renderer.Size;
         _numTiles = ((rendererSize.Width + TileSize - 1) * (rendererSize.Height + TileSize - 1)) / TileSize;
@@ -187,6 +192,7 @@ internal class ForwardPlusRenderer : IRenderer
         _opaques.Clear();
         _transparents.Clear();
         _numLights = 0;
+        _numObjects = 0;
     }
 
     public unsafe void AddRenderable(Renderable renderable, in Matrix4x4 world)
@@ -368,7 +374,14 @@ internal class ForwardPlusRenderer : IRenderer
 
     public void Dispose()
     {
-
+        IntPtr device = _renderer.Device;
+        
+        SDL.ReleaseGPUSampler(device, _sampler);
+        SDL.ReleaseGPUBuffer(device, _lightIndexBuffer);
+        SDL.ReleaseGPUComputePipeline(device, _lightCullComputePipeline);
+        SDL.ReleaseGPUGraphicsPipeline(device, _depthPrepassPipeline);
+        SDL.ReleaseGPUBuffer(device, _lightBuffer);
+        SDL.ReleaseGPUBuffer(device, _perObjectDataBuffer);
     }
 
     private unsafe void PerformRenderPass(IntPtr cb, SDL.GPUColorTargetInfo colorTarget, SDL.GPUDepthStencilTargetInfo depthTarget, in Camera camera, IEnumerable<(Renderable renderable, uint index)> drawList)

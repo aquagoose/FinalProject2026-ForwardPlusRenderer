@@ -131,6 +131,7 @@ public class Renderer : IDisposable
     /// </summary>
     public void Dispose()
     {
+        _imguiRenderer.Dispose();
         _renderer.Dispose();
         SDL.ReleaseGPUTexture(Device, _depthTexture);
         

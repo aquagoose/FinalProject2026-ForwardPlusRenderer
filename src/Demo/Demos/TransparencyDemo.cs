@@ -97,4 +97,16 @@ public class TransparencyDemo() : Demo("Transparency Demo")
         
         base.Draw();
     }
+
+    public override void Dispose()
+    {
+        _screenDoorRenderable.Dispose();
+        _transparentRenderable.Dispose();
+        
+        _screenDoorMaterial.Dispose();
+        _transparentMaterial.Dispose();
+        
+        _texture.Dispose();
+        _skybox.Dispose();
+    }
 }

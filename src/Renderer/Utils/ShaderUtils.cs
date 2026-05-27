@@ -1,4 +1,3 @@
-using System.Runtime.InteropServices;
 using SDL3;
 
 namespace Renderer.Utils;
@@ -64,6 +63,9 @@ public static class ShaderUtils
         };
         IntPtr shader = ShaderCross.CompileGraphicsShaderFromSPIRV(device, ref spirvInfo, ref resourceInfo, 0)
             .Check("Compile shader");
+        
+        SDL.Free((nint) metadata);
+        SDL.Free(spirv);
 
         return shader;
     }
