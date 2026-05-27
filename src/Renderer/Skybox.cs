@@ -168,7 +168,7 @@ public class Skybox : IDisposable
         this(renderer, new Bitmap(right), new Bitmap(left), new Bitmap(top), new Bitmap(bottom), new Bitmap(front),
             new Bitmap(back)) { }
 
-    internal unsafe void Draw(IntPtr cb, IntPtr colorTexture, IntPtr depthTexture, Camera camera)
+    internal unsafe void Draw(IntPtr cb, IntPtr colorTexture, IntPtr depthTexture, Camera camera, bool clear)
     {
         ShaderCamera shaderCamera = new ShaderCamera(camera.Projection, Matrix4x4.Identity, camera.View, Vector4.Zero);
         SDL.PushGPUVertexUniformData(cb, 0, new IntPtr(&shaderCamera), (uint) sizeof(ShaderCamera));
@@ -176,15 +176,17 @@ public class Skybox : IDisposable
         SDL.GPUColorTargetInfo colorTargetInfo = new()
         {
             Texture = colorTexture,
-            LoadOp = SDL.GPULoadOp.Load,
+            ClearColor = new SDL.FColor(0.0f, 0.0f, 0.0f, 1.0f),
+            LoadOp = clear ? SDL.GPULoadOp.Clear : SDL.GPULoadOp.Load,
             StoreOp = SDL.GPUStoreOp.Store
         };
 
         SDL.GPUDepthStencilTargetInfo depthTargetInfo = new()
         {
             Texture = depthTexture,
-            LoadOp = SDL.GPULoadOp.Load,
-            StoreOp = SDL.GPUStoreOp.Store
+            LoadOp = clear ? SDL.GPULoadOp.Clear : SDL.GPULoadOp.Load,
+            StoreOp = SDL.GPUStoreOp.Store,
+            ClearDepth = 1.0f
         };
 
         IntPtr pass = SDL.BeginGPURenderPass(cb, new IntPtr(&colorTargetInfo), 1, in depthTargetInfo)

@@ -9,6 +9,7 @@ namespace Demo.Demos;
 
 public class TransparencyDemo() : Demo("Transparency Demo")
 {
+    private Skybox _skybox;
     private Texture _texture;
     
     private Material _transparentMaterial;
@@ -21,6 +22,8 @@ public class TransparencyDemo() : Demo("Transparency Demo")
     
     public override void Initialize()
     {
+        _skybox = new Skybox(Renderer, "Content/Skybox/Standard/right.jpg", "Content/Skybox/Standard/left.jpg", "Content/Skybox/Standard/top.jpg",
+            "Content/Skybox/Standard/bottom.jpg", "Content/Skybox/Standard/front.jpg", "Content/Skybox/Standard/back.jpg");
         _texture = new Texture(Renderer, "Content/DEBUG.png");
         
         _transparentMaterial = new UnlitMaterial(Renderer, _texture, new MaterialInfo { EnableTransparency = true });
@@ -85,11 +88,11 @@ public class TransparencyDemo() : Demo("Transparency Demo")
 
         Camera screenDoorCamera = Camera.Perspective(new Vector3(0, 0, 0),
             Quaternion.CreateFromAxisAngle(Vector3.UnitY, float.Pi), float.DegreesToRadians(45),
-            new Rectangle(Offset.Zero, halfWidthSize), 0.1f, 100f);
+            new Rectangle(Offset.Zero, halfWidthSize), 0.1f, 100f, _skybox);
         Renderer.AddCamera(in screenDoorCamera);
 
         Camera transparentCamera = Camera.Perspective(new Vector3(0, 0, 0), Quaternion.Identity, float.DegreesToRadians(45),
-            new Rectangle(halfWidthOffset, halfWidthSize), 0.1f, 100f);
+            new Rectangle(halfWidthOffset, halfWidthSize), 0.1f, 100f, _skybox);
         Renderer.AddCamera(in transparentCamera);
         
         base.Draw();

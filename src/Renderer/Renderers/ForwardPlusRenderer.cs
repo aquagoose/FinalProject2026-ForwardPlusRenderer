@@ -345,9 +345,13 @@ internal class ForwardPlusRenderer : IRenderer
             depthTarget.LoadOp = SDL.GPULoadOp.Load;
             PerformRenderPass(cb, colorTarget, depthTarget, in camera, frontToBackOpaques);
         }
-        
-        camera.Skybox?.Draw(cb, colorTexture, depthTexture, camera);
-        
+
+        if (camera.Skybox != null)
+        {
+            camera.Skybox.Draw(cb, colorTexture, depthTexture, camera, clear);
+            clear = false;
+        }
+
         // Transparent color pass
         if (_transparents.Count > 0)
         {

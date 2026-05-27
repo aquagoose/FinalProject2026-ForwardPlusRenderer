@@ -31,10 +31,10 @@ public abstract class Material : IDisposable
     /// <param name="pixelShader">The pixel shader name.</param>
     /// <param name="numTextures">The number of textures the material will send to the pixel shader.</param>
     protected unsafe Material(Renderer renderer, ref readonly MaterialInfo info, string vertexShader,
-        string pixelShader, uint numTextures)
+        string pixelShader, uint numTextures, bool enableTransparency = false)
     {
         _device = renderer.Device;
-        TransparencyEnabled = info.EnableTransparency;
+        TransparencyEnabled = info.EnableTransparency || enableTransparency;
         TextureBindings = new SDL.GPUTextureSamplerBinding[numTextures];
 
         IntPtr vShader = ShaderUtils.LoadShader(_device, ShaderCross.ShaderStage.Vertex, vertexShader);
