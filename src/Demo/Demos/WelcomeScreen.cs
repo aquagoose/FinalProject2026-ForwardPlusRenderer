@@ -22,12 +22,12 @@ public class WelcomeScreen() : Demo(null)
 
     public override void DisplayUI()
     {
-        ImGui.PushFont(ImFontPtr.Null, 24);
+        ImGui.PushFont(ImFontPtr.Null, 48);
         
         if (ImGui.Begin("Welcome",
                 ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.AlwaysAutoResize))
         {
-            ImGui.PushFont(ImFontPtr.Null, 48);
+            ImGui.PushFont(ImFontPtr.Null, 96);
             ImGui.TextUnformatted("Welcome!");
             ImGui.PopFont();
             
