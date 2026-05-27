@@ -27,7 +27,4 @@ float4 VSMain(const in Vertex input): SV_Position
     return value;
 }
 
-float4 PSMain(): SV_Target0
-{
-    return 1.0;
-}
+void PSMain() { } // SDL GPU doesn't let you not define a fragment shader. But turns out you can just make it do nothing!
