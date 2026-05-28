@@ -14,7 +14,7 @@ public abstract class Demo(string? name) : IDisposable
     public virtual void DisplayUI()
     {
         if (name != null)
-            ImGui.DrawText(Vector2.Zero, 72, name, Color.White);
+            ImGui.DrawText(Vector2.Zero, 48, name, Color.White);
     }
     
     public virtual void Update(float dt)
@@ -27,7 +27,7 @@ public abstract class Demo(string? name) : IDisposable
     {
         Size renderSize = Renderer.Size;
         string text = $"FPS: {DemoApp.FPS}\nΔt: {(DemoApp.DeltaTime * 1000):00.0}ms";
-        const uint size = 72;
+        const uint size = 48;
         Size textSize = ImGui.MeasureText(size, text);
         
         ImGui.DrawText(new Vector2(renderSize.Width - textSize.Width - 5, 0), size, text, Color.White);

@@ -65,7 +65,7 @@ public static class ImGuiE
                 GlyphMaxAdvanceX = float.MaxValue
             };
             
-            ImFontPtr font = fonts.AddFontFromFileTTF(path, 32, &config);
+            ImFontPtr font = fonts.AddFontFromFileTTF(path, 24, &config);
             return font;
         }
     }

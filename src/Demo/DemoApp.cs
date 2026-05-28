@@ -226,7 +226,7 @@ public static class DemoApp
                 else if (_activityTimer >= ActivityTimeout - 5 && _currentDemo is not WelcomeScreen)
                 {
                     string text = $"Returning to menu in {-(_activityTimer - ActivityTimeout):0.0}...";
-                    const uint size = 48;
+                    const uint size = 32;
                     Size textSize = ImGui.MeasureText(size, text);
 
                     ImGui.DrawText(new Vector2(0, WindowSize.Height - textSize.Height), size, text, Color.White);

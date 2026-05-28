@@ -44,7 +44,7 @@ public class TransparencyDemo() : Demo("Transparency Demo")
         base.DisplayUI();
 
         Size rendererSize = Renderer.Size;
-        const uint size = 72;
+        const uint size = 48;
         
         {
             const string text = "Deferred";
